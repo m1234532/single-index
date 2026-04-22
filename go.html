@@ -112,6 +112,23 @@ button{font-family:inherit;cursor:pointer;border:none;outline:none}
 .page-enter-active,.page-leave-active{transition:opacity .3s,transform .3s}
 .page-enter-from{opacity:0;transform:translateY(20px)}
 .page-leave-to{opacity:0;transform:translateY(-20px)}
+.fade-enter-active,.fade-leave-active{transition:opacity .3s}
+.fade-enter-from,.fade-leave-to{opacity:0}
+.welcome-footer{margin-top:20px;font-size:13px;color:var(--gray2);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.welcome-footer:active{opacity:.6}
+.changelog-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:10000;padding:20px}
+.changelog-card{background:var(--card);border-radius:24px;padding:28px 24px;max-width:400px;width:100%;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.changelog-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.changelog-title{font-size:18px;font-weight:700;color:var(--text)}
+.changelog-close{font-size:20px;color:var(--gray);cursor:pointer;padding:4px 8px;border-radius:8px}
+.changelog-close:active{background:var(--gray5)}
+.changelog-body{display:flex;flex-direction:column;gap:20px}
+.changelog-item{padding-bottom:16px;border-bottom:1px solid var(--gray5)}
+.changelog-item:last-child{border-bottom:none;padding-bottom:0}
+.changelog-ver{font-size:15px;font-weight:700;color:var(--blue);margin-bottom:8px}
+.changelog-item ul{list-style:none;padding:0;margin:0}
+.changelog-item li{font-size:14px;color:var(--text2);line-height:1.7;padding-left:16px;position:relative}
+.changelog-item li::before{content:'•';position:absolute;left:0;color:var(--blue);font-weight:700}
 </style>
 </head>
 <body>
@@ -136,6 +153,54 @@ button{font-family:inherit;cursor:pointer;border:none;outline:none}
   <div class="tags"><span class="tag">⏱ 约3分钟</span><span class="tag">📊 16道题</span><span class="tag">🎭 81种结果</span></div>
   <button class="btn" @click="startQuiz">开始测试 →</button>
   <button class="btn btn2" v-if="hasRecord" @click="continueQuiz">继续上次的测试 →</button>
+  <div class="welcome-footer" @click="showChangelog=true">v2.1 · 更新日志</div>
+</div>
+</transition>
+
+<!-- 更新日志弹窗 -->
+<transition name="fade">
+<div class="changelog-overlay" v-if="showChangelog" @click.self="showChangelog=false">
+  <div class="changelog-card">
+    <div class="changelog-header">
+      <span class="changelog-title">📋 更新日志</span>
+      <span class="changelog-close" @click="showChangelog=false">✕</span>
+    </div>
+    <div class="changelog-body">
+      <div class="changelog-item">
+        <div class="changelog-ver">v2.1 · 2026.4.23</div>
+        <ul>
+          <li>结果页维度展示改用中文标签，告别 MHHL</li>
+          <li>选项顺序随机打乱，防止猜答案倾向</li>
+          <li>修复雷达图进度条不显示的问题</li>
+        </ul>
+      </div>
+      <div class="changelog-item">
+        <div class="changelog-ver">v2.0 · 2026.4.23</div>
+        <ul>
+          <li>结果类型从 16 种扩展到 81 种，差异化更强</li>
+          <li>每个维度新增「中」档，3×3×3×3 = 81 种组合</li>
+          <li>新增 81 条差异化引言和诊断描述</li>
+          <li>单身指数动态计算，更精准</li>
+        </ul>
+      </div>
+      <div class="changelog-item">
+        <div class="changelog-ver">v1.3 · 2026.4.22</div>
+        <ul>
+          <li>新增 emoji 头像展示</li>
+          <li>新增四维雷达图可视化</li>
+          <li>新增避雷类型模块</li>
+        </ul>
+      </div>
+      <div class="changelog-item">
+        <div class="changelog-ver">v1.0 · 2026.4.20</div>
+        <ul>
+          <li>首次发布：4维度16题测试</li>
+          <li>16种结果类型</li>
+          <li>诊断报告 + 脱单建议</li>
+        </ul>
+      </div>
+    </div>
+  </div>
 </div>
 </transition>
 
@@ -244,6 +309,7 @@ const app=createApp({
     const hasRecord=ref(false);
     const savedRecord=ref(null);
     const isTransitioning=ref(false);
+    const showChangelog=ref(false);
 
     const steps=[{p:15,t:'加载题目数据...'},{p:35,t:'随机抽取题目...'},{p:55,t:'初始化分析引擎...'},{p:75,t:'准备结果图谱...'},{p:90,t:'即将完成...'},{p:100,t:'点击开始'}];
 
@@ -300,7 +366,7 @@ const app=createApp({
     };
 
     return{phase,currentQ,answers,result,isDark,questions,dimNames,analysisSteps,
-      loadingProgress,loadingText,hasRecord,
+      loadingProgress,loadingText,hasRecord,showChangelog,
       startQuiz,continueQuiz,selectOpt,goBack,retry,toggleTheme};
   }
 });
