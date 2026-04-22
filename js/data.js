@@ -185,25 +185,6 @@ const results={
     tags:['究极单身','主动选择','高独立'],dims:['隐士型','现实主义','钝感型','独立型']},
 };
 
-const typeEmojis={
-  EPSC:{emoji:'🦋',bg:'linear-gradient(135deg,#FF6B6B,#FF69B4)'},
-  EPST:{emoji:'🎯',bg:'linear-gradient(135deg,#FF8C42,#FF4500)'},
-  EPSI:{emoji:'🌟',bg:'linear-gradient(135deg,#FFD700,#FFA500)'},
-  EPTI:{emoji:'👑',bg:'linear-gradient(135deg,#FF4500,#FF0000)'},
-  ERSC:{emoji:'🔥',bg:'linear-gradient(135deg,#FF6347,#FF1493)'},
-  ERST:{emoji:'🤝',bg:'linear-gradient(135deg,#FF7F50,#FF8C00)'},
-  ERSI:{emoji:'🦉',bg:'linear-gradient(135deg,#FFA500,#FF4500)'},
-  ERTI:{emoji:'🧘',bg:'linear-gradient(135deg,#FFB347,#FFA500)'},
-  HPSC:{emoji:'🌙',bg:'linear-gradient(135deg,#9370DB,#BA55D3)'},
-  HPST:{emoji:'🧊',bg:'linear-gradient(135deg,#8A2BE2,#9932CC)'},
-  HPSI:{emoji:'🎨',bg:'linear-gradient(135deg,#BA55D3,#DA70D6)'},
-  HPTI:{emoji:'🗿',bg:'linear-gradient(135deg,#663399,#483D8B)'},
-  HRSC:{emoji:'💎',bg:'linear-gradient(135deg,#6A5ACD,#7B68EE)'},
-  HRST:{emoji:'🐢',bg:'linear-gradient(135deg,#4682B4,#4169E1)'},
-  HRSI:{emoji:'🍵',bg:'linear-gradient(135deg,#5F9EA0,#20B2AA)'},
-  HRTI:{emoji:'🧱',bg:'linear-gradient(135deg,#2F4F4F,#2E8B57)'},
-};
-
 function calcResult(answers) {
   const dimScores={social:{a:0,b:0},filter:{a:0,b:0},heartbeat:{a:0,b:0},alone:{a:0,b:0}};
   questions.forEach((q,i)=>{
