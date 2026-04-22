@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>你的单身指数</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💔</text></svg>">
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vant@4/lib/index.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vant@4/lib/index.css">
+<style>
+:root{--ios-bg:#F2F2F7;--ios-card:#FFFFFF;--ios-blue:#007AFF;--ios-text:#000000;--ios-text2:#3A3A3C;--ios-gray:#8E8E93;--ios-gray2:#AEAEB2;--ios-gray3:#C7C7CC;--ios-gray4:#D1D1D6;--ios-gray5:#E5E5EA;--ios-gray6:#F2F2F7;--ios-red:#FF3B30;--ios-orange:#FF9500;--ios-green:#34C759;--ios-purple:#5856D6}
+[data-theme=dark]{--ios-bg:#000000;--ios-card:#1C1C1E;--ios-blue:#0A84FF;--ios-text:#FFFFFF;--ios-text2:#EBEBF5;--ios-gray:#8E8E93;--ios-gray2:#636366;--ios-gray3:#48484A;--ios-gray4:#3A3A3C;--ios-gray5:#2C2C2E;--ios-gray6:#1C1C1E;--ios-red:#FF453A;--ios-orange:#FF9F0A;--ios-green:#30D158;--ios-purple:#5E5CE6}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','SF Pro Text','Helvetica Neue',sans-serif;background:var(--ios-bg);color:var(--ios-text);transition:background .3s,color .3s;min-height:100vh;overflow-x:hidden}
+button{font-family:inherit;cursor:pointer;border:none;outline:none}
+#app{min-height:100vh;display:flex;flex-direction:column}
+.ios-header{position:sticky;top:0;z-index:100;padding:12px 20px;padding-top:max(12px,env(safe-area-inset-top,12px)+12px);background:var(--ios-bg);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);display:flex;align-items:center;justify-content:space-between}
+.ios-header .back-btn{width:36px;height:36px;border-radius:50%;background:var(--ios-gray5);display:flex;align-items:center;justify-content:center;color:var(--ios-text);font-size:18px;transition:transform .2s}
+.ios-header .back-btn:active{transform:scale(.9)}
+.ios-header h2{font-size:17px;font-weight:600;color:var(--ios-text);flex:1;text-align:center}
+.splash-page{position:fixed;inset:0;background:linear-gradient(135deg,var(--ios-blue),var(--ios-purple));display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;animation:splashFadeIn .5s ease}
+.splash-emoji{font-size:72px;animation:bounceIn .8s cubic-bezier(.34,1.56,.64,1) .2s both}
+.splash-title{font-size:32px;font-weight:800;color:#fff;margin-top:16px;letter-spacing:-1px}
+.splash-sub{font-size:14px;color:rgba(255,255,255,.7);margin-top:8px}
+.splash-loading{margin-top:40px;width:200px}
+.splash-progress-bar{height:4px;background:rgba(255,255,255,.2);border-radius:2px;overflow:hidden}
+.splash-progress-fill{height:100%;background:#fff;border-radius:2px;transition:width .3s ease}
+.splash-progress-text{font-size:12px;color:rgba(255,255,255,.8);margin-top:12px;text-align:center}
+.splash-tap-hint{margin-top:40px;font-size:16px;color:#fff;padding:12px 32px;background:rgba(255,255,255,.2);border-radius:24px;animation:pulse 1.5s ease-in-out infinite}
+@keyframes splashFadeIn{from{opacity:0}to{opacity:1}}
+@keyframes bounceIn{0%{transform:scale(0)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.welcome-page{padding:60px 28px 40px;text-align:center;min-height:100vh;display:flex;flex-direction:column;align-items:center}
+.welcome-emoji{font-size:80px;margin-bottom:24px;animation:pulse 2s ease-in-out infinite}
+.welcome-title{font-size:32px;font-weight:800;color:var(--ios-text);letter-spacing:-1px;line-height:1.2}
+.welcome-desc{font-size:15px;color:var(--ios-gray);margin-top:16px;line-height:1.7;max-width:300px}
+.welcome-divider{width:60px;height:4px;border-radius:2px;background:var(--ios-gray4);margin:32px auto}
+.welcome-tags{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:auto}
+.tag-chip{background:var(--ios-gray5);color:var(--ios-text2);font-size:13px;font-weight:500;padding:6px 14px;border-radius:20px}
+.welcome-btn{width:100%;padding:16px;background:linear-gradient(135deg,var(--ios-blue),var(--ios-purple));color:#fff;font-size:17px;font-weight:600;border-radius:14px;letter-spacing:.5px;margin-top:32px;transition:transform .2s;box-shadow:0 8px 24px rgba(0,122,255,.3)}
+.welcome-btn:active{transform:scale(.97)}
+.progress-bar{padding:0 20px 8px;background:var(--ios-bg);position:sticky;top:60px;z-index:90}
+.progress-track{height:4px;background:var(--ios-gray5);border-radius:2px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--ios-blue),var(--ios-purple));border-radius:2px;transition:width .4s cubic-bezier(.4,0,.2,1)}
+.progress-text{font-size:12px;color:var(--ios-gray);margin-top:6px;text-align:right}
+.question-page{padding:24px 20px 32px;min-height:calc(100vh - 80px)}
+.question-meta{font-size:13px;color:var(--ios-gray);margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.question-meta span{background:var(--ios-gray5);padding:3px 10px;border-radius:12px;font-size:12px;color:var(--ios-text2)}
+.question-text{font-size:22px;font-weight:700;color:var(--ios-text);line-height:1.4;margin-bottom:32px}
+.option-list{display:flex;flex-direction:column;gap:12px}
+.option-card{background:var(--ios-card);border-radius:16px;padding:18px 20px;display:flex;align-items:center;gap:16px;box-shadow:0 2px 12px rgba(0,0,0,.06);transition:all .2s cubic-bezier(.34,1.56,.64,1);border:2px solid transparent;cursor:pointer;position:relative;overflow:hidden}
+.option-card:active{transform:scale(.97)}
+.option-card.selected{border-color:var(--ios-blue);background:linear-gradient(135deg,rgba(0,122,255,.08),rgba(88,86,214,.08))}
+.option-card.selected::after{content:"✓";position:absolute;right:16px;color:var(--ios-blue);font-weight:700;font-size:18px}
+.option-letter{width:32px;height:32px;border-radius:50%;background:var(--ios-gray5);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--ios-text2);flex-shrink:0;transition:all .2s}
+.option-card.selected .option-letter{background:var(--ios-blue);color:#fff}
+.option-text{flex:1;font-size:15px;color:var(--ios-text);line-height:1.5}
+.analysis-page{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;text-align:center}
+.analysis-orb{width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,var(--ios-blue),var(--ios-purple));margin-bottom:32px;display:flex;align-items:center;justify-content:center;font-size:56px;animation:orbPulse 2s ease-in-out infinite;position:relative;overflow:hidden}
+.analysis-orb::before{content:"";position:absolute;inset:-50%;background:conic-gradient(transparent,rgba(255,255,255,.3),transparent,rgba(255,255,255,.3),transparent);animation:orbSpin 3s linear infinite}
+@keyframes orbPulse{0%,100%{transform:scale(1);box-shadow:0 0 40px rgba(0,122,255,.3)}50%{transform:scale(1.05);box-shadow:0 0 60px rgba(88,86,214,.5)}}
+@keyframes orbSpin{to{transform:rotate(360deg)}}
+.analysis-title{font-size:22px;font-weight:700;color:var(--ios-text);margin-bottom:8px}
+.analysis-sub{font-size:15px;color:var(--ios-gray)}
+.analysis-steps{margin-top:40px;width:100%;max-width:320px;display:flex;flex-direction:column;gap:16px}
+.analysis-step{display:flex;align-items:center;gap:14px;background:var(--ios-card);padding:14px 18px;border-radius:14px;opacity:0;transform:translateY(10px);animation:fadeUp .4s ease forwards}
+.analysis-step:nth-child(1){animation-delay:.3s}
+.analysis-step:nth-child(2){animation-delay:.7s}
+.analysis-step:nth-child(3){animation-delay:1.1s}
+.analysis-step:nth-child(4){animation-delay:1.5s}
+.step-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.step-text{font-size:14px;color:var(--ios-text2);font-weight:500}
+@keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+.result-page{padding:20px 20px 40px;min-height:100vh}
+.result-hero{text-align:center;padding:20px 0 32px}
+.result-avatar-wrap{display:inline-block;margin-bottom:20px;filter:drop-shadow(0 12px 32px rgba(0,0,0,.15))}
+.result-type-code{font-size:14px;font-weight:700;letter-spacing:3px;color:var(--ios-gray);margin-bottom:4px;text-transform:uppercase}
+.result-type-name{font-size:28px;font-weight:800;color:var(--ios-text);letter-spacing:-1px;margin-bottom:4px}
+.result-subtype{font-size:14px;color:var(--ios-gray);margin-bottom:16px}
+.result-index{display:inline-flex;flex-direction:column;align-items:center;background:var(--ios-card);padding:20px 32px;border-radius:20px;box-shadow:0 4px 20px rgba(0,0,0,.08)}
+.result-index .num{font-size:64px;font-weight:800;line-height:1;color:var(--ios-blue)}
+.result-index .label{font-size:13px;color:var(--ios-gray);margin-top:2px}
+.result-desc{background:var(--ios-card);border-radius:20px;padding:24px;margin-bottom:16px;box-shadow:0 2px 12px rgba(0,0,0,.06)}
+.result-desc h3{font-size:16px;font-weight:700;color:var(--ios-text);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.result-desc p{font-size:15px;color:var(--ios-text2);line-height:1.8}
+.result-quote{background:linear-gradient(135deg,var(--ios-blue),var(--ios-purple));color:#fff;padding:20px 24px;border-radius:20px;margin-bottom:16px;position:relative;overflow:hidden}
+.result-quote::before{content:"\201C";position:absolute;font-size:80px;font-weight:900;opacity:.15;top:-10px;left:10px;font-style:italic}
+.result-quote p{font-size:15px;line-height:1.7;font-weight:500;position:relative}
+.result-tags{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+.result-tag{background:var(--ios-red);color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:20px;opacity:.9}
+.result-share-btn{width:100%;padding:16px;background:var(--ios-text);color:var(--ios-bg);font-size:17px;font-weight:600;border-radius:14px;display:flex;align-items:center;justify-content:center;gap:8px;margin-top:8px;transition:transform .2s}
+.result-share-btn:active{transform:scale(.97)}
+.result-retry-btn{width:100%;padding:14px;background:var(--ios-gray5);color:var(--ios-text);font-size:16px;font-weight:600;border-radius:14px;margin-top:12px;transition:transform .2s}
+.result-retry-btn:active{transform:scale(.97)}
+.poster-page{padding:20px;min-height:100vh;display:flex;flex-direction:column;align-items:center}
+.poster-download-btn{width:100%;padding:16px;background:linear-gradient(135deg,var(--ios-blue),var(--ios-purple));color:#fff;font-size:17px;font-weight:600;border-radius:14px;display:flex;align-items:center;justify-content:center;gap:8px}
+.poster-back-btn{width:100%;padding:14px;background:var(--ios-gray5);color:var(--ios-text);font-size:16px;font-weight:600;border-radius:14px;margin-top:12px}
+.theme-toggle{position:fixed;bottom:20px;right:20px;width:48px;height:48px;border-radius:50%;background:var(--ios-card);box-shadow:0 4px 16px rgba(0,0,0,.15);display:flex;align-items:center;justify-content:center;font-size:22px;z-index:9999;transition:transform .2s}
+.theme-toggle:active{transform:scale(.9)}
+.page-enter-active,.page-leave-active{transition:opacity .3s,transform .3s}
+.page-enter-from{opacity:0;transform:translateY(20px)}
+.page-leave-to{opacity:0;transform:translateY(-20px)}
+#confetti-canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:99999}
+</style>
+</head>
+<body>
+<div id="app">
+<div class="splash-page" v-if="phase==='splash'">
+  <div class="splash-emoji">💔</div>
+  <div class="splash-title">你的单身指数</div>
+  <div class="splash-sub">一份来自社会学视角的单身诊断</div>
+  <div class="splash-loading" v-if="loadingProgress < 100">
+    <div class="splash-progress-bar">
+      <div class="splash-progress-fill" :style="{width: loadingProgress + '%'}"></div>
+    </div>
+    <div class="splash-progress-text">{{loadingText}}</div>
+  </div>
+  <div class="splash-tap-hint" v-else @click="phase='welcome'">点击开始 →</div>
+</div>
+<transition name="page">
+<div class="welcome-page" v-if="phase==='welcome'">
+  <div class="welcome-emoji">🔬</div>
+  <div class="welcome-title">你的单身指数</div>
+  <div class="welcome-desc">基于沈奕斐教授爱情思维课框架，从社交、理想、心动、独处四个维度，诊断你的单身原因。</div>
+  <div class="welcome-divider"></div>
+  <div class="welcome-tags"><span class="tag-chip">⏱ 约3分钟</span><span class="tag-chip">📊 16道题</span><span class="tag-chip">🎭 16种结果</span></div>
+  <button class="welcome-btn" @click="startQuiz">开始测试 →</button>
+</div>
+</transition>
+<transition name="page">
+<div v-if="phase==='quiz'" class="quiz-wrapper">
+  <div class="ios-header">
+    <div class="back-btn" @click="goBack">&lt;</div>
+    <h2>你的单身指数</h2>
+    <div style="width:36px"></div>
+  </div>
+  <div class="progress-bar">
+    <div class="progress-track"><div class="progress-fill" :style="{width:(currentQ+1)/questions.length*100+'%'}"></div></div>
+    <div class="progress-text">{{currentQ+1}} / {{questions.length}}</div>
+  </div>
+  <div class="question-page">
+    <div class="question-meta"><span>{{dimNames[questions[currentQ].dim]}}</span></div>
+    <div class="question-text">{{questions[currentQ].text}}</div>
+    <div class="option-list">
+      <div v-for="(opt,i) in questions[currentQ].options" :key="i" class="option-card" :class="{selected:answers[currentQ]===i}" @click="selectOpt(i)">
+        <div class="option-letter">{{['A','B','C','D'][i]}}</div>
+        <div class="option-text">{{opt}}</div>
+      </div>
+    </div>
+  </div>
+</div>
+</transition>
+<transition name="page">
+<div class="analysis-page" v-if="phase==='analysis'">
+  <div class="analysis-orb">🌀</div>
+  <div class="analysis-title">正在分析你的单身DNA…</div>
+  <div class="analysis-sub">这可能需要几秒钟</div>
+  <div class="analysis-steps">
+    <div class="analysis-step" v-for="s in analysisSteps" :key="s.label">
+      <div class="step-icon" :style="{background:s.bg}">{{s.icon}}</div>
+      <div class="step-text">{{s.label}}</div>
+    </div>
+  </div>
+</div>
+</transition>
+<transition name="page">
+<div class="result-page" v-if="phase==='result'">
+  <div class="result-hero">
+    <div class="result-avatar-wrap"><canvas ref="avatarCanvas" width="140" height="140" style="border-radius:28px"></canvas></div>
+    <div class="result-type-code">{{result.type}}</div>
+    <div class="result-type-name">{{result.name}}</div>
+    <div class="result-subtype">{{result.subtitle}}</div>
+    <div class="result-index"><div class="num">{{result.index}}%</div><div class="label">单身指数</div></div>
+  </div>
+  <div class="result-desc"><h3>📋 诊断报告</h3><p>{{result.desc}}</p></div>
+  <div class="result-quote"><p>{{result.quote}}</p></div>
+  <div class="result-tags"><span class="result-tag" v-for="t in result.tags" :key="t">{{t}}</span></div>
+  <div class="result-tags" style="margin-bottom:20px"><span class="tag-chip" v-for="d in result.dims" :key="d" style="font-size:12px">{{d}}</span></div>
+  <button class="result-share-btn" @click="generatePoster"><span>📸</span> 生成专属海报</button>
+  <button class="result-retry-btn" @click="retry">🔄 重新测试</button>
+</div>
+</transition>
+<transition name="page">
+<div class="poster-page" v-if="phase==='poster'">
+  <div class="ios-header">
+    <div class="back-btn" @click="phase='result'">&lt;</div>
+    <h2>分享你的结果</h2>
+    <div style="width:36px"></div>
+  </div>
+  <div style="width:100%;max-width:380px;margin-top:20px">
+    <div id="poster-target" style="background:var(--ios-bg);padding:32px 24px;border-radius:24px">
+      <div style="text-align:center"><canvas ref="posterCanvas" width="332" height="440"></canvas></div>
+      <div style="text-align:center;margin-top:16px">
+        <div style="font-size:14px;font-weight:700;color:var(--ios-text);letter-spacing:2px;margin-bottom:4px">{{result.type}}</div>
+        <div style="font-size:20px;font-weight:800;color:var(--ios-text)">{{result.name}}</div>
+        <div style="font-size:13px;color:var(--ios-gray);margin-top:4px">{{result.subtitle}}</div>
+      </div>
+      <div style="margin-top:16px;background:var(--ios-card);border-radius:16px;padding:16px">
+        <div style="font-size:14px;color:var(--ios-text2);line-height:1.8">{{result.desc.substring(0,80)}}…</div>
+      </div>
+      <div style="text-align:center;margin-top:20px">
+        <div style="font-size:13px;color:var(--ios-gray)">长按保存图片 · 扫码测试你的</div>
+        <div style="font-size:13px;color:var(--ios-blue);font-weight:600">你的单身指数</div>
+        <div style="margin-top:8px"><img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://single-index.pages.dev/" style="width:100px;height:100px;border-radius:8px" crossorigin="anonymous"></div>
+      </div>
+    </div>
+    <button class="poster-download-btn" @click="downloadPoster" style="margin-top:16px"><span>⬇️</span> 保存到相册</button>
+    <button class="poster-back-btn" @click="phase='result'">← 返回结果</button>
+  </div>
+</div>
+</transition>
+<button class="theme-toggle" @click="toggleTheme">{{isDark?"☀️":"🌙"}}</button>
+<canvas id="confetti-canvas" ref="confettiCanvas"></canvas>
+</div>
+<script>
+const dimNames={social:'社交雷达',filter:'爱情滤镜',heartbeat:'心动阈值',alone:'独处电量'};
+const questions=[
+  {dim:'social',text:'周五晚上有人约你出门，你的第一反应是？',options:['"几点？穿什么？" 秒切衣服模式','先发朋友圈问一下有没有人一起','找个借口推掉，理由都不用现编','已读不回，假装没看到这条消息']},
+  {dim:'social',text:'社交聚会上，你通常是？',options:['全场焦点，段子手本人，负责暖场','加了一圈微信，收获满满人脉','找个角落坐下，假装在看手机','全程点头微笑，内心倒数离场时间']},
+  {dim:'social',text:'在陌生场合遇到心动的人，你会？',options:['直接上去搭话，输了也不亏','制造三次"偶遇"，让对方向你走来','偷看了 38 眼，但绝不主动','心跳加速，脸上写着"别跟我说话"']},
+  {dim:'social',text:'你的朋友圈/社交状态是？',options:['每天发 3 条，精准运营个人品牌','发完修两小时，每张都完美','三个月可见，发条动态要纠结一天','账号设置了不让他看，包括暗恋对象']},
+  {dim:'filter',text:'对"灵魂伴侣"这个概念你怎么看？',options:['坚信存在，只是还没遇到我的那个','不仅要有灵魂，还要有颜值+才华+资产','扯淡，爱情都是磨合出来的','灵魂可以有，但先看看存款']},
+  {dim:'filter',text:'你心里有没有一份详细的择偶标准？',options:['有，从身高到星座到吃饭不吧唧嘴，共47条','标准在，但遇到心动的可以放宽到46条','活的，能聊得来的就行','不家暴发脾气就行，其他都能忍']},
+  {dim:'filter',text:'你理想中的恋爱应该是？',options:['像偶像剧，有心动有仪式感早安晚安','每天要有惊喜，重要日子一个不能少','像合伙人，各司其职互相支持','像室友，安安静静各干各的偶尔说句话']},
+  {dim:'filter',text:'发现心动对象有个无法忍受的缺点，你会？',options:['果断下头，下一个更乖','试图改造对方，这是爱的试金石','想想自己的缺点，算了别嫌弃谁','什么缺点？我只看到了银行卡']},
+  {dim:'heartbeat',text:'有人每天找你聊天，你怎么判断对方是不是喜欢你？',options:['每句话逐字分析，结论：他喜欢我','建了个文档记录聊天关键词频率','哦，他可能只是无聊吧','什么？有人在找我聊天？']},
+  {dim:'heartbeat',text:'暧昧对象一天没回消息，你的内心戏是？',options:['脑补了对方出车祸/移情别恋等38种结局','把聊天记录翻了5遍找可能说错的话','哦可能忙吧（然后去打游戏了）','消息？什么消息？三天后才发现']},
+  {dim:'heartbeat',text:'你多久会对一个人心动一次？',options:['一个月至少三次，地铁对视也算','只要对方笑一下，我就开始规划婚礼了','上次心动还是三年前，可能更久','对食物的心动次数远超对人']},
+  {dim:'heartbeat',text:'当你喜欢一个人时，你会？',options:['全世界都能看出来，包括对方','暗示到极致："谁娶你可太幸福了"','装得比陌生人还冷漠','用 Excel 分析感情数据']},
+  {dim:'alone',text:'如果现在有一个完美的恋人，你最担心什么？',options:['有了 TA 我的世界就完整了','担心对方不够粘我，需要很多陪伴','我的周末时间都去哪了？','恋爱后还能不能一个人看番到凌晨三点']},
+  {dim:'alone',text:'两人吵架了，你希望对方怎么做？',options:['必须先来哄我，不然过不去','聊一整夜直到和好，不能带情绪睡觉','给彼此两小时冷静，然后再聊','我自己消化，对方可能都不知道吵过']},
+  {dim:'alone',text:'恋爱中你觉得理想的状态是？',options:['每天下班见面，信息秒回，周末腻一起','每天至少通话一次，不然会焦虑','同城但不住，各有生活圈','异地恋也行，精神连接到位就行']},
+  {dim:'alone',text:'如果一段感情走到尽头，你的反应是？',options:['崩溃大哭，给所有朋友打电话哭诉','舍不得放手，尝试挽留至少三次','难过一周，然后恢复单身生活','像换了个手机壳一样翻篇']},
+];
+const results={
+  EPSC:{name:'海王型恋爱脑',subtitle:'E · P · S · C 全开模式',index:2,type:'EPSC',
+    desc:'你的社交雷达满格，爱情滤镜开到最大，心动阈值低到尘埃里，偏偏还离不开人。理论上你是脱单最容易的人，实际上你是最容易失恋的人。每次分手后都能在两周内找到新欢，然后在第三周开始怀念前任。',
+    quote:'沈奕斐说：你在寻找的不是恋人，是被看见的感觉。而你，渴望被看见的程度，已经超过了你对被爱的需求。',
+    tags:['海王体质','高需求宝宝','恋爱脑晚期'],dims:['外放型','完美主义','高敏感','依恋型']},
+  EPST:{name:'完美猎手',subtitle:'E · P · S · T 精准打击',index:25,type:'EPST',
+    desc:'你的社交雷达敏锐，标准高得像在选联合国秘书长。遇到心动的人会主动出击，但往往在靠近的过程中因为对方某个细节不达标而瞬间下头。你的问题是：心动容易，相处难。',
+    quote:'沈奕斐说：你在等一个完美的人，但完美的人也在等一个完美的你。这个死循环，是你自己设的。',
+    tags:['高标准','主动型','细节控'],dims:['外放型','完美主义','高敏感','钝感型']},
+  EPSI:{name:'花蝴蝶型社交明星',subtitle:'E · P · S · I 万人迷陷阱',index:18,type:'EPSI',
+    desc:'你对社交充满热情，标准明确，心动频繁，独立性也很强。你是派对上的灵魂人物，所有人都喜欢你，但没有一个人真正拥有你。你的问题是：选择太多，等于没有选择。',
+    quote:'沈奕斐说：你不是不想谈恋爱，你是不愿意为了一棵树放弃整片森林。但问题是，森林里的树都不是你的。',
+    tags:['社交达人','选择困难','独立海王'],dims:['外放型','完美主义','高敏感','独立型']},
+  EPTI:{name:'高冷挑剔王',subtitle:'E · P · T · I 冰山美人',index:30,type:'EPTI',
+    desc:'你热情主动，标准极高，但心动阈值也高得离谱。在别人眼里你是高不可攀的存在，其实你自己知道：你只是不想将就。你享受追求的过程，但讨厌追求的结果。',
+    quote:'沈奕斐说：你的高标准其实是一种自我保护。你怕的不是找不到，而是找到了又失去。',
+    tags:['高冷人设','完美主义','不易心动'],dims:['外放型','完美主义','钝感型','独立型']},
+  ERSC:{name:'直球暖宝宝',subtitle:'E · R · S · C 热情粘人精',index:12,type:'ERSC',
+    desc:'你外放、现实、敏感、依恋。喜欢就表达，想见就约，消息要秒回，吵架要立刻和好。你是那种谈恋爱会让对方感到窒息，不谈又让自己窒息的类型。',
+    quote:'沈奕斐说：你在关系中投入的程度，远超过对方能够回报的程度。这不是爱，是索取。',
+    tags:['直球选手','高需求','粘人精'],dims:['外放型','现实主义','高敏感','依恋型']},
+  ERST:{name:'人间清醒暖男/女',subtitle:'E · R · S · T 务实心动派',index:40,type:'ERST',
+    desc:'你热情、直爽、现实、钝感。是朋友圈里的知心姐姐/哥哥，什么人的感情问题都能帮别人分析得头头是道，轮到自己就一脸懵。别人的感情你看得很清，自己的感情你装作看不清。',
+    quote:'沈奕斐说：你是那种帮别人挑对象眼光毒辣，给自己找对象却次次踩坑的人。原因很简单：当局者迷。',
+    tags:['知心姐姐','感情专家','当局者迷'],dims:['外放型','现实主义','高敏感','钝感型']},
+  ERSI:{name:'社交观察者',subtitle:'E · R · S · I 人间清醒型',index:50,type:'ERSI',
+    desc:'你活跃、务实、敏感，但选择独立。你对爱情有清醒的认知，不抱不切实际的幻想，但也因此很难被真正打动。你是那种嘴上说"不想谈"，其实心里比谁都清楚自己要什么的人。',
+    quote:'沈奕斐说：你不是不想谈恋爱，你是不愿意为了谈恋爱降低生活质量。这是一种清醒，但也是一种孤独。',
+    tags:['人间清醒','高质量独处','清醒独立'],dims:['外放型','现实主义','高敏感','独立型']},
+  ERTI:{name:'佛系社交玩家',subtitle:'E · R · T · I 无欲无求',index:60,type:'ERTI',
+    desc:'你社交满格、现实清醒、心动阈值高、独立性强。你什么都明白，什么都能聊，但就是很难动心。你是那种别人以为你桃花旺，其实你自己知道单身生活质量更高的类型。',
+    quote:'沈奕斐说：你的淡定不是不在乎，而是在乎了也不会说。你的独立不是不需要，而是把需要藏得很深。',
+    tags:['佛系玩家','高独立','低心动'],dims:['外放型','现实主义','钝感型','独立型']},
+  HPSC:{name:'暗夜浪漫主义者',subtitle:'H · P · S · C 内心戏影帝',index:10,type:'HPSC',
+    desc:'你表面低调，内心波涛汹涌。标准极高但从不主动，好不容易心动又觉得自己配不上。你是那种暗恋三年不敢说，表白用八百字小作文，对方回复"好的"之后崩溃大哭的类型。',
+    quote:'沈奕斐说：你把爱想象得太神圣，所以不敢轻易给出。你不是缺爱，你是把爱想得太沉重了。',
+    tags:['暗恋高手','内心戏王','高期待'],dims:['隐士型','完美主义','高敏感','依恋型']},
+  HPST:{name:'冰山下的火山',subtitle:'H · P · S · T 外冷内热型',index:28,type:'HPST',
+    desc:'你看起来生人勿近，实际上内心住着一个渴望被理解的小公举。你的标准可能连你自己都达不到，却希望对方是完美的。你是那种嘴上说"随便"，心里写着"你最好懂我"的人。',
+    quote:'沈奕斐说：你把标准定得很高，其实是在等一个愿意读懂你的人。但问题是，你不给别人读懂你的机会。',
+    tags:['外冷内热','高期待','被动型'],dims:['隐士型','完美主义','高敏感','钝感型']},
+  HPSI:{name:'独美艺术家',subtitle:'H · P · S · I 精神洁癖型',index:35,type:'HPSI',
+    desc:'你有极高的审美和理想，对爱情有纯粹而浪漫的期待。你宁可高质量单身，也不愿低质量将就。你的问题是：你等的不是恋人，是偶像剧里才存在的人。',
+    quote:'沈奕斐说：你对爱情的想象，有一半来自偶像剧，另一半来自你自己的脑补。这两者加在一起，没有人能达到。',
+    tags:['精神洁癖','独美主义','理想化'],dims:['隐士型','完美主义','高敏感','独立型']},
+  HPTI:{name:'高冷不婚预备役',subtitle:'H · P · T · I 冰山美人',index:55,type:'HPTI',
+    desc:'你表面高冷、内心完美主义、心动困难且极度独立。在别人眼里你是"注孤生"的存在，你自己倒是乐在其中。你不是不想谈恋爱，只是不愿意为了谈恋爱委屈自己哪怕一点点。',
+    quote:'沈奕斐说：你的单身不是没有选择，而是主动放弃了所有让你觉得"不够好"的选择。这是一种尊严，也可能是一种逃避。',
+    tags:['高冷体质','高自尊','不易妥协'],dims:['隐士型','完美主义','钝感型','独立型']},
+  HRSC:{name:'闷骚型痴情种',subtitle:'H · R · S · C 内敛依恋型',index:15,type:'HRSC',
+    desc:'你表面上看起来稳重理性，实际上内心戏丰富得一塌糊涂。你不会主动，但一旦心动就会全情投入，义无反顾。问题是你的不安全感会随着感情的深入而指数级增长。',
+    quote:'沈奕斐说：你不是不渴望亲密，而是太渴望了，所以害怕。你怕一旦敞开了心扉，就再也关不上。',
+    tags:['闷骚型','全情投入','依恋爱好者'],dims:['隐士型','现实主义','高敏感','依恋型']},
+  HRST:{name:'宝藏型老实人',subtitle:'H · R · S · T 真诚守护型',index:45,type:'HRST',
+    desc:'你低调、务实、敏感但不外露。你相信日久生情，不相信一见钟情。你的问题不是没人追，是追你的人都被你吓跑了——因为你总是慢半拍，还没反应过来人家已经放弃了。',
+    quote:'沈奕斐说：你在感情里最大的敌人不是别人，是你的反射弧太长。等你反应过来的时候，缘分已经走远了。',
+    tags:['日久生情','慢热型','反射弧长'],dims:['隐士型','现实主义','高敏感','钝感型']},
+  HRSI:{name:'通透型孤独美食家',subtitle:'H · R · S · I 清醒独行侠',index:55,type:'HRSI',
+    desc:'你冷静、务实、敏感且极度独立。你对爱情有清醒的认知，不抱幻想，也不放弃希望。你是那种能一个人把生活过得很好的人，爱情对你来说是加分项，不是必需品。',
+    quote:'沈奕斐说：你的清醒不是冷漠，是对亲密关系的尊重。你知道好的爱情是锦上添花，所以你不急，也不将就。',
+    tags:['通透清醒','高质量独处','不将就'],dims:['隐士型','现实主义','高敏感','独立型']},
+  HRTI:{name:'究极单身王者',subtitle:'H · R · T · I 钻石级单身',index:75,type:'HRTI',
+    desc:'恭喜你，你是这个测试里最难脱单的类型。隐士+现实+钝感+独立，你对感情的需求低到几乎为零。你不是没有遇到过合适的人，是你根本不想开始一段关系。你的单身，是主动选择的。',
+    quote:'沈奕斐说：你能一个人过得很好，这是本事。但如果有一天你遇到了一个让你想打破原则的人，那才是真正的心动。',
+    tags:['究极单身','主动选择','高独立性'],dims:['隐士型','现实主义','钝感型','独立型']},
+};
+const typeEmojis={
+  EPSC:{emoji:'🦋',bg:'linear-gradient(135deg,#FF6B6B,#FF69B4)'},
+  EPST:{emoji:'🎯',bg:'linear-gradient(135deg,#FF8C42,#FF4500)'},
+  EPSI:{emoji:'🌟',bg:'linear-gradient(135deg,#FFD700,#FFA500)'},
+  EPTI:{emoji:'👑',bg:'linear-gradient(135deg,#FF4500,#FF0000)'},
+  ERSC:{emoji:'🔥',bg:'linear-gradient(135deg,#FF6347,#FF1493)'},
+  ERST:{emoji:'🤝',bg:'linear-gradient(135deg,#FF7F50,#FF8C00)'},
+  ERSI:{emoji:'🦉',bg:'linear-gradient(135deg,#FFA500,#FF4500)'},
+  ERTI:{emoji:'🧘',bg:'linear-gradient(135deg,#FFB347,#FFA500)'},
+  HPSC:{emoji:'🌙',bg:'linear-gradient(135deg,#9370DB,#BA55D3)'},
+  HPST:{emoji:'🧊',bg:'linear-gradient(135deg,#8A2BE2,#9932CC)'},
+  HPSI:{emoji:'🎨',bg:'linear-gradient(135deg,#BA55D3,#DA70D6)'},
+  HPTI:{emoji:'🗿',bg:'linear-gradient(135deg,#663399,#483D8B)'},
+  HRSC:{emoji:'💎',bg:'linear-gradient(135deg,#6A5ACD,#7B68EE)'},
+  HRST:{emoji:'🐢',bg:'linear-gradient(135deg,#4682B4,#4169E1)'},
+  HRSI:{emoji:'🍵',bg:'linear-gradient(135deg,#5F9EA0,#20B2AA)'},
+  HRTI:{emoji:'🧱',bg:'linear-gradient(135deg,#2F4F4F,#2E8B57)'},
+};
+function calcResult(answers) {
+  const dimScores={social:{a:0,b:0},filter:{a:0,b:0},heartbeat:{a:0,b:0},alone:{a:0,b:0}};
+  questions.forEach((q,i)=>{
+    const ans=answers[i];
+    if(ans===0||ans===1) dimScores[q.dim].a+=1;
+    else dimScores[q.dim].b+=1;
+  });
+  const type=
+    (dimScores.social.a>2?'E':'H')+
+    (dimScores.filter.a>2?'P':'R')+
+    (dimScores.heartbeat.a>2?'S':'T')+
+    (dimScores.alone.a>2?'I':'C');
+  return results[type]||results.HRTI;
+}
+
+const {createApp,ref,computed,watch,nextTick,onMounted}=Vue;
+
+function drawEmojiAvatar(canvas, typeCode) {
+  const ctx = canvas.getContext('2d');
+  const size = 140;
+  canvas.width = size;
+  canvas.height = size;
+  const t = typeEmojis[typeCode] || typeEmojis.HRTI;
+  const grad = ctx.createLinearGradient(0, 0, size, size);
+  const colors = t.bg.match(/#[0-9A-Fa-f]{6}/g) || ['#007AFF', '#5856D6'];
+  grad.addColorStop(0, colors[0]);
+  grad.addColorStop(1, colors[1]);
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  if (ctx.roundRect) ctx.roundRect(0, 0, size, size, 28);
+  else { ctx.rect(0, 0, size, size); }
+  ctx.fill();
+  ctx.font = '80px -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(t.emoji, size/2, size/2+4);
+}
+
+function drawPosterEmoji(canvas, typeCode) {
+  const ctx = canvas.getContext('2d');
+  const size = 98;
+  canvas.width = size;
+  canvas.height = size;
+  const t = typeEmojis[typeCode] || typeEmojis.HRTI;
+  const grad = ctx.createLinearGradient(0, 0, size, size);
+  const colors = t.bg.match(/#[0-9A-Fa-f]{6}/g) || ['#007AFF', '#5856D6'];
+  grad.addColorStop(0, colors[0]);
+  grad.addColorStop(1, colors[1]);
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  if (ctx.roundRect) ctx.roundRect(0, 0, size, size, 20);
+  else { ctx.rect(0, 0, size, size); }
+  ctx.fill();
+  ctx.font = '56px -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(t.emoji, size/2, size/2+3);
+}
+
+function triggerConfetti() {
+  const canvas = document.getElementById('confetti-canvas');
+  if(!canvas) return;
+  const ctx = canvas.getContext('2d');
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  const pieces = [];
+  for(let i=0;i<120;i++){
+    pieces.push({
+      x:Math.random()*canvas.width,
+      y:Math.random()*canvas.height*0.5-50,
+      vx:(Math.random()-0.5)*6,
+      vy:Math.random()*4+2,
+      color:['#FF6B6B','#FFD93D','#6BCB77','#4D96FF','#FF69B4','#FF9F43'][Math.floor(Math.random()*6)],
+      size:Math.random()*8+4,
+      rot:Math.random()*360,
+      rotV:(Math.random()-0.5)*10,
+    });
+  }
+  let frame=0;
+  const animate=()=>{
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    pieces.forEach(p=>{
+      p.x+=p.vx; p.y+=p.vy; p.vy+=0.15; p.rot+=p.rotV;
+      ctx.save();
+      ctx.translate(p.x,p.y); ctx.rotate(p.rot*Math.PI/180);
+      ctx.fillStyle=p.color;
+      ctx.fillRect(-p.size/2,-p.size/2,p.size,p.size);
+      ctx.restore();
+    });
+    frame++;
+    if(frame<120) requestAnimationFrame(animate);
+    else ctx.clearRect(0,0,canvas.width,canvas.height);
+  };
+  animate();
+}
+
+const app=createApp({
+  setup(){
+    const phase=ref('splash');
+    const currentQ=ref(0);
+    const answers=ref(new Array(16).fill(null));
+    const result=ref(null);
+    const isDark=ref(false);
+    const avatarCanvas=ref(null);
+    const posterCanvas=ref(null);
+    const confettiCanvas=ref(null);
+    const loadingProgress=ref(0);
+    const loadingText=ref('正在初始化...');
+
+    const loadingSteps=[
+      {p:15,t:'加载题目数据...'},
+      {p:35,t:'初始化分析引擎...'},
+      {p:55,t:'加载Emoji资源...'},
+      {p:75,t:'准备结果图谱...'},
+      {p:90,t:'即将完成...'},
+      {p:100,t:'点击开始'}
+    ];
+
+    watch(()=>phase.value,(val)=>{
+      if(val==='result' && avatarCanvas.value && result.value){
+        nextTick(()=>drawEmojiAvatar(avatarCanvas.value,result.value.type));
+      }
+    });
+
+    onMounted(()=>{
+      let step=0;
+      const interval=setInterval(()=>{
+        if(step<loadingSteps.length){
+          loadingProgress.value=loadingSteps[step].p;
+          loadingText.value=loadingSteps[step].t;
+          step++;
+        } else {
+          clearInterval(interval);
+        }
+      },200);
+    });
+
+    const analysisSteps=computed(()=>[
+      {icon:'🧬',label:'扫描社交基因序列…',bg:'rgba(255,107,53,.15)'},
+      {icon:'🔍',label:'解码爱情滤镜参数…',bg:'rgba(253,121,168,.15)'},
+      {icon:'💓',label:'测量心动阈值波动…',bg:'rgba(225,112,85,.15)'},
+      {icon:'🔋',label:'检测独处电量指数…',bg:'rgba(0,184,148,.15)'},
+    ]);
+
+    const startQuiz=()=>{
+      answers.value=new Array(16).fill(null);
+      currentQ.value=0;
+      phase.value='quiz';
+    };
+
+    const selectOpt=(i)=>{
+      answers.value[currentQ.value]=i;
+      if(currentQ.value<15){
+        setTimeout(()=>{currentQ.value++;},300);
+      } else {
+        setTimeout(()=>{
+          phase.value='analysis';
+          setTimeout(()=>{
+            result.value=calcResult(answers.value);
+            phase.value='result';
+            nextTick(()=>{
+              if(avatarCanvas.value) drawEmojiAvatar(avatarCanvas.value,result.value.type);
+              triggerConfetti();
+            });
+          },3500);
+        },300);
+      }
+    };
+
+    const goBack=()=>{
+      if(currentQ.value>0) currentQ.value--;
+    };
+
+    const retry=()=>{
+      startQuiz();
+    };
+
+    const generatePoster=async ()=>{
+      phase.value='poster';
+      await nextTick();
+      if(posterCanvas.value && result.value) {
+        const c=posterCanvas.value.getContext('2d');
+        const W=332, H=440;
+        c.clearRect(0,0,W,H);
+        const typeColors={
+          EPSC:['#FF6B6B','#FF69B4'],EPST:['#FF8C42','#FF4500'],EPSI:['#FFD700','#FFA500'],
+          EPTI:['#FF4500','#FF0000'],ERSC:['#FF6347','#FF1493'],ERST:['#FF7F50','#FF8C00'],
+          ERSI:['#FFA500','#FF4500'],ERTI:['#FFB347','#FFA500'],HPSC:['#9370DB','#BA55D3'],
+          HPST:['#8A2BE2','#9932CC'],HPSI:['#BA55D3','#DA70D6'],HPTI:['#663399','#483D8B'],
+          HRSC:['#6A5ACD','#7B68EE'],HRST:['#4682B4','#4169E1'],HRSI:['#5F9EA0','#20B2AA'],
+          HRTI:['#2F4F4F','#2E8B57'],
+        };
+        const cols=typeColors[result.value.type]||['#007AFF','#5856D6'];
+        const g2=c.createLinearGradient(0,0,W,300);
+        g2.addColorStop(0,cols[0]); g2.addColorStop(1,cols[1]);
+        c.fillStyle=g2;
+        c.beginPath();
+        c.roundRect(0,0,W,300,24);
+        c.fill();
+        c.fillStyle='#fff'; c.font='bold 14px -apple-system,BlinkMacSystemFont,sans-serif';
+        c.textAlign='center'; c.fillText('你的单身指数',W/2,32);
+        const tmpC = document.createElement('canvas');
+        tmpC.width = 98; tmpC.height = 98;
+        drawPosterEmoji(tmpC, result.value.type);
+        c.drawImage(tmpC, W/2-55, 45, 110, 110);
+        c.fillStyle='#FFFFFF'; c.font='bold 13px -apple-system,BlinkMacSystemFont,sans-serif';
+        c.fillText(result.value.type,W/2,178);
+        c.fillStyle='#fff'; c.font='bold 22px -apple-system,BlinkMacSystemFont,sans-serif';
+        c.fillText(result.value.name,W/2,204);
+        c.font='bold 48px -apple-system,BlinkMacSystemFont,sans-serif';
+        c.fillText(result.value.index+'%',W/2,262);
+        c.font='14px -apple-system,BlinkMacSystemFont,sans-serif'; c.fillStyle='#fff';
+        c.fillText('单身指数',W/2,282);
+        c.fillStyle='rgba(255,255,255,.95)'; c.font='12px -apple-system,BlinkMacSystemFont,sans-serif';
+        const q=result.value.quote.replace(/沈奕斐说：/g,'沈奕斐：');
+        const lines=[];
+        let line='';
+        for(const ch of q){
+          line+=ch;
+          if(c.measureText(line).width>W-48){lines.push(line.slice(0,-1));line=ch;}
+        } lines.push(line);
+        lines.slice(0,3).forEach((l,i)=>c.fillText(l,W/2,318+i*18));
+        const tagY=390;
+        c.font='11px -apple-system,BlinkMacSystemFont,sans-serif';
+        result.value.tags.forEach((t,i)=>{
+          const tx=40+i*80;
+          c.fillStyle='rgba(255,255,255,.2)';
+          c.beginPath(); c.roundRect(tx,tagY,72,22,11); c.fill();
+          c.fillStyle='#fff'; c.fillText(t,tx+36,tagY+15);
+        });
+      }
+    };
+
+    const downloadPoster=async ()=>{
+      const el=document.getElementById('poster-target');
+      if(!el||!window.html2canvas) return;
+      try {
+        const canvas=await html2canvas(el,{scale:2,useCORS:true,backgroundColor:null});
+        const url=canvas.toDataURL('image/png');
+        const a=document.createElement('a');
+        a.download='你的单身指数_'+result.value.type+'.png';
+        a.href=url; a.click();
+      } catch(e){alert('生成失败，请重试');}
+    };
+
+    const toggleTheme=()=>{
+      isDark.value=!isDark.value;
+      document.documentElement.setAttribute('data-theme',isDark.value?'dark':'light');
+    };
+
+    return{phase,currentQ,answers,result,isDark,questions,dimNames,analysisSteps,
+      avatarCanvas,posterCanvas,confettiCanvas,loadingProgress,loadingText,
+      startQuiz,selectOpt,goBack,retry,generatePoster,downloadPoster,toggleTheme};
+  }
+});
+
+app.mount('#app');
+</script>
+</body>
+</html>
