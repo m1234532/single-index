@@ -40,13 +40,13 @@ button{font-family:inherit;cursor:pointer;border:none;outline:none}
 .question-meta span{background:var(--ios-gray5);padding:3px 10px;border-radius:12px;font-size:12px;color:var(--ios-text2)}
 .question-text{font-size:22px;font-weight:700;color:var(--ios-text);line-height:1.4;margin-bottom:32px}
 .option-list{display:flex;flex-direction:column;gap:12px}
-.option-card{background:var(--ios-card);border-radius:16px;padding:18px 20px;display:flex;align-items:center;gap:16px;box-shadow:0 2px 12px rgba(0,0,0,.06);transition:all .2s cubic-bezier(.34,1.56,.64,1);border:2px solid transparent;cursor:pointer;position:relative;overflow:hidden}
+.option-card{background:var(--ios-card);border-radius:16px;padding:18px 20px;display:flex;align-items:center;gap:16px;box-shadow:0 2px 12px rgba(0,0,0,.06);transition:all .2s cubic-bezier(.34,1.56,.64,1);border:2px solid transparent;cursor:pointer;position:relative}
 .option-card:active{transform:scale(.97)}
 .option-card.selected{border-color:var(--ios-blue);background:linear-gradient(135deg,rgba(0,122,255,.08),rgba(88,86,214,.08))}
 .option-card.selected::after{content:"✓";position:absolute;right:16px;color:var(--ios-blue);font-weight:700;font-size:18px}
 .option-letter{width:32px;height:32px;border-radius:50%;background:var(--ios-gray5);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--ios-text2);flex-shrink:0;transition:all .2s}
 .option-card.selected .option-letter{background:var(--ios-blue);color:#fff}
-.option-text{flex:1;font-size:15px;color:var(--ios-text);line-height:1.5}
+.option-text{flex:1;font-size:15px;color:var(--ios-text);line-height:1.5;word-break:break-word;min-width:0}
 .analysis-page{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;text-align:center}
 .analysis-orb{width:140px;height:140px;border-radius:50%;background:radial-gradient(circle,var(--ios-blue),var(--ios-purple));margin-bottom:32px;display:flex;align-items:center;justify-content:center;font-size:56px;animation:orbPulse 2s ease-in-out infinite;position:relative;overflow:hidden}
 .analysis-orb::before{content:"";position:absolute;inset:-50%;background:conic-gradient(transparent,rgba(255,255,255,.3),transparent,rgba(255,255,255,.3),transparent);animation:orbSpin 3s linear infinite}
