@@ -35,7 +35,7 @@ function drawEmojiAvatar(canvas, typeCode) {
   if (ctx.roundRect) ctx.roundRect(0, 0, size, size, 28);
   else { ctx.rect(0, 0, size, size); }
   ctx.fill();
-  ctx.font = '80px -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.font = '80px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(t.emoji, size/2, size/2+4);
