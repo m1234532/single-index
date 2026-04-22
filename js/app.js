@@ -41,6 +41,72 @@ function drawEmojiAvatar(canvas, typeCode) {
   ctx.fillText(t.emoji, size/2, size/2+4);
 }
 
+function drawDimRadar(canvas, dimScores) {
+  const ctx = canvas.getContext('2d');
+  const size = 160;
+  canvas.width = size;
+  canvas.height = size;
+  
+  const dims = [
+    { name: 'social', label: '社交' },
+    { name: 'filter', label: '滤镜' },
+    { name: 'heartbeat', label: '心动' },
+    { name: 'alone', label: '独处' }
+  ];
+  
+  const centerX = size / 2;
+  const centerY = size / 2;
+  const radius = 60;
+  
+  // Draw background circles
+  ctx.strokeStyle = 'rgba(150,150,150,0.2)';
+  ctx.lineWidth = 1;
+  for (let i = 1; i <= 4; i++) {
+    ctx.beginPath();
+    ctx.arc(centerX, centerY, radius * i / 4, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+  
+  // Draw axes
+  dims.forEach((_, i) => {
+    const angle = (Math.PI * 2 * i / 4) - Math.PI / 2;
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY);
+    ctx.lineTo(centerX + Math.cos(angle) * radius, centerY + Math.sin(angle) * radius);
+    ctx.stroke();
+  });
+  
+  // Draw data polygon with animation
+  const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+  gradient.addColorStop(0, 'rgba(0,122,255,0.6)');
+  gradient.addColorStop(1, 'rgba(88,86,214,0.3)');
+  ctx.fillStyle = gradient;
+  ctx.beginPath();
+  
+  dims.forEach((dim, i) => {
+    const score = dimScores[dim.name].a / 4; // 0-1
+    const angle = (Math.PI * 2 * i / 4) - Math.PI / 2;
+    const x = centerX + Math.cos(angle) * radius * score;
+    const y = centerY + Math.sin(angle) * radius * score;
+    if (i === 0) ctx.moveTo(x, y);
+    else ctx.lineTo(x, y);
+  });
+  ctx.closePath();
+  ctx.fill();
+  
+  // Draw dots
+  ctx.fillStyle = '#007AFF';
+  dims.forEach((dim, i) => {
+    const score = dimScores[dim.name].a / 4;
+    const angle = (Math.PI * 2 * i / 4) - Math.PI / 2;
+    const x = centerX + Math.cos(angle) * radius * score;
+    const y = centerY + Math.sin(angle) * radius * score;
+    ctx.beginPath();
+    ctx.arc(x, y, 5, 0, Math.PI * 2);
+    ctx.fill();
+  });
+}
+
 function triggerConfetti() {
   const canvas = document.getElementById('confetti-canvas');
   if(!canvas) return;
@@ -86,11 +152,13 @@ const app=createApp({
     const result=ref(null);
     const isDark=ref(false);
     const avatarCanvas=ref(null);
+    const radarCanvas=ref(null);
     const confettiCanvas=ref(null);
     const loadingProgress=ref(0);
     const loadingText=ref('正在初始化...');
     const hasRecord=ref(false);
     const savedRecord=ref(null);
+    const showResult=ref(false);
 
     const loadingSteps=[
       {p:15,t:'加载题目数据...'},
@@ -103,7 +171,17 @@ const app=createApp({
 
     watch(()=>phase.value,(val)=>{
       if(val==='result' && avatarCanvas.value && result.value){
-        nextTick(()=>drawEmojiAvatar(avatarCanvas.value,result.value.type));
+        nextTick(()=>{
+          drawEmojiAvatar(avatarCanvas.value,result.value.type);
+          if(radarCanvas.value) {
+            setTimeout(()=>{
+              drawDimRadar(radarCanvas.value,result.value.dimScores);
+            },500);
+          }
+          setTimeout(()=>{
+            showResult.value = true;
+          },800);
+        });
       }
     });
 
@@ -134,6 +212,7 @@ const app=createApp({
     ]);
 
     const startQuiz=()=>{
+      showResult.value = false;
       answers.value=new Array(16).fill(null);
       currentQ.value=0;
       phase.value='quiz';
@@ -185,8 +264,8 @@ const app=createApp({
     };
 
     return{phase,currentQ,answers,result,isDark,questions,dimNames,analysisSteps,
-      avatarCanvas,confettiCanvas,loadingProgress,loadingText,hasRecord,
-      startQuiz,continueQuiz,selectOpt,goBack,retry,toggleTheme};
+      avatarCanvas,radarCanvas,confettiCanvas,loadingProgress,loadingText,hasRecord,
+      startQuiz,continueQuiz,selectOpt,goBack,retry,toggleTheme,showResult};
   }
 });
 

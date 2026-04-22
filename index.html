@@ -51,7 +51,7 @@
     <div class="question-text">{{questions[currentQ].text}}</div>
     <div class="option-list">
       <div v-for="(opt,i) in questions[currentQ].options" :key="i" class="option-card" :class="{selected:answers[currentQ]===i}" @click="selectOpt(i)">
-        <div class="option-letter">{{['A','B','C','D'][i]}}</div>
+        <div class="option-letter">{{['A','B','C','D','E','F'][i]}}</div>
         <div class="option-text">{{opt}}</div>
       </div>
     </div>
@@ -74,16 +74,45 @@
 <transition name="page">
 <div class="result-page" v-if="phase==='result'">
   <div class="result-hero">
+    <div class="result-hero-bg"></div>
     <div class="result-avatar-wrap"><canvas ref="avatarCanvas" width="140" height="140" style="border-radius:28px"></canvas></div>
     <div class="result-type-code">{{result.type}}</div>
     <div class="result-type-name">{{result.name}}</div>
     <div class="result-subtype">{{result.subtitle}}</div>
+    <div class="result-one-line">"{{result.oneLine}}"</div>
     <div class="result-index"><div class="num">{{result.index}}%</div><div class="label">单身指数</div></div>
   </div>
+  
+  <div class="result-radar">
+    <div class="result-radar-title">📊 四维雷达图</div>
+    <canvas ref="radarCanvas" width="160" height="160"></canvas>
+  </div>
+  
   <div class="result-desc"><h3>📋 诊断报告</h3><p>{{result.desc}}</p></div>
+  
   <div class="result-quote"><p>{{result.quote}}</p></div>
-  <div class="result-tags"><span class="result-tag" v-for="t in result.tags" :key="t">{{t}}</span></div>
-  <div class="result-tags" style="margin-bottom:20px"><span class="tag-chip" v-for="d in result.dims" :key="d" style="font-size:12px">{{d}}</span></div>
+  
+  <div class="result-tips">
+    <h3>💡 脱单建议</h3>
+    <ul>
+      <li v-for="tip in result.tips" :key="tip">{{tip}}</li>
+    </ul>
+  </div>
+  
+  <div class="result-avoid">
+    <h3>⚠️ 避雷类型</h3>
+    <ul>
+      <li v-for="a in result.avoid" :key="a">{{a}}</li>
+    </ul>
+  </div>
+  
+  <div class="result-tags">
+    <span class="result-tag" v-for="t in result.tags" :key="t">{{t}}</span>
+  </div>
+  <div class="result-tags" style="margin-bottom:20px">
+    <span class="tag-chip" v-for="d in result.dims" :key="d" style="font-size:12px">{{d}}</span>
+  </div>
+  
   <div class="share-tip">
     <div class="share-tip-icon">📱</div>
     <div class="share-tip-title">截图分享给朋友</div>
