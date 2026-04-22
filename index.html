@@ -105,7 +105,7 @@
   <div class="result-avoid">
     <h3>⚠️ 避雷类型</h3>
     <ul>
-      <li v-for="(a,idx) in result.avoid" :key="idx">{{a}}</li>
+      <li v-for="(item,idx) in result.avoid" :key="idx">{{item}}</li>
     </ul>
   </div>
   
@@ -121,6 +121,14 @@
     <div class="share-tip-title">截图分享给朋友</div>
     <div class="share-tip-desc">长按或截图保存结果页面<br>分享到朋友圈/发给好友</div>
   </div>
+  
+  <div class="disclaimer">
+    <h3>📌 免责声明</h3>
+    <p>本测试仅供娱乐参考，结果并非绝对。每个人的感情状态受多种因素影响，不能简单地用几个维度来概括。</p>
+    <p>沈奕斐教授的爱情思维框架提供了一种理解单身原因的角度，但真正的脱单还需要你勇敢迈出一步，去认识新的人，去经历、去成长。</p>
+    <p>无论你现在是单身还是恋爱中，都祝你幸福！💕</p>
+  </div>
+  
   <button class="result-retry-btn" @click="retry">🔄 重新测试</button>
   <div class="result-credit">by Poliwhirl</div>
 </div>

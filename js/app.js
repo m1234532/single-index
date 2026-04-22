@@ -28,7 +28,7 @@ function generateRadarSVG(dimScores) {
     { name: 'alone', label: '独处' }
   ];
   
-  const size = 200;
+  const size = 220;
   const center = size / 2;
   const maxRadius = 70;
   
@@ -39,10 +39,10 @@ function generateRadarSVG(dimScores) {
     return {
       x: center + Math.cos(angle) * maxRadius * score,
       y: center + Math.sin(angle) * maxRadius * score,
-      labelX: center + Math.cos(angle) * (maxRadius + 25),
-      labelY: center + Math.sin(angle) * (maxRadius + 25),
+      labelX: center + Math.cos(angle) * (maxRadius + 22),
+      labelY: center + Math.sin(angle) * (maxRadius + 22),
       label: dim.label,
-      score: Math.round(score * 100) + '%'
+      score: Math.round(score * 100)
     };
   });
   
@@ -51,7 +51,7 @@ function generateRadarSVG(dimScores) {
   // Background circles
   const circles = [];
   for (let i = 1; i <= 4; i++) {
-    circles.push(`<circle cx="${center}" cy="${center}" r="${maxRadius * i / 4}" fill="none" stroke="#e0e0e0" stroke-width="1"/>`);
+    circles.push(`<circle cx="${center}" cy="${center}" r="${maxRadius * i / 4}" fill="none" stroke="#e0e0e0" stroke-width="1.5"/>`);
   }
   
   // Axes
@@ -59,20 +59,26 @@ function generateRadarSVG(dimScores) {
     const angle = (Math.PI * 2 * i / 4) - Math.PI / 2;
     const x2 = center + Math.cos(angle) * maxRadius;
     const y2 = center + Math.sin(angle) * maxRadius;
-    return `<line x1="${center}" y1="${center}" x2="${x2}" y2="${y2}" stroke="#e0e0e0" stroke-width="1"/>`;
+    return `<line x1="${center}" y1="${center}" x2="${x2}" y2="${y2}" stroke="#e0e0e0" stroke-width="1.5"/>`;
+  });
+  
+  // Labels
+  const labels = dims.map((dim, i) => {
+    const angle = (Math.PI * 2 * i / 4) - Math.PI / 2;
+    const x = center + Math.cos(angle) * (maxRadius + 22);
+    const y = center + Math.sin(angle) * (maxRadius + 22);
+    const score = Math.round((dimScores[dim.name]?.a || 0) / 4 * 100);
+    const textAnchor = x < center - 5 ? 'end' : x > center + 5 ? 'start' : 'middle';
+    return `<text x="${x}" y="${y}" text-anchor="${textAnchor}" dominant-baseline="middle" font-size="13" fill="#333" font-weight="500">${dim.label}</text>
+            <text x="${x}" y="${y + 16}" text-anchor="${textAnchor}" dominant-baseline="middle" font-size="11" fill="#007AFF" font-weight="bold">${score}%</text>`;
   });
   
   return `
     <svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" style="display:block;margin:0 auto;">
-      ${circles.join('')}
-      ${axes.join('')}
-      <polygon points="${polygonPoints}" fill="rgba(0,122,255,0.3)" stroke="#007AFF" stroke-width="2"/>
-      ${dataPoints.map(p => `<circle cx="${p.x}" cy="${p.y}" r="5" fill="#007AFF"/>`).join('')}
-      ${dataPoints.map(p => `
-        <text x="${p.labelX}" y="${p.labelY}" text-anchor="middle" dominant-baseline="middle" font-size="12" fill="#333">
-          ${p.label}:${p.score}
-        </text>
-      `).join('')}
+      <g>${circles.join('')}${axes.join('')}</g>
+      <polygon points="${polygonPoints}" fill="rgba(0,122,255,0.25)" stroke="#007AFF" stroke-width="2.5" stroke-linejoin="round"/>
+      ${dataPoints.map(p => `<circle cx="${p.x}" cy="${p.y}" r="5" fill="#007AFF" stroke="#fff" stroke-width="2"/>`).join('')}
+      ${labels.join('')}
     </svg>
   `;
 }
@@ -130,8 +136,8 @@ const app=createApp({
 
     const loadingSteps=[
       {p:15,t:'加载题目数据...'},
-      {p:35,t:'初始化分析引擎...'},
-      {p:55,t:'加载Emoji资源...'},
+      {p:35,t:'随机抽取题目...'},
+      {p:55,t:'初始化分析引擎...'},
       {p:75,t:'准备结果图谱...'},
       {p:90,t:'即将完成...'},
       {p:100,t:'点击开始'}
