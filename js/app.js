@@ -70,6 +70,7 @@ const app=createApp({
     const loadingText=ref('正在初始化...');
     const hasRecord=ref(false);
     const savedRecord=ref(null);
+    const showChangelog=ref(false);
 
     const loadingSteps=[
       {p:15,t:'加载题目数据...'},
@@ -169,7 +170,7 @@ const app=createApp({
     };
 
     return{phase,currentQ,answers,result,isDark,questions,dimNames,analysisSteps,typeEmojis,
-      confettiCanvas,loadingProgress,loadingText,hasRecord,
+      confettiCanvas,loadingProgress,loadingText,hasRecord,showChangelog,
       startQuiz,continueQuiz,selectOpt,goBack,retry,toggleTheme};
   }
 });
