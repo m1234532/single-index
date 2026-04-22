@@ -86,13 +86,13 @@ button{font-family:inherit;cursor:pointer;border:none;outline:none}
 .r-index .label{font-size:12px;color:var(--gray);margin-top:2px}
 .r-index .pct{font-size:11px;color:var(--gray2);margin-top:2px}
 .r-quote{font-size:14px;color:var(--text2);line-height:1.7;margin-top:16px;font-style:italic}
-.radar{background:var(--card);border-radius:16px;padding:20px;margin-top:20px;text-align:left;box-shadow:0 2px 8px rgba(0,0,0,.04)}
-.radar h3{font-size:16px;font-weight:700;margin-bottom:16px}
-.radar .dim{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.radar .dim .name{font-size:13px;color:var(--text2);width:72px;flex-shrink:0}
-.radar .dim .bar{flex:1;height:8px;background:var(--gray5);border-radius:4px;overflow:hidden}
-.radar .dim .bar .fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--purple));border-radius:4px;transition:width .6s}
-.radar .dim .score{font-size:12px;color:var(--gray);width:36px;text-align:right}
+.r-radar{background:var(--card);border-radius:16px;padding:20px;margin-top:20px;text-align:left;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.r-radar h3{font-size:16px;font-weight:700;margin-bottom:16px}
+.r-radar .dim{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.r-radar .dim .name{font-size:13px;color:var(--text2);width:72px;flex-shrink:0}
+.r-radar .dim .bar{flex:1;height:8px;background:var(--gray5);border-radius:4px;overflow:hidden}
+.r-radar .dim .bar .fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--purple));border-radius:4px;transition:width .6s}
+.r-radar .dim .score{font-size:12px;color:var(--gray);width:36px;text-align:right}
 .r-section{background:var(--card);border-radius:16px;padding:20px;margin-top:16px;text-align:left;box-shadow:0 2px 8px rgba(0,0,0,.04)}
 .r-section h3{font-size:16px;font-weight:700;margin-bottom:12px}
 .r-section p{font-size:14px;color:var(--text2);line-height:1.7}
@@ -184,9 +184,9 @@ button{font-family:inherit;cursor:pointer;border:none;outline:none}
     <div><div class="title">截图分享给朋友</div><div class="desc">长按或截图保存结果页面</div></div>
   </div>
   <div class="r-hero">
-    <div class="r-type-code">{{result.type}}</div>
+    <div class="r-type-code" v-if="result.dims && result.dims.length">{{result.dims[0]}} · {{result.dims[1]}}</div>
     <div class="r-name">{{result.name}}</div>
-    <div class="r-sub">{{result.subtitle}}</div>
+    <div class="r-sub" v-if="result.dims && result.dims.length > 2">{{result.dims[2]}} · {{result.dims[3]}}</div>
     <div class="r-cards">
       <div class="r-avatar" :style="{background: result.visual?.bg || 'linear-gradient(135deg,#007AFF,#5856D6)'}">{{result.visual?.emoji || '❓'}}</div>
       <div class="r-index">

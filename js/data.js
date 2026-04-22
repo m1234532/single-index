@@ -71,7 +71,7 @@ function shuffleArray(array) {
   return arr;
 }
 
-// 生成随机16题（每个维度4题）
+// 生成随机16题（每个维度4题），选项顺序也随机打乱
 function getRandomQuestions() {
   const dims = ['social', 'filter', 'heartbeat', 'alone'];
   let result = [];
@@ -80,7 +80,15 @@ function getRandomQuestions() {
     const shuffled = shuffleArray(dimQuestions);
     result = result.concat(shuffled.slice(0, 4));
   });
-  return shuffleArray(result);
+  result = shuffleArray(result);
+  // 对每道题的选项随机打乱，记录原始索引映射
+  result.forEach(q => {
+    var indices = [0, 1, 2, 3];
+    var shuffledIndices = shuffleArray(indices);
+    q.optMap = shuffledIndices; // optMap[新位置] = 原始位置
+    q.options = shuffledIndices.map(function(i) { return q.options[i]; });
+  });
+  return result;
 }
 
 // 导出随机题目
@@ -189,7 +197,8 @@ function calcResult(answers) {
   const dimScores={social:{a:0,b:0},filter:{a:0,b:0},heartbeat:{a:0,b:0},alone:{a:0,b:0}};
   questions.forEach((q,i)=>{
     const ans=answers[i];
-    if(ans===0||ans===1) dimScores[q.dim].a+=1;
+    const origIdx = q.optMap ? q.optMap[ans] : ans;
+    if(origIdx===0||origIdx===1) dimScores[q.dim].a+=1;
     else dimScores[q.dim].b+=1;
   });
   // 3档: L(0-1), M(2), H(3-4)
