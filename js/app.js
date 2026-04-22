@@ -20,33 +20,7 @@ function loadRecord() {
   }
 }
 
-function drawEmojiAvatar(canvas, typeCode) {
-  const ctx = canvas.getContext('2d');
-  const size = 140;
-  canvas.width = size;
-  canvas.height = size;
-  const t = typeEmojis[typeCode] || typeEmojis.HRTI;
-  const grad = ctx.createLinearGradient(0, 0, size, size);
-  const colors = t.bg.match(/#[0-9A-Fa-f]{6}/g) || ['#007AFF', '#5856D6'];
-  grad.addColorStop(0, colors[0]);
-  grad.addColorStop(1, colors[1]);
-  ctx.fillStyle = grad;
-  ctx.beginPath();
-  if (ctx.roundRect) ctx.roundRect(0, 0, size, size, 28);
-  else { ctx.rect(0, 0, size, size); }
-  ctx.fill();
-  ctx.font = '80px -apple-system, BlinkMacSystemFont, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(t.emoji, size/2, size/2+4);
-}
-
-function drawDimRadar(canvas, dimScores) {
-  const ctx = canvas.getContext('2d');
-  const size = 160;
-  canvas.width = size;
-  canvas.height = size;
-  
+function generateRadarSVG(dimScores) {
   const dims = [
     { name: 'social', label: '社交' },
     { name: 'filter', label: '滤镜' },
@@ -54,57 +28,53 @@ function drawDimRadar(canvas, dimScores) {
     { name: 'alone', label: '独处' }
   ];
   
-  const centerX = size / 2;
-  const centerY = size / 2;
-  const radius = 60;
+  const size = 200;
+  const center = size / 2;
+  const maxRadius = 70;
   
-  // Draw background circles
-  ctx.strokeStyle = 'rgba(150,150,150,0.2)';
-  ctx.lineWidth = 1;
+  // Calculate points
+  const dataPoints = dims.map((dim, i) => {
+    const score = (dimScores[dim.name]?.a || 0) / 4;
+    const angle = (Math.PI * 2 * i / 4) - Math.PI / 2;
+    return {
+      x: center + Math.cos(angle) * maxRadius * score,
+      y: center + Math.sin(angle) * maxRadius * score,
+      labelX: center + Math.cos(angle) * (maxRadius + 25),
+      labelY: center + Math.sin(angle) * (maxRadius + 25),
+      label: dim.label,
+      score: Math.round(score * 100) + '%'
+    };
+  });
+  
+  const polygonPoints = dataPoints.map(p => `${p.x},${p.y}`).join(' ');
+  
+  // Background circles
+  const circles = [];
   for (let i = 1; i <= 4; i++) {
-    ctx.beginPath();
-    ctx.arc(centerX, centerY, radius * i / 4, 0, Math.PI * 2);
-    ctx.stroke();
+    circles.push(`<circle cx="${center}" cy="${center}" r="${maxRadius * i / 4}" fill="none" stroke="#e0e0e0" stroke-width="1"/>`);
   }
   
-  // Draw axes
-  dims.forEach((_, i) => {
+  // Axes
+  const axes = dims.map((_, i) => {
     const angle = (Math.PI * 2 * i / 4) - Math.PI / 2;
-    ctx.beginPath();
-    ctx.moveTo(centerX, centerY);
-    ctx.lineTo(centerX + Math.cos(angle) * radius, centerY + Math.sin(angle) * radius);
-    ctx.stroke();
+    const x2 = center + Math.cos(angle) * maxRadius;
+    const y2 = center + Math.sin(angle) * maxRadius;
+    return `<line x1="${center}" y1="${center}" x2="${x2}" y2="${y2}" stroke="#e0e0e0" stroke-width="1"/>`;
   });
   
-  // Draw data polygon with animation
-  const gradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
-  gradient.addColorStop(0, 'rgba(0,122,255,0.6)');
-  gradient.addColorStop(1, 'rgba(88,86,214,0.3)');
-  ctx.fillStyle = gradient;
-  ctx.beginPath();
-  
-  dims.forEach((dim, i) => {
-    const score = dimScores[dim.name].a / 4; // 0-1
-    const angle = (Math.PI * 2 * i / 4) - Math.PI / 2;
-    const x = centerX + Math.cos(angle) * radius * score;
-    const y = centerY + Math.sin(angle) * radius * score;
-    if (i === 0) ctx.moveTo(x, y);
-    else ctx.lineTo(x, y);
-  });
-  ctx.closePath();
-  ctx.fill();
-  
-  // Draw dots
-  ctx.fillStyle = '#007AFF';
-  dims.forEach((dim, i) => {
-    const score = dimScores[dim.name].a / 4;
-    const angle = (Math.PI * 2 * i / 4) - Math.PI / 2;
-    const x = centerX + Math.cos(angle) * radius * score;
-    const y = centerY + Math.sin(angle) * radius * score;
-    ctx.beginPath();
-    ctx.arc(x, y, 5, 0, Math.PI * 2);
-    ctx.fill();
-  });
+  return `
+    <svg viewBox="0 0 ${size} ${size}" width="${size}" height="${size}" style="display:block;margin:0 auto;">
+      ${circles.join('')}
+      ${axes.join('')}
+      <polygon points="${polygonPoints}" fill="rgba(0,122,255,0.3)" stroke="#007AFF" stroke-width="2"/>
+      ${dataPoints.map(p => `<circle cx="${p.x}" cy="${p.y}" r="5" fill="#007AFF"/>`).join('')}
+      ${dataPoints.map(p => `
+        <text x="${p.labelX}" y="${p.labelY}" text-anchor="middle" dominant-baseline="middle" font-size="12" fill="#333">
+          ${p.label}:${p.score}
+        </text>
+      `).join('')}
+    </svg>
+  `;
 }
 
 function triggerConfetti() {
@@ -151,14 +121,12 @@ const app=createApp({
     const answers=ref(new Array(16).fill(null));
     const result=ref(null);
     const isDark=ref(false);
-    const avatarCanvas=ref(null);
-    const radarCanvas=ref(null);
-    const confettiCanvas=ref(null);
     const loadingProgress=ref(0);
     const loadingText=ref('正在初始化...');
     const hasRecord=ref(false);
     const savedRecord=ref(null);
     const showResult=ref(false);
+    const radarHTML=ref('');
 
     const loadingSteps=[
       {p:15,t:'加载题目数据...'},
@@ -170,17 +138,12 @@ const app=createApp({
     ];
 
     watch(()=>phase.value,(val)=>{
-      if(val==='result' && avatarCanvas.value && result.value){
+      if(val==='result' && result.value){
         nextTick(()=>{
-          drawEmojiAvatar(avatarCanvas.value,result.value.type);
-          if(radarCanvas.value) {
-            setTimeout(()=>{
-              drawDimRadar(radarCanvas.value,result.value.dimScores);
-            },500);
-          }
+          radarHTML.value = generateRadarSVG(result.value.dimScores);
           setTimeout(()=>{
             showResult.value = true;
-          },800);
+          },300);
         });
       }
     });
@@ -239,7 +202,6 @@ const app=createApp({
             saveRecord(answers.value, result.value);
             phase.value='result';
             nextTick(()=>{
-              if(avatarCanvas.value) drawEmojiAvatar(avatarCanvas.value,result.value.type);
               triggerConfetti();
             });
           },3500);
@@ -264,8 +226,8 @@ const app=createApp({
     };
 
     return{phase,currentQ,answers,result,isDark,questions,dimNames,analysisSteps,
-      avatarCanvas,radarCanvas,confettiCanvas,loadingProgress,loadingText,hasRecord,
-      startQuiz,continueQuiz,selectOpt,goBack,retry,toggleTheme,showResult};
+      loadingProgress,loadingText,hasRecord,
+      startQuiz,continueQuiz,selectOpt,goBack,retry,toggleTheme,showResult,radarHTML};
   }
 });
 

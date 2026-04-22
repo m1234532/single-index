@@ -7,8 +7,6 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💔</text></svg>">
 <link rel="stylesheet" href="css/style.css">
 <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/vant@4/lib/index.umd.min.js"></script>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vant@4/lib/index.css">
 </head>
 <body>
 <div id="app">
@@ -38,7 +36,7 @@
 <transition name="page">
 <div v-if="phase==='quiz'" class="quiz-wrapper">
   <div class="ios-header">
-    <div class="back-btn" @click="goBack">&lt;</div>
+    <div class="back-btn" @click="goBack">←</div>
     <h2>你的单身指数</h2>
     <div style="width:36px"></div>
   </div>
@@ -72,10 +70,12 @@
 </div>
 </transition>
 <transition name="page">
-<div class="result-page" v-if="phase==='result'">
+<div class="result-page" v-if="phase==='result'" :class="{show:showResult}">
   <div class="result-hero">
     <div class="result-hero-bg"></div>
-    <div class="result-avatar-wrap"><canvas ref="avatarCanvas" width="140" height="140" style="border-radius:28px"></canvas></div>
+    <div class="result-avatar" :style="{background:typeEmojis[result.type]?.bg||'linear-gradient(135deg,#007AFF,#5856D6)'}">
+      <span class="result-avatar-emoji">{{typeEmojis[result.type]?.emoji||'💔'}}</span>
+    </div>
     <div class="result-type-code">{{result.type}}</div>
     <div class="result-type-name">{{result.name}}</div>
     <div class="result-subtype">{{result.subtitle}}</div>
@@ -85,32 +85,35 @@
   
   <div class="result-radar">
     <div class="result-radar-title">📊 四维雷达图</div>
-    <canvas ref="radarCanvas" width="160" height="160"></canvas>
+    <div class="result-radar-content" v-html="radarHTML"></div>
   </div>
   
-  <div class="result-desc"><h3>📋 诊断报告</h3><p>{{result.desc}}</p></div>
+  <div class="result-desc">
+    <h3>📋 诊断报告</h3>
+    <p>{{result.desc}}</p>
+  </div>
   
   <div class="result-quote"><p>{{result.quote}}</p></div>
   
   <div class="result-tips">
     <h3>💡 脱单建议</h3>
     <ul>
-      <li v-for="tip in result.tips" :key="tip">{{tip}}</li>
+      <li v-for="(tip,idx) in result.tips" :key="idx">{{tip}}</li>
     </ul>
   </div>
   
   <div class="result-avoid">
     <h3>⚠️ 避雷类型</h3>
     <ul>
-      <li v-for="a in result.avoid" :key="a">{{a}}</li>
+      <li v-for="(a,idx) in result.avoid" :key="idx">{{a}}</li>
     </ul>
   </div>
   
   <div class="result-tags">
-    <span class="result-tag" v-for="t in result.tags" :key="t">{{t}}</span>
+    <span class="result-tag" v-for="(t,idx) in result.tags" :key="idx">{{t}}</span>
   </div>
   <div class="result-tags" style="margin-bottom:20px">
-    <span class="tag-chip" v-for="d in result.dims" :key="d" style="font-size:12px">{{d}}</span>
+    <span class="tag-chip" v-for="(d,idx) in result.dims" :key="idx" style="font-size:12px">{{d}}</span>
   </div>
   
   <div class="share-tip">
@@ -123,7 +126,7 @@
 </div>
 </transition>
 <button class="theme-toggle" @click="toggleTheme">{{isDark?"☀️":"🌙"}}</button>
-<canvas id="confetti-canvas" ref="confettiCanvas"></canvas>
+<canvas id="confetti-canvas"></canvas>
 </div>
 <script src="js/data.js"></script>
 <script src="js/app.js"></script>
