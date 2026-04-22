@@ -141,8 +141,41 @@ const app=createApp({
         setTimeout(()=>{
           phase.value='analysis';
           setTimeout(()=>{
-            result.value=calcResult(answers.value);
-            saveRecord(answers.value, result.value);
+            try {
+              result.value=calcResult(answers.value);
+              if(!result.value || !result.value.type) {
+                // 兜底：如果计算失败，生成一个默认结果
+                result.value={
+                  name:'神秘型单身者',
+                  subtitle:'数据异常 · 使用默认结果',
+                  index:50,
+                  type:'MMMM',
+                  desc:'数据计算出现异常，请重新测试。',
+                  quote:'无论结果如何，你都是独一无二的存在。',
+                  tips:['重新开始测试','刷新页面重试'],
+                  avoid:[],
+                  tags:[],
+                  dims:[],
+                  dimScores:{social:{a:2,b:2},filter:{a:2,b:2},heartbeat:{a:2,b:2},alone:{a:2,b:2}}
+                };
+              }
+              saveRecord(answers.value, result.value);
+            } catch(e) {
+              console.error('calcResult error:', e);
+              result.value={
+                name:'神秘型单身者',
+                subtitle:'计算出错 · 请重新测试',
+                index:50,
+                type:'MMMM',
+                desc:'结果计算出错，请重新测试。',
+                quote:'没关系，再试一次吧。',
+                tips:['重新开始测试'],
+                avoid:[],
+                tags:[],
+                dims:[],
+                dimScores:{social:{a:2,b:2},filter:{a:2,b:2},heartbeat:{a:2,b:2},alone:{a:2,b:2}}
+              };
+            }
             phase.value='result';
             isTransitioning.value=false;
             nextTick(()=>{
