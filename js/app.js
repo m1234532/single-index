@@ -28,9 +28,9 @@ function generateRadarSVG(dimScores) {
     { name: 'alone', label: '独处' }
   ];
   
-  const size = 220;
+  const size = 240;
   const center = size / 2;
-  const maxRadius = 70;
+  const maxRadius = 80;
   
   // Calculate points
   const dataPoints = dims.map((dim, i) => {
@@ -39,8 +39,8 @@ function generateRadarSVG(dimScores) {
     return {
       x: center + Math.cos(angle) * maxRadius * score,
       y: center + Math.sin(angle) * maxRadius * score,
-      labelX: center + Math.cos(angle) * (maxRadius + 22),
-      labelY: center + Math.sin(angle) * (maxRadius + 22),
+      labelX: center + Math.cos(angle) * (maxRadius + 28),
+      labelY: center + Math.sin(angle) * (maxRadius + 28),
       label: dim.label,
       score: Math.round(score * 100)
     };
@@ -62,15 +62,15 @@ function generateRadarSVG(dimScores) {
     return `<line x1="${center}" y1="${center}" x2="${x2}" y2="${y2}" stroke="#e0e0e0" stroke-width="1.5"/>`;
   });
   
-  // Labels
+  // Labels with scores
   const labels = dims.map((dim, i) => {
     const angle = (Math.PI * 2 * i / 4) - Math.PI / 2;
-    const x = center + Math.cos(angle) * (maxRadius + 22);
-    const y = center + Math.sin(angle) * (maxRadius + 22);
+    const x = center + Math.cos(angle) * (maxRadius + 28);
+    const y = center + Math.sin(angle) * (maxRadius + 28);
     const score = Math.round((dimScores[dim.name]?.a || 0) / 4 * 100);
     const textAnchor = x < center - 5 ? 'end' : x > center + 5 ? 'start' : 'middle';
-    return `<text x="${x}" y="${y}" text-anchor="${textAnchor}" dominant-baseline="middle" font-size="13" fill="#333" font-weight="500">${dim.label}</text>
-            <text x="${x}" y="${y + 16}" text-anchor="${textAnchor}" dominant-baseline="middle" font-size="11" fill="#007AFF" font-weight="bold">${score}%</text>`;
+    return `<text x="${x}" y="${y - 6}" text-anchor="${textAnchor}" dominant-baseline="middle" font-size="14" fill="#333" font-weight="600">${dim.label}</text>
+            <text x="${x}" y="${y + 12}" text-anchor="${textAnchor}" dominant-baseline="middle" font-size="13" fill="#007AFF" font-weight="bold">${score}%</text>`;
   });
   
   return `
