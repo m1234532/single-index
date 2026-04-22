@@ -20,27 +20,6 @@ function loadRecord() {
   }
 }
 
-function drawEmojiAvatar(canvas, typeCode) {
-  const ctx = canvas.getContext('2d');
-  const size = 140;
-  canvas.width = size;
-  canvas.height = size;
-  const t = typeEmojis[typeCode] || typeEmojis.HRTI;
-  const grad = ctx.createLinearGradient(0, 0, size, size);
-  const colors = t.bg.match(/#[0-9A-Fa-f]{6}/g) || ['#007AFF', '#5856D6'];
-  grad.addColorStop(0, colors[0]);
-  grad.addColorStop(1, colors[1]);
-  ctx.fillStyle = grad;
-  ctx.beginPath();
-  if (ctx.roundRect) ctx.roundRect(0, 0, size, size, 28);
-  else { ctx.rect(0, 0, size, size); }
-  ctx.fill();
-  ctx.font = '80px "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(t.emoji, size/2, size/2+4);
-}
-
 function triggerConfetti() {
   const canvas = document.getElementById('confetti-canvas');
   if(!canvas) return;
@@ -86,7 +65,6 @@ const app=createApp({
     const result=ref(null);
 
     const isDark=ref(false);
-    const avatarCanvas=ref(null);
     const confettiCanvas=ref(null);
     const loadingProgress=ref(0);
     const loadingText=ref('正在初始化...');
@@ -103,8 +81,8 @@ const app=createApp({
     ];
 
     watch(()=>phase.value,(val)=>{
-      if(val==='result' && avatarCanvas.value && result.value){
-        nextTick(()=>drawEmojiAvatar(avatarCanvas.value,result.value.type));
+      if(val==='result' && result.value){
+        nextTick(()=>triggerConfetti());
       }
     });
 
@@ -161,7 +139,6 @@ const app=createApp({
             saveRecord(answers.value, result.value);
             phase.value='result';
             nextTick(()=>{
-              if(avatarCanvas.value) drawEmojiAvatar(avatarCanvas.value,result.value.type);
               triggerConfetti();
             });
           },3500);
@@ -185,8 +162,8 @@ const app=createApp({
       document.documentElement.setAttribute('data-theme',isDark.value?'dark':'light');
     };
 
-    return{phase,currentQ,answers,result,isDark,questions,dimNames,analysisSteps,
-      avatarCanvas,confettiCanvas,loadingProgress,loadingText,hasRecord,
+    return{phase,currentQ,answers,result,isDark,questions,dimNames,analysisSteps,typeEmojis,
+      confettiCanvas,loadingProgress,loadingText,hasRecord,
       startQuiz,continueQuiz,selectOpt,goBack,retry,toggleTheme};
   }
 });
