@@ -350,7 +350,7 @@ function drawEmojiAvatar(canvas, typeCode) {
   if (ctx.roundRect) ctx.roundRect(0, 0, size, size, 28);
   else { ctx.rect(0, 0, size, size); }
   ctx.fill();
-  ctx.font = '80px -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.font = '80px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(t.emoji, size/2, size/2+4);
@@ -371,7 +371,7 @@ function drawPosterEmoji(canvas, typeCode) {
   if (ctx.roundRect) ctx.roundRect(0, 0, size, size, 20);
   else { ctx.rect(0, 0, size, size); }
   ctx.fill();
-  ctx.font = '56px -apple-system, BlinkMacSystemFont, sans-serif';
+  ctx.font = '56px "Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(t.emoji, size/2, size/2+3);
@@ -517,21 +517,21 @@ const app=createApp({
         c.beginPath();
         c.roundRect(0,0,W,300,24);
         c.fill();
-        c.fillStyle='#fff'; c.font='bold 14px -apple-system,BlinkMacSystemFont,sans-serif';
+        c.fillStyle='#fff'; c.font='bold 14px -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif';
         c.textAlign='center'; c.fillText('你的单身指数',W/2,32);
         const tmpC = document.createElement('canvas');
         tmpC.width = 98; tmpC.height = 98;
         drawPosterEmoji(tmpC, result.value.type);
         c.drawImage(tmpC, W/2-55, 45, 110, 110);
-        c.fillStyle='#FFFFFF'; c.font='bold 13px -apple-system,BlinkMacSystemFont,sans-serif';
+        c.fillStyle='#FFFFFF'; c.font='bold 13px -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif';
         c.fillText(result.value.type,W/2,178);
-        c.fillStyle='#fff'; c.font='bold 22px -apple-system,BlinkMacSystemFont,sans-serif';
+        c.fillStyle='#fff'; c.font='bold 22px -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif';
         c.fillText(result.value.name,W/2,204);
-        c.font='bold 48px -apple-system,BlinkMacSystemFont,sans-serif';
+        c.font='bold 48px -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif';
         c.fillText(result.value.index+'%',W/2,262);
-        c.font='14px -apple-system,BlinkMacSystemFont,sans-serif'; c.fillStyle='#fff';
+        c.font='14px -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif'; c.fillStyle='#fff';
         c.fillText('单身指数',W/2,282);
-        c.fillStyle='rgba(255,255,255,.95)'; c.font='12px -apple-system,BlinkMacSystemFont,sans-serif';
+        c.fillStyle='rgba(255,255,255,.95)'; c.font='12px -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif';
         const q=result.value.quote;
         const lines=[];
         let line='';
@@ -541,7 +541,7 @@ const app=createApp({
         } lines.push(line);
         lines.slice(0,3).forEach((l,i)=>c.fillText(l,W/2,318+i*18));
         const tagY=390;
-        c.font='11px -apple-system,BlinkMacSystemFont,sans-serif';
+        c.font='11px -apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif';
         result.value.tags.forEach((t,i)=>{
           const tx=40+i*80;
           c.fillStyle='rgba(255,255,255,.2)';
