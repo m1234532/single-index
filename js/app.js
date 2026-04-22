@@ -32,29 +32,23 @@ function generateRadarSVG(dimScores) {
   const center = size / 2;
   const maxRadius = 80;
   
-  // Calculate points
   const dataPoints = dims.map((dim, i) => {
     const score = (dimScores[dim.name]?.a || 0) / 4;
     const angle = (Math.PI * 2 * i / 4) - Math.PI / 2;
     return {
       x: center + Math.cos(angle) * maxRadius * score,
       y: center + Math.sin(angle) * maxRadius * score,
-      labelX: center + Math.cos(angle) * (maxRadius + 28),
-      labelY: center + Math.sin(angle) * (maxRadius + 28),
-      label: dim.label,
       score: Math.round(score * 100)
     };
   });
   
   const polygonPoints = dataPoints.map(p => `${p.x},${p.y}`).join(' ');
   
-  // Background circles
   const circles = [];
   for (let i = 1; i <= 4; i++) {
     circles.push(`<circle cx="${center}" cy="${center}" r="${maxRadius * i / 4}" fill="none" stroke="#e0e0e0" stroke-width="1.5"/>`);
   }
   
-  // Axes
   const axes = dims.map((_, i) => {
     const angle = (Math.PI * 2 * i / 4) - Math.PI / 2;
     const x2 = center + Math.cos(angle) * maxRadius;
@@ -62,7 +56,6 @@ function generateRadarSVG(dimScores) {
     return `<line x1="${center}" y1="${center}" x2="${x2}" y2="${y2}" stroke="#e0e0e0" stroke-width="1.5"/>`;
   });
   
-  // Labels with scores
   const labels = dims.map((dim, i) => {
     const angle = (Math.PI * 2 * i / 4) - Math.PI / 2;
     const x = center + Math.cos(angle) * (maxRadius + 28);
@@ -124,8 +117,8 @@ const app=createApp({
   setup(){
     const phase=ref('splash');
     const currentQ=ref(0);
-    const answers=ref(new Array(16).fill(null));
-    const result=ref(null);
+    const answers=ref([]);
+    const result=ref({});
     const isDark=ref(false);
     const loadingProgress=ref(0);
     const loadingText=ref('正在初始化...');
@@ -144,7 +137,7 @@ const app=createApp({
     ];
 
     watch(()=>phase.value,(val)=>{
-      if(val==='result' && result.value){
+      if(val==='result' && result.value && result.value.dimScores){
         nextTick(()=>{
           radarHTML.value = generateRadarSVG(result.value.dimScores);
           setTimeout(()=>{
@@ -167,7 +160,7 @@ const app=createApp({
       },200);
       
       const record = loadRecord();
-      if (record) {
+      if (record && record.result) {
         hasRecord.value = true;
         savedRecord.value = record;
       }
@@ -182,13 +175,13 @@ const app=createApp({
 
     const startQuiz=()=>{
       showResult.value = false;
-      answers.value=new Array(16).fill(null);
+      answers.value=new Array(questions.length).fill(null);
       currentQ.value=0;
       phase.value='quiz';
     };
 
     const continueQuiz=()=>{
-      if (savedRecord.value) {
+      if (savedRecord.value && savedRecord.value.answers) {
         answers.value=[...savedRecord.value.answers];
         const firstUnanswered = answers.value.findIndex(a => a === null);
         currentQ.value=firstUnanswered >= 0 ? firstUnanswered : 0;
@@ -198,14 +191,15 @@ const app=createApp({
 
     const selectOpt=(i)=>{
       answers.value[currentQ.value]=i;
-      if(currentQ.value<15){
+      if(currentQ.value < questions.length - 1){
         setTimeout(()=>{currentQ.value++;},300);
       } else {
         setTimeout(()=>{
           phase.value='analysis';
           setTimeout(()=>{
-            result.value=calcResult(answers.value);
-            saveRecord(answers.value, result.value);
+            const calcResultData = calcResult(answers.value);
+            result.value = calcResultData;
+            saveRecord(answers.value, calcResultData);
             phase.value='result';
             nextTick(()=>{
               triggerConfetti();
@@ -223,6 +217,8 @@ const app=createApp({
       localStorage.removeItem(STORAGE_KEY);
       hasRecord.value=false;
       savedRecord.value=null;
+      result.value={};
+      showResult.value=false;
       startQuiz();
     };
 
