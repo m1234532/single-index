@@ -82,7 +82,7 @@ const app=createApp({
   setup(){
     const phase=ref('splash');
     const currentQ=ref(0);
-    const answers=ref(new Array(16).fill(null));
+    const answers=ref([]);
     const result=ref(null);
 
     const isDark=ref(false);
