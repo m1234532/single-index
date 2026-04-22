@@ -86,8 +86,7 @@ const app=createApp({
     const result=ref(null);
 
     const isDark=ref(false);
-    const avatarImg=ref(null);
-    const avatarSrc=ref('');
+    const avatarCanvas=ref(null);
     const confettiCanvas=ref(null);
     const loadingProgress=ref(0);
     const loadingText=ref('正在初始化...');
@@ -104,14 +103,8 @@ const app=createApp({
     ];
 
     watch(()=>phase.value,(val)=>{
-      if(val==='result' && result.value){
-        nextTick(()=>{
-          const canvas = document.createElement('canvas');
-          canvas.width = 280;
-          canvas.height = 280;
-          drawEmojiAvatar(canvas, result.value.type);
-          avatarSrc.value = canvas.toDataURL('image/png');
-        });
+      if(val==='result' && avatarCanvas.value && result.value){
+        nextTick(()=>drawEmojiAvatar(avatarCanvas.value,result.value.type));
       }
     });
 
@@ -168,11 +161,7 @@ const app=createApp({
             saveRecord(answers.value, result.value);
             phase.value='result';
             nextTick(()=>{
-              const canvas = document.createElement('canvas');
-              canvas.width = 280;
-              canvas.height = 280;
-              drawEmojiAvatar(canvas, result.value.type);
-              avatarSrc.value = canvas.toDataURL('image/png');
+              if(avatarCanvas.value) drawEmojiAvatar(avatarCanvas.value,result.value.type);
               triggerConfetti();
             });
           },3500);
@@ -197,7 +186,7 @@ const app=createApp({
     };
 
     return{phase,currentQ,answers,result,isDark,questions,dimNames,analysisSteps,
-      avatarImg,avatarSrc,confettiCanvas,loadingProgress,loadingText,hasRecord,
+      avatarCanvas,confettiCanvas,loadingProgress,loadingText,hasRecord,
       startQuiz,continueQuiz,selectOpt,goBack,retry,toggleTheme};
   }
 });
