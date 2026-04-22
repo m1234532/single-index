@@ -219,6 +219,10 @@ function calcResult(answers) {
   return {...(results[type]||results.HRTI), dimScores};
 }
 
+if(typeof window!=='undefined'){
+  window.typeEmojis=typeEmojis;
+}
+
 if(typeof module!=='undefined'&&module.exports){
   module.exports={dimNames,questions,results,typeEmojis,calcResult};
 }
