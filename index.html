@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>你的单身指数</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💔</text></svg>">
+<link rel="stylesheet" href="css/style.css">
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vant@4/lib/index.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vant@4/lib/index.css">
+</head>
+<body>
+<div id="app">
+<div class="splash-page" v-if="phase==='splash'">
+  <div class="splash-emoji">💔</div>
+  <div class="splash-title">你的单身指数</div>
+  <div class="splash-sub">一份来自社会学视角的单身诊断</div>
+  <div class="splash-loading" v-if="loadingProgress < 100">
+    <div class="splash-progress-bar">
+      <div class="splash-progress-fill" :style="{width: loadingProgress + '%'}"></div>
+    </div>
+    <div class="splash-progress-text">{{loadingText}}</div>
+  </div>
+  <div class="splash-tap-hint" v-else @click="phase='welcome'">点击开始 →</div>
+</div>
+<transition name="page">
+<div class="welcome-page" v-if="phase==='welcome'">
+  <div class="welcome-emoji">🔬</div>
+  <div class="welcome-title">你的单身指数</div>
+  <div class="welcome-desc">基于沈奕斐教授爱情思维课框架，从社交、理想、心动、独处四个维度，诊断你的单身原因。</div>
+  <div class="welcome-divider"></div>
+  <div class="welcome-tags"><span class="tag-chip">⏱ 约3分钟</span><span class="tag-chip">📊 16道题</span><span class="tag-chip">🎭 16种结果</span></div>
+  <button class="welcome-btn" @click="startQuiz">开始测试 →</button>
+</div>
+</transition>
+<transition name="page">
+<div v-if="phase==='quiz'" class="quiz-wrapper">
+  <div class="ios-header">
+    <div class="back-btn" @click="goBack">&lt;</div>
+    <h2>你的单身指数</h2>
+    <div style="width:36px"></div>
+  </div>
+  <div class="progress-bar">
+    <div class="progress-track"><div class="progress-fill" :style="{width:(currentQ+1)/questions.length*100+'%'}"></div></div>
+    <div class="progress-text">{{currentQ+1}} / {{questions.length}}</div>
+  </div>
+  <div class="question-page">
+    <div class="question-meta"><span>{{dimNames[questions[currentQ].dim]}}</span></div>
+    <div class="question-text">{{questions[currentQ].text}}</div>
+    <div class="option-list">
+      <div v-for="(opt,i) in questions[currentQ].options" :key="i" class="option-card" :class="{selected:answers[currentQ]===i}" @click="selectOpt(i)">
+        <div class="option-letter">{{['A','B','C','D'][i]}}</div>
+        <div class="option-text">{{opt}}</div>
+      </div>
+    </div>
+  </div>
+</div>
+</transition>
+<transition name="page">
+<div class="analysis-page" v-if="phase==='analysis'">
+  <div class="analysis-orb">🌀</div>
+  <div class="analysis-title">正在分析你的单身DNA…</div>
+  <div class="analysis-sub">这可能需要几秒钟</div>
+  <div class="analysis-steps">
+    <div class="analysis-step" v-for="s in analysisSteps" :key="s.label">
+      <div class="step-icon" :style="{background:s.bg}">{{s.icon}}</div>
+      <div class="step-text">{{s.label}}</div>
+    </div>
+  </div>
+</div>
+</transition>
+<transition name="page">
+<div class="result-page" v-if="phase==='result'">
+  <div class="result-hero">
+    <div class="result-avatar-wrap"><canvas ref="avatarCanvas" width="140" height="140" style="border-radius:28px"></canvas></div>
+    <div class="result-type-code">{{result.type}}</div>
+    <div class="result-type-name">{{result.name}}</div>
+    <div class="result-subtype">{{result.subtitle}}</div>
+    <div class="result-index"><div class="num">{{result.index}}%</div><div class="label">单身指数</div></div>
+  </div>
+  <div class="result-desc"><h3>📋 诊断报告</h3><p>{{result.desc}}</p></div>
+  <div class="result-quote"><p>{{result.quote}}</p></div>
+  <div class="result-tags"><span class="result-tag" v-for="t in result.tags" :key="t">{{t}}</span></div>
+  <div class="result-tags" style="margin-bottom:20px"><span class="tag-chip" v-for="d in result.dims" :key="d" style="font-size:12px">{{d}}</span></div>
+  <button class="result-share-btn" @click="generatePoster"><span>📸</span> 生成专属海报</button>
+  <button class="result-retry-btn" @click="retry">🔄 重新测试</button>
+</div>
+</transition>
+<transition name="page">
+<div class="poster-page" v-if="phase==='poster'">
+  <div class="ios-header">
+    <div class="back-btn" @click="phase='result'">&lt;</div>
+    <h2>分享你的结果</h2>
+    <div style="width:36px"></div>
+  </div>
+  <div style="width:100%;max-width:380px;margin-top:20px">
+    <div id="poster-target" style="background:var(--ios-bg);padding:32px 24px;border-radius:24px">
+      <div style="text-align:center"><canvas ref="posterCanvas" width="332" height="440"></canvas></div>
+      <div style="text-align:center;margin-top:16px">
+        <div style="font-size:14px;font-weight:700;color:var(--ios-text);letter-spacing:2px;margin-bottom:4px">{{result.type}}</div>
+        <div style="font-size:20px;font-weight:800;color:var(--ios-text)">{{result.name}}</div>
+        <div style="font-size:13px;color:var(--ios-gray);margin-top:4px">{{result.subtitle}}</div>
+      </div>
+      <div style="margin-top:16px;background:var(--ios-card);border-radius:16px;padding:16px">
+        <div style="font-size:14px;color:var(--ios-text2);line-height:1.8">{{result.desc.substring(0,80)}}…</div>
+      </div>
+      <div style="text-align:center;margin-top:20px">
+        <div style="font-size:13px;color:var(--ios-gray)">长按保存图片 · 扫码测试你的</div>
+        <div style="font-size:13px;color:var(--ios-blue);font-weight:600">你的单身指数</div>
+        <div style="margin-top:8px"><img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://single-index.pages.dev/" style="width:100px;height:100px;border-radius:8px" crossorigin="anonymous"></div>
+      </div>
+    </div>
+    <button class="poster-download-btn" @click="downloadPoster" style="margin-top:16px"><span>⬇️</span> 保存到相册</button>
+    <button class="poster-back-btn" @click="phase='result'">← 返回结果</button>
+  </div>
+</div>
+</transition>
+<button class="theme-toggle" @click="toggleTheme">{{isDark?"☀️":"🌙"}}</button>
+<canvas id="confetti-canvas" ref="confettiCanvas"></canvas>
+</div>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
