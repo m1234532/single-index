@@ -8,45 +8,152 @@
 <meta http-equiv="Expires" content="0">
 <title>你的单身指数</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💔</text></svg>">
-<link rel="stylesheet" href="css/style.css?v=3">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Noto+Color+Emoji&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.4.27/vue.global.prod.min.js"></script>
+<style>
+:root{--bg:#F2F2F7;--card:#FFF;--blue:#007AFF;--text:#000;--text2:#3A3A3C;--gray:#8E8E93;--gray2:#AEAEB2;--gray3:#C7C7CC;--gray4:#D1D1D6;--gray5:#E5E5EA;--red:#FF3B30;--orange:#FF9500;--green:#34C759;--purple:#5856D6}
+[data-theme=dark]{--bg:#000;--card:#1C1C1E;--blue:#0A84FF;--text:#FFF;--text2:#EBEBF5;--gray:#8E8E93;--gray2:#636366;--gray3:#48484A;--gray4:#3A3A3C;--gray5:#2C2C2E;--red:#FF453A;--orange:#FF9F0A;--green:#30D158;--purple:#5E5CE6}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Helvetica Neue',sans-serif;background:var(--bg);color:var(--text);transition:background .3s,color .3s;min-height:100vh;overflow-x:hidden}
+button{font-family:inherit;cursor:pointer;border:none;outline:none}
+#app{min-height:100vh;display:flex;flex-direction:column}
+.splash-page{position:fixed;inset:0;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;animation:splashIn .5s ease}
+.splash-emoji{font-size:72px;animation:bounce .8s cubic-bezier(.34,1.56,.64,1) .2s both}
+.splash-title{font-size:32px;font-weight:800;color:#fff;margin-top:16px}
+.splash-sub{font-size:14px;color:rgba(255,255,255,.7);margin-top:8px}
+.splash-loading{margin-top:40px;width:200px}
+.splash-bar{height:4px;background:rgba(255,255,255,.2);border-radius:2px;overflow:hidden}
+.splash-fill{height:100%;background:#fff;border-radius:2px;transition:width .3s}
+.splash-text{font-size:12px;color:rgba(255,255,255,.8);margin-top:12px;text-align:center}
+.splash-tap{margin-top:40px;font-size:16px;color:#fff;padding:12px 32px;background:rgba(255,255,255,.2);border-radius:24px;animation:pulse 1.5s ease-in-out infinite}
+@keyframes splashIn{from{opacity:0}to{opacity:1}}
+@keyframes bounce{0%{transform:scale(0)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+.welcome{padding:60px 28px 40px;text-align:center;min-height:100vh;display:flex;flex-direction:column;align-items:center}
+.welcome .emoji{font-size:80px;margin-bottom:24px;animation:pulse 2s ease-in-out infinite}
+.welcome h1{font-size:32px;font-weight:800;letter-spacing:-1px;line-height:1.2}
+.welcome p{font-size:15px;color:var(--gray);margin-top:16px;line-height:1.7;max-width:300px}
+.welcome .divider{width:60px;height:4px;border-radius:2px;background:var(--gray4);margin:32px auto}
+.welcome .tags{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:auto}
+.tag{background:var(--gray5);color:var(--text2);font-size:13px;font-weight:500;padding:6px 14px;border-radius:20px}
+.welcome .btn{width:100%;padding:16px;background:linear-gradient(135deg,var(--blue),var(--purple));color:#fff;font-size:17px;font-weight:600;border-radius:14px;margin-top:32px;transition:transform .2s;box-shadow:0 8px 24px rgba(0,122,255,.3)}
+.welcome .btn:active{transform:scale(.97)}
+.welcome .btn2{background:var(--gray5);color:var(--text);box-shadow:none;margin-top:12px}
+.quiz{min-height:100vh;display:flex;flex-direction:column}
+.q-header{position:sticky;top:0;z-index:100;padding:12px 20px;padding-top:max(12px,env(safe-area-inset-top,12px)+12px);background:var(--bg);backdrop-filter:saturate(180%) blur(20px);display:flex;align-items:center;justify-content:space-between}
+.q-back{width:36px;height:36px;border-radius:50%;background:var(--gray5);display:flex;align-items:center;justify-content:center;color:var(--text);font-size:18px}
+.q-header h2{font-size:17px;font-weight:600;flex:1;text-align:center}
+.progress{padding:0 20px}
+.progress .bar{height:4px;background:var(--gray5);border-radius:2px;overflow:hidden}
+.progress .fill{height:100%;background:var(--blue);border-radius:2px;transition:width .3s}
+.progress .text{font-size:12px;color:var(--gray);margin-top:8px;text-align:right}
+.q-body{flex:1;padding:20px;display:flex;flex-direction:column}
+.q-meta{font-size:13px;color:var(--blue);font-weight:600;margin-bottom:12px}
+.q-text{font-size:18px;font-weight:600;line-height:1.5;margin-bottom:24px}
+.opts{display:flex;flex-direction:column;gap:12px}
+.opt{padding:16px 20px;background:var(--card);border-radius:14px;display:flex;align-items:center;gap:14px;transition:transform .15s,box-shadow .15s;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.opt:active{transform:scale(.98)}
+.opt.sel{background:var(--blue);color:#fff;box-shadow:0 4px 16px rgba(0,122,255,.3)}
+.opt .letter{width:28px;height:28px;border-radius:50%;background:var(--gray5);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0}
+.opt.sel .letter{background:rgba(255,255,255,.3)}
+.opt .text{font-size:15px;line-height:1.4}
+.analysis{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 28px}
+.analysis .orb{font-size:64px;animation:spin 2s linear infinite}
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.analysis h2{font-size:22px;font-weight:700;margin-top:24px}
+.analysis p{font-size:14px;color:var(--gray);margin-top:8px}
+.analysis .steps{margin-top:32px;display:flex;flex-direction:column;gap:12px;width:100%;}
+.analysis .step{display:flex;align-items:center;gap:14px;background:var(--card);padding:14px 18px;border-radius:14px;opacity:0;transform:translateY(10px);animation:fadeUp .4s ease forwards}
+.analysis .step:nth-child(1){animation-delay:.3s}
+.analysis .step:nth-child(2){animation-delay:.6s}
+.analysis .step:nth-child(3){animation-delay:.9s}
+.analysis .step:nth-child(4){animation-delay:1.2s}
+@keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
+.analysis .step .icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
+.analysis .step .label{font-size:14px;color:var(--text2)}
+.result{padding:20px 20px 40px;text-align:center}
+.share-tip{background:var(--card);border-radius:14px;padding:16px;margin-bottom:20px;display:flex;align-items:center;gap:12px;text-align:left;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.share-tip .icon{font-size:28px;flex-shrink:0}
+.share-tip .title{font-size:14px;font-weight:600}
+.share-tip .desc{font-size:12px;color:var(--gray);margin-top:2px}
+.r-hero{text-align:center;margin-bottom:24px}
+.r-type-code{font-size:13px;color:var(--gray);font-weight:600;letter-spacing:2px}
+.r-name{font-size:28px;font-weight:800;margin-top:4px}
+.r-sub{font-size:13px;color:var(--gray);margin-top:4px}
+.r-cards{display:flex;gap:16px;justify-content:center;margin-top:20px}
+.r-avatar{width:100px;height:100px;border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:52px;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.15)}
+.r-index{background:var(--card);border-radius:16px;padding:16px 24px;box-shadow:0 2px 8px rgba(0,0,0,.04);display:flex;flex-direction:column;justify-content:center;min-width:120px}
+.r-index .num{font-size:36px;font-weight:800;color:var(--blue)}
+.r-index .label{font-size:12px;color:var(--gray);margin-top:2px}
+.r-index .pct{font-size:11px;color:var(--gray2);margin-top:2px}
+.r-quote{font-size:14px;color:var(--text2);line-height:1.7;margin-top:16px;font-style:italic}
+.r-radar{background:var(--card);border-radius:16px;padding:20px;margin-top:20px;text-align:left;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.r-radar h3{font-size:16px;font-weight:700;margin-bottom:16px}
+.r-radar .dim{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.r-radar .dim .name{font-size:13px;color:var(--text2);width:72px;flex-shrink:0}
+.r-radar .dim .bar{flex:1;height:8px;background:var(--gray5);border-radius:4px;overflow:hidden}
+.r-radar .dim .bar .fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--purple));border-radius:4px;transition:width .6s}
+.r-radar .dim .score{font-size:12px;color:var(--gray);width:36px;text-align:right}
+.r-section{background:var(--card);border-radius:16px;padding:20px;margin-top:16px;text-align:left;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.r-section h3{font-size:16px;font-weight:700;margin-bottom:12px}
+.r-section p{font-size:14px;color:var(--text2);line-height:1.7}
+.r-section ul{list-style:none;padding:0}
+.r-section li{font-size:14px;color:var(--text2);line-height:1.7;padding-left:20px;position:relative;margin-bottom:6px}
+.r-section li::before{content:"";position:absolute;left:0;top:10px;width:6px;height:6px;border-radius:50%;background:var(--blue)}
+.r-tags{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:16px}
+.r-tag{background:var(--red);color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:20px;opacity:.9}
+.disclaimer{margin-top:24px;padding:20px;background:var(--card);border-radius:16px;text-align:left;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.disclaimer h3{font-size:14px;font-weight:700;margin-bottom:8px}
+.disclaimer p{font-size:12px;color:var(--gray);line-height:1.6;margin-bottom:6px}
+.retry-btn{width:100%;padding:16px;background:var(--card);color:var(--text);font-size:16px;font-weight:600;border-radius:14px;margin-top:24px;box-shadow:0 2px 8px rgba(0,0,0,.04);transition:transform .2s}
+.retry-btn:active{transform:scale(.97)}
+.credit{font-size:12px;color:var(--gray2);margin-top:16px}
+.theme-btn{position:fixed;bottom:20px;right:20px;width:48px;height:48px;border-radius:50%;background:var(--card);box-shadow:0 4px 16px rgba(0,0,0,.15);display:flex;align-items:center;justify-content:center;font-size:22px;z-index:9999;transition:transform .2s}
+.theme-btn:active{transform:scale(.9)}
+.page-enter-active,.page-leave-active{transition:opacity .3s,transform .3s}
+.page-enter-from{opacity:0;transform:translateY(20px)}
+.page-leave-to{opacity:0;transform:translateY(-20px)}
+.fade-enter-active,.fade-leave-active{transition:opacity .3s}
+.fade-enter-from,.fade-leave-to{opacity:0}
+.welcome-footer{margin-top:20px;font-size:13px;color:var(--gray2);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.welcome-footer:active{opacity:.6}
+.changelog-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:10000;padding:20px}
+.changelog-card{background:var(--card);border-radius:24px;padding:28px 24px;max-width:400px;width:100%;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.changelog-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.changelog-title{font-size:18px;font-weight:700;color:var(--text)}
+.changelog-close{font-size:20px;color:var(--gray);cursor:pointer;padding:4px 8px;border-radius:8px}
+.changelog-close:active{background:var(--gray5)}
+.changelog-body{display:flex;flex-direction:column;gap:20px}
+.changelog-item{padding-bottom:16px;border-bottom:1px solid var(--gray5)}
+.changelog-item:last-child{border-bottom:none;padding-bottom:0}
+.changelog-ver{font-size:15px;font-weight:700;color:var(--blue);margin-bottom:8px}
+.changelog-item ul{list-style:none;padding:0;margin:0}
+.changelog-item li{font-size:14px;color:var(--text2);line-height:1.7;padding-left:16px;position:relative}
+.changelog-item li::before{content:'•';position:absolute;left:0;color:var(--blue);font-weight:700}
+</style>
 </head>
 <body>
-<!-- 纯 HTML 加载页面，Vue 加载前显示 -->
-<div id="app-loading" style="position:fixed;inset:0;background:linear-gradient(135deg,#007AFF,#5856D6);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:99999">
-  <div style="font-size:72px">💔</div>
-  <div style="font-size:32px;font-weight:800;color:#fff;margin-top:16px">你的单身指数</div>
-  <div style="font-size:14px;color:rgba(255,255,255,.7);margin-top:8px">正在加载...</div>
-</div>
-
 <div id="app">
 <div class="splash-page" v-if="phase==='splash'">
   <div class="splash-emoji">💔</div>
   <div class="splash-title">你的单身指数</div>
   <div class="splash-sub">一份专业的单身诊断测试</div>
   <div class="splash-loading" v-if="loadingProgress < 100">
-    <div class="splash-progress-bar">
-      <div class="splash-progress-fill" :style="{width: loadingProgress + '%'}"></div>
-    </div>
-    <div class="splash-progress-text">{{loadingText}}</div>
+    <div class="splash-bar"><div class="splash-fill" :style="{width: loadingProgress + '%'}"></div></div>
+    <div class="splash-text">{{loadingText}}</div>
   </div>
-  <div class="splash-tap-hint" v-else @click="phase='welcome'">点击开始 →</div>
+  <div class="splash-tap" v-else @click="phase='welcome'">点击开始 →</div>
 </div>
 
 <transition name="page">
-<div class="welcome-page" v-if="phase==='welcome'">
-  <div class="welcome-emoji">🔬</div>
-  <div class="welcome-title">你的单身指数</div>
-  <div class="welcome-desc">基于专业爱情心理学框架，从社交、理想、心动、独处四个维度，诊断你的单身原因。</div>
-  <div class="welcome-divider"></div>
-  <div class="welcome-tags"><span class="tag-chip">⏱ 约3分钟</span><span class="tag-chip">📊 16道题</span><span class="tag-chip">🎭 81种结果</span></div>
-  <button class="welcome-btn" @click="startQuiz">开始测试 →</button>
-  <button v-if="hasRecord" class="welcome-btn-secondary" @click="continueQuiz">继续上次的测试 →</button>
-  <div class="welcome-footer" @click="showChangelog=true">
-    <span class="welcome-version">v2.0 · 更新日志</span>
-  </div>
+<div class="welcome" v-if="phase==='welcome'">
+  <div class="emoji">🔬</div>
+  <h1>你的单身指数</h1>
+  <p>基于专业爱情心理学框架，从社交、理想、心动、独处四个维度，诊断你的单身原因。</p>
+  <div class="divider"></div>
+  <div class="tags"><span class="tag">⏱ 约3分钟</span><span class="tag">📊 16道题</span><span class="tag">🎭 81种结果</span></div>
+  <button class="btn" @click="startQuiz">开始测试 →</button>
+  <button class="btn btn2" v-if="hasRecord" @click="continueQuiz">继续上次的测试 →</button>
+  <div class="welcome-footer" @click="showChangelog=true">v2.1 · 更新日志</div>
 </div>
 </transition>
 
@@ -60,14 +167,20 @@
     </div>
     <div class="changelog-body">
       <div class="changelog-item">
+        <div class="changelog-ver">v2.1 · 2026.4.23</div>
+        <ul>
+          <li>结果页维度展示改用中文标签，告别 MHHL</li>
+          <li>选项顺序随机打乱，防止猜答案倾向</li>
+          <li>修复雷达图进度条不显示的问题</li>
+        </ul>
+      </div>
+      <div class="changelog-item">
         <div class="changelog-ver">v2.0 · 2026.4.23</div>
         <ul>
           <li>结果类型从 16 种扩展到 81 种，差异化更强</li>
           <li>每个维度新增「中」档，3×3×3×3 = 81 种组合</li>
           <li>新增 81 条差异化引言和诊断描述</li>
           <li>单身指数动态计算，更精准</li>
-          <li>修复快速点击导致结果页空白的问题</li>
-          <li>截图提示移至结果页顶部</li>
         </ul>
       </div>
       <div class="changelog-item">
@@ -76,15 +189,6 @@
           <li>新增 emoji 头像展示</li>
           <li>新增四维雷达图可视化</li>
           <li>新增避雷类型模块</li>
-          <li>优化移动端适配</li>
-        </ul>
-      </div>
-      <div class="changelog-item">
-        <div class="changelog-ver">v1.2 · 2026.4.21</div>
-        <ul>
-          <li>新增断点续答功能</li>
-          <li>新增深色模式切换</li>
-          <li>优化加载动画</li>
         </ul>
       </div>
       <div class="changelog-item">
@@ -101,23 +205,23 @@
 </transition>
 
 <transition name="page">
-<div v-if="phase==='quiz'" class="quiz-wrapper">
-  <div class="ios-header">
-    <div class="back-btn" @click="goBack">&lt;</div>
+<div class="quiz" v-if="phase==='quiz'">
+  <div class="q-header">
+    <div class="q-back" @click="goBack">&lt;</div>
     <h2>你的单身指数</h2>
     <div style="width:36px"></div>
   </div>
-  <div class="progress-bar">
-    <div class="progress-track"><div class="progress-fill" :style="{width:(currentQ+1)/questions.length*100+'%'}"></div></div>
-    <div class="progress-text">{{currentQ+1}} / {{questions.length}}</div>
+  <div class="progress">
+    <div class="bar"><div class="fill" :style="{width:(currentQ+1)/questions.length*100+'%'}"></div></div>
+    <div class="text">{{currentQ+1}} / {{questions.length}}</div>
   </div>
-  <div class="question-page">
-    <div class="question-meta"><span>{{dimNames[questions[currentQ].dim]}}</span></div>
-    <div class="question-text">{{questions[currentQ].text}}</div>
-    <div class="option-list">
-      <div v-for="(opt,i) in questions[currentQ].options" :key="i" class="option-card" :class="{selected:answers[currentQ]===i}" @click="selectOpt(i)">
-        <div class="option-letter">{{['A','B','C','D'][i]}}</div>
-        <div class="option-text">{{opt}}</div>
+  <div class="q-body">
+    <div class="q-meta">{{dimNames[questions[currentQ].dim]}}</div>
+    <div class="q-text">{{questions[currentQ].text}}</div>
+    <div class="opts">
+      <div class="opt" v-for="(opt,i) in questions[currentQ].options" :key="i" :class="{sel:answers[currentQ]===i}" @click="selectOpt(i)">
+        <div class="letter">{{['A','B','C','D'][i]}}</div>
+        <div class="text">{{opt}}</div>
       </div>
     </div>
   </div>
@@ -125,107 +229,148 @@
 </transition>
 
 <transition name="page">
-<div class="analysis-page" v-if="phase==='analysis'">
-  <div class="analysis-orb">🌀</div>
-  <div class="analysis-title">正在分析你的单身DNA…</div>
-  <div class="analysis-sub">这可能需要几秒钟</div>
-  <div class="analysis-steps">
-    <div class="analysis-step" v-for="s in analysisSteps" :key="s.label">
-      <div class="step-icon" :style="{background:s.bg}">{{s.icon}}</div>
-      <div class="step-text">{{s.label}}</div>
+<div class="analysis" v-if="phase==='analysis'">
+  <div class="orb">🌀</div>
+  <h2>正在分析你的单身DNA…</h2>
+  <p>这可能需要几秒钟</p>
+  <div class="steps">
+    <div class="step" v-for="s in analysisSteps" :key="s.label">
+      <div class="icon" :style="{background:s.bg}">{{s.icon}}</div>
+      <div class="label">{{s.label}}</div>
     </div>
   </div>
 </div>
 </transition>
 
 <transition name="page">
-<div class="result-page" v-if="phase==='result'">
-  <div class="share-tip" style="margin:0 0 20px 0">
-    <div class="share-tip-icon">📱</div>
-    <div class="share-tip-title">截图分享给朋友</div>
-    <div class="share-tip-desc">长按或截图保存结果页面 分享到朋友圈/发给好友</div>
+<div class="result" v-if="phase==='result' && result">
+  <div class="share-tip">
+    <div class="icon">📱</div>
+    <div><div class="title">截图分享给朋友</div><div class="desc">长按或截图保存结果页面</div></div>
   </div>
-
-  <div class="result-hero">
-    <div class="result-type-code">{{result.type}}</div>
-    <div class="result-type-name">{{result.name}}</div>
-    <div class="result-subtype">{{result.subtitle}}</div>
-    <div class="result-hero-cards">
-      <div class="result-avatar-card">
-        <div class="result-avatar-wrap" :style="{background: typeEmojis[result.type]?.bg || 'linear-gradient(135deg,#007AFF,#5856D6)'}" style="width:140px;height:140px;border-radius:28px;display:flex;align-items:center;justify-content:center;font-size:72px">
-          {{typeEmojis[result.type]?.emoji || '❓'}}
-        </div>
-      </div>
-      <div class="result-index-card">
+  <div class="r-hero">
+    <div class="r-type-code" v-if="result.dims && result.dims.length">{{result.dims[0]}} · {{result.dims[1]}}</div>
+    <div class="r-name">{{result.name}}</div>
+    <div class="r-sub" v-if="result.dims && result.dims.length > 2">{{result.dims[2]}} · {{result.dims[3]}}</div>
+    <div class="r-cards">
+      <div class="r-avatar" :style="{background: result.visual?.bg || 'linear-gradient(135deg,#007AFF,#5856D6)'}">{{result.visual?.emoji || '❓'}}</div>
+      <div class="r-index">
         <div class="num">{{result.index}}%</div>
         <div class="label">单身指数</div>
-        <div class="percent">基于{{questions.length}}题测试</div>
+        <div class="pct">基于{{questions.length}}题测试</div>
       </div>
     </div>
-    <div class="result-one-line">"{{result.oneLine||''}}"</div>
+    <div class="r-quote">"{{result.quote||''}}"</div>
   </div>
-  
-  <div class="result-radar" v-if="result.dimScores">
-    <div class="result-radar-title">📊 四维雷达图</div>
-    <div class="result-radar-content">
-      <div class="radar-dims">
-        <div class="radar-item" v-for="(score, key) in result.dimScores" :key="key">
-          <span class="radar-label">{{dimNames[key]}}</span>
-          <div class="radar-bar-wrap"><div class="radar-bar" :style="{width:(score.a/4*100)+'%'}"></div></div>
-          <span class="radar-score">{{Math.round(score.a/4*100)}}%</span>
-        </div>
-      </div>
+  <div class="r-radar" v-if="result.dimScores">
+    <h3>📊 四维雷达图</h3>
+    <div class="dim" v-for="(score, key) in result.dimScores" :key="key">
+      <span class="name">{{dimNames[key]}}</span>
+      <div class="bar"><div class="fill" :style="{width:(score.a/4*100)+'%'}"></div></div>
+      <span class="score">{{Math.round(score.a/4*100)}}%</span>
     </div>
   </div>
-  
-  <div class="result-desc"><h3>📋 诊断报告</h3><p>{{result.desc}}</p></div>
-  <div class="result-quote"><p>{{result.quote}}</p></div>
-  
-  <div class="result-tips" v-if="result.tips && result.tips.length">
+  <div class="r-section"><h3>📋 诊断报告</h3><p>{{result.desc}}</p></div>
+  <div class="r-section"><p style="font-style:italic">{{result.quote}}</p></div>
+  <div class="r-section" v-if="result.tips && result.tips.length">
     <h3>💡 脱单建议</h3>
-    <ul>
-      <li v-for="(tip,idx) in result.tips" :key="idx">{{tip}}</li>
-    </ul>
+    <ul><li v-for="(tip,i) in result.tips" :key="i">{{tip}}</li></ul>
   </div>
-  
-  <div class="result-avoid" v-if="result.avoid && result.avoid.length">
+  <div class="r-section" v-if="result.avoid && result.avoid.length">
     <h3>⚠️ 避雷类型</h3>
-    <ul>
-      <li v-for="(item,idx) in result.avoid" :key="idx">{{item}}</li>
-    </ul>
+    <ul><li v-for="(a,i) in result.avoid" :key="i">{{a}}</li></ul>
   </div>
-  
-  <div class="result-tags"><span class="result-tag" v-for="t in result.tags" :key="t">{{t}}</span></div>
-  <div class="result-tags" style="margin-bottom:20px"><span class="tag-chip" v-for="d in result.dims" :key="d" style="font-size:12px">{{d}}</span></div>
-  
-  <div class="disclaimer">
-    <h3>📌 免责声明</h3>
-    <p>本测试仅供娱乐参考，结果并非绝对。每个人的感情状态受多种因素影响，不能简单地用几个维度来概括。</p>
-    <p>专业爱情心理学框架提供了一种理解单身原因的角度，但真正的脱单还需要你勇敢迈出一步。</p>
-    <p>无论你现在是单身还是恋爱中，都祝你幸福！💕</p>
-  </div>
-  
-  <button class="result-retry-btn" @click="retry">🔄 重新测试</button>
-  <div class="result-credit">by Poliwhirl</div>
+  <div class="r-tags"><span class="r-tag" v-for="t in result.tags" :key="t">{{t}}</span></div>
+  <div class="disclaimer"><h3>📌 免责声明</h3><p>本测试仅供娱乐参考，结果并非绝对。</p><p>无论你现在是单身还是恋爱中，都祝你幸福！💕</p></div>
+  <button class="retry-btn" @click="retry">🔄 重新测试</button>
+  <div class="credit">by Poliwhirl</div>
 </div>
 </transition>
 
-<button class="theme-toggle" @click="toggleTheme">{{isDark?"☀️":"🌙"}}</button>
-<canvas id="confetti-canvas" ref="confettiCanvas"></canvas>
+<button class="theme-btn" @click="toggleTheme">{{isDark?"☀️":"🌙"}}</button>
 </div>
-<script src="js/data.js?v=3"></script>
-<script src="js/app.js?v=3"></script>
+
+<script src="js/data.js"></script>
 <script>
-// Vue 挂载成功后隐藏纯 HTML 加载页
-document.addEventListener('DOMContentLoaded', function() {
-  var el = document.getElementById('app-loading');
-  if (el) el.style.display = 'none';
+const {createApp,ref,computed,watch,nextTick,onMounted}=Vue;
+const SK='single_index_v2';
+function saveR(a,r){localStorage.setItem(SK,JSON.stringify({answers:a,result:r,t:Date.now()}))}
+function loadR(){try{const d=localStorage.getItem(SK);return d?JSON.parse(d):null}catch(e){return null}}
+
+const app=createApp({
+  setup(){
+    const phase=ref('splash');
+    const currentQ=ref(0);
+    const answers=ref([]);
+    const result=ref(null);
+    const isDark=ref(false);
+    const loadingProgress=ref(0);
+    const loadingText=ref('正在初始化...');
+    const hasRecord=ref(false);
+    const savedRecord=ref(null);
+    const isTransitioning=ref(false);
+    const showChangelog=ref(false);
+
+    const steps=[{p:15,t:'加载题目数据...'},{p:35,t:'随机抽取题目...'},{p:55,t:'初始化分析引擎...'},{p:75,t:'准备结果图谱...'},{p:90,t:'即将完成...'},{p:100,t:'点击开始'}];
+
+    onMounted(()=>{
+      let s=0;
+      const iv=setInterval(()=>{if(s<steps.length){loadingProgress.value=steps[s].p;loadingText.value=steps[s].t;s++}else{clearInterval(iv)}},200);
+      const rec=loadR();
+      if(rec){hasRecord.value=true;savedRecord.value=rec}
+    });
+
+    const analysisSteps=computed(()=>[
+      {icon:'🧬',label:'扫描社交基因序列…',bg:'rgba(255,107,53,.15)'},
+      {icon:'🔍',label:'解码爱情滤镜参数…',bg:'rgba(253,121,168,.15)'},
+      {icon:'💓',label:'测量心动阈值波动…',bg:'rgba(225,112,85,.15)'},
+      {icon:'🔋',label:'检测独处电量指数…',bg:'rgba(0,184,148,.15)'}
+    ]);
+
+    const startQuiz=()=>{answers.value=new Array(questions.length).fill(null);currentQ.value=0;phase.value='quiz'};
+    const continueQuiz=()=>{if(savedRecord.value){answers.value=[...savedRecord.value.answers];const f=answers.value.findIndex(a=>a===null);currentQ.value=f>=0?f:0;phase.value='quiz'}};
+    const goBack=()=>{if(currentQ.value>0)currentQ.value--};
+    const retry=()=>{localStorage.removeItem(SK);hasRecord.value=false;savedRecord.value=null;startQuiz()};
+    const toggleTheme=()=>{isDark.value=!isDark.value;document.documentElement.setAttribute('data-theme',isDark.value?'dark':'light')};
+
+    const selectOpt=(i)=>{
+      if(isTransitioning.value)return;
+      answers.value[currentQ.value]=i;
+      if(currentQ.value<questions.length-1){
+        isTransitioning.value=true;
+        setTimeout(()=>{currentQ.value++;isTransitioning.value=false},300);
+      }else{
+        isTransitioning.value=true;
+        setTimeout(()=>{
+          phase.value='analysis';
+          setTimeout(()=>{
+            try{
+              result.value=calcResult(answers.value);
+              if(!result.value||!result.value.type){
+                result.value={name:'神秘型单身者',subtitle:'默认结果',index:50,type:'MMMM',desc:'请重新测试。',quote:'再试一次吧。',tips:['重新测试'],avoid:[],tags:[],dimScores:{social:{a:2,b:2},filter:{a:2,b:2},heartbeat:{a:2,b:2},alone:{a:2,b:2}}};
+              }
+              // 附加视觉信息
+              if(result.value.type && typeEmojis && typeEmojis[result.value.type]){
+                result.value.visual=typeEmojis[result.value.type];
+              }
+              saveR(answers.value,result.value);
+            }catch(e){
+              console.error('calcResult error:',e);
+              result.value={name:'神秘型单身者',subtitle:'计算出错',index:50,type:'MMMM',desc:'结果计算出错。',quote:'没关系，再试一次。',tips:['重新测试'],avoid:[],tags:[],dimScores:{social:{a:2,b:2},filter:{a:2,b:2},heartbeat:{a:2,b:2},alone:{a:2,b:2}},visual:{emoji:'❓',bg:'linear-gradient(135deg,#007AFF,#5856D6)'}};
+            }
+            phase.value='result';
+            isTransitioning.value=false;
+          },3500);
+        },300);
+      }
+    };
+
+    return{phase,currentQ,answers,result,isDark,questions,dimNames,analysisSteps,
+      loadingProgress,loadingText,hasRecord,showChangelog,
+      startQuiz,continueQuiz,selectOpt,goBack,retry,toggleTheme};
+  }
 });
-// 兜底：3秒后强制隐藏加载页
-setTimeout(function() {
-  var el = document.getElementById('app-loading');
-  if (el) el.style.display = 'none';
-}, 3000);
+app.mount('#app');
 </script>
 </body>
 </html>
