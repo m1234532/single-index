@@ -1,5 +1,25 @@
 const {createApp,ref,computed,watch,nextTick,onMounted}=Vue;
 
+const STORAGE_KEY = 'single_index_record';
+
+function saveRecord(answersArr, resultData) {
+  const record = {
+    answers: answersArr,
+    result: resultData,
+    savedAt: Date.now()
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(record));
+}
+
+function loadRecord() {
+  try {
+    const data = localStorage.getItem(STORAGE_KEY);
+    return data ? JSON.parse(data) : null;
+  } catch(e) {
+    return null;
+  }
+}
+
 function drawEmojiAvatar(canvas, typeCode) {
   const ctx = canvas.getContext('2d');
   const size = 140;
@@ -19,27 +39,6 @@ function drawEmojiAvatar(canvas, typeCode) {
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   ctx.fillText(t.emoji, size/2, size/2+4);
-}
-
-function drawPosterEmoji(canvas, typeCode) {
-  const ctx = canvas.getContext('2d');
-  const size = 98;
-  canvas.width = size;
-  canvas.height = size;
-  const t = typeEmojis[typeCode] || typeEmojis.HRTI;
-  const grad = ctx.createLinearGradient(0, 0, size, size);
-  const colors = t.bg.match(/#[0-9A-Fa-f]{6}/g) || ['#007AFF', '#5856D6'];
-  grad.addColorStop(0, colors[0]);
-  grad.addColorStop(1, colors[1]);
-  ctx.fillStyle = grad;
-  ctx.beginPath();
-  if (ctx.roundRect) ctx.roundRect(0, 0, size, size, 20);
-  else { ctx.rect(0, 0, size, size); }
-  ctx.fill();
-  ctx.font = '56px -apple-system, BlinkMacSystemFont, sans-serif';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(t.emoji, size/2, size/2+3);
 }
 
 function triggerConfetti() {
@@ -87,10 +86,11 @@ const app=createApp({
     const result=ref(null);
     const isDark=ref(false);
     const avatarCanvas=ref(null);
-    const posterCanvas=ref(null);
     const confettiCanvas=ref(null);
     const loadingProgress=ref(0);
     const loadingText=ref('正在初始化...');
+    const hasRecord=ref(false);
+    const savedRecord=ref(null);
 
     const loadingSteps=[
       {p:15,t:'加载题目数据...'},
@@ -118,6 +118,12 @@ const app=createApp({
           clearInterval(interval);
         }
       },200);
+      
+      const record = loadRecord();
+      if (record) {
+        hasRecord.value = true;
+        savedRecord.value = record;
+      }
     });
 
     const analysisSteps=computed(()=>[
@@ -133,6 +139,15 @@ const app=createApp({
       phase.value='quiz';
     };
 
+    const continueQuiz=()=>{
+      if (savedRecord.value) {
+        answers.value=[...savedRecord.value.answers];
+        const firstUnanswered = answers.value.findIndex(a => a === null);
+        currentQ.value=firstUnanswered >= 0 ? firstUnanswered : 0;
+        phase.value='quiz';
+      }
+    };
+
     const selectOpt=(i)=>{
       answers.value[currentQ.value]=i;
       if(currentQ.value<15){
@@ -142,6 +157,7 @@ const app=createApp({
           phase.value='analysis';
           setTimeout(()=>{
             result.value=calcResult(answers.value);
+            saveRecord(answers.value, result.value);
             phase.value='result';
             nextTick(()=>{
               if(avatarCanvas.value) drawEmojiAvatar(avatarCanvas.value,result.value.type);
@@ -157,75 +173,10 @@ const app=createApp({
     };
 
     const retry=()=>{
+      localStorage.removeItem(STORAGE_KEY);
+      hasRecord.value=false;
+      savedRecord.value=null;
       startQuiz();
-    };
-
-    const generatePoster=async ()=>{
-      phase.value='poster';
-      await nextTick();
-      if(posterCanvas.value && result.value) {
-        const c=posterCanvas.value.getContext('2d');
-        const W=332, H=440;
-        c.clearRect(0,0,W,H);
-        const typeColors={
-          EPSC:['#FF6B6B','#FF69B4'],EPST:['#FF8C42','#FF4500'],EPSI:['#FFD700','#FFA500'],
-          EPTI:['#FF4500','#FF0000'],ERSC:['#FF6347','#FF1493'],ERST:['#FF7F50','#FF8C00'],
-          ERSI:['#FFA500','#FF4500'],ERTI:['#FFB347','#FFA500'],HPSC:['#9370DB','#BA55D3'],
-          HPST:['#8A2BE2','#9932CC'],HPSI:['#BA55D3','#DA70D6'],HPTI:['#663399','#483D8B'],
-          HRSC:['#6A5ACD','#7B68EE'],HRST:['#4682B4','#4169E1'],HRSI:['#5F9EA0','#20B2AA'],
-          HRTI:['#2F4F4F','#2E8B57'],
-        };
-        const cols=typeColors[result.value.type]||['#007AFF','#5856D6'];
-        const g2=c.createLinearGradient(0,0,W,300);
-        g2.addColorStop(0,cols[0]); g2.addColorStop(1,cols[1]);
-        c.fillStyle=g2;
-        c.beginPath();
-        c.roundRect(0,0,W,300,24);
-        c.fill();
-        c.fillStyle='#fff'; c.font='bold 14px -apple-system,BlinkMacSystemFont,sans-serif';
-        c.textAlign='center'; c.fillText('你的单身指数',W/2,32);
-        const tmpC = document.createElement('canvas');
-        tmpC.width = 98; tmpC.height = 98;
-        drawPosterEmoji(tmpC, result.value.type);
-        c.drawImage(tmpC, W/2-55, 45, 110, 110);
-                        c.fillStyle='#FFFFFF'; c.font='bold 13px -apple-system,BlinkMacSystemFont,sans-serif';
-        c.fillText(result.value.type,W/2,178);
-        c.fillStyle='#fff'; c.font='bold 22px -apple-system,BlinkMacSystemFont,sans-serif';
-        c.fillText(result.value.name,W/2,204);
-        c.font='bold 48px -apple-system,BlinkMacSystemFont,sans-serif';
-        c.fillText(result.value.index+'%',W/2,262);
-        c.font='14px -apple-system,BlinkMacSystemFont,sans-serif'; c.fillStyle='#fff';
-        c.fillText('单身指数',W/2,282);
-        c.fillStyle='rgba(255,255,255,.95)'; c.font='12px -apple-system,BlinkMacSystemFont,sans-serif';
-        const q=result.value.quote.replace(/沈奕斐说：/g,'沈奕斐：');
-        const lines=[];
-        let line='';
-        for(const ch of q){
-          line+=ch;
-          if(c.measureText(line).width>W-48){lines.push(line.slice(0,-1));line=ch;}
-        } lines.push(line);
-        lines.slice(0,3).forEach((l,i)=>c.fillText(l,W/2,318+i*18));
-        const tagY=390;
-        c.font='11px -apple-system,BlinkMacSystemFont,sans-serif';
-        result.value.tags.forEach((t,i)=>{
-          const tx=40+i*80;
-          c.fillStyle='rgba(255,255,255,.2)';
-          c.beginPath(); c.roundRect(tx,tagY,72,22,11); c.fill();
-          c.fillStyle='#fff'; c.fillText(t,tx+36,tagY+15);
-        });
-      }
-    };
-
-    const downloadPoster=async ()=>{
-      const el=document.getElementById('poster-target');
-      if(!el||!window.html2canvas) return;
-      try {
-        const canvas=await html2canvas(el,{scale:2,useCORS:true,backgroundColor:null});
-        const url=canvas.toDataURL('image/png');
-        const a=document.createElement('a');
-        a.download='你的单身指数_'+result.value.type+'.png';
-        a.href=url; a.click();
-      } catch(e){alert('生成失败，请重试');}
     };
 
     const toggleTheme=()=>{
@@ -234,8 +185,8 @@ const app=createApp({
     };
 
     return{phase,currentQ,answers,result,isDark,questions,dimNames,analysisSteps,
-      avatarCanvas,posterCanvas,confettiCanvas,loadingProgress,loadingText,
-      startQuiz,selectOpt,goBack,retry,generatePoster,downloadPoster,toggleTheme};
+      avatarCanvas,confettiCanvas,loadingProgress,loadingText,hasRecord,
+      startQuiz,continueQuiz,selectOpt,goBack,retry,toggleTheme};
   }
 });
 

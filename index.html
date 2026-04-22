@@ -8,7 +8,6 @@
 <link rel="stylesheet" href="css/style.css">
 <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/vant@4/lib/index.umd.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/vant@4/lib/index.css">
 </head>
 <body>
@@ -33,6 +32,7 @@
   <div class="welcome-divider"></div>
   <div class="welcome-tags"><span class="tag-chip">⏱ 约3分钟</span><span class="tag-chip">📊 16道题</span><span class="tag-chip">🎭 16种结果</span></div>
   <button class="welcome-btn" @click="startQuiz">开始测试 →</button>
+  <button v-if="hasRecord" class="welcome-btn-secondary" @click="continueQuiz">继续上次的测试 →</button>
 </div>
 </transition>
 <transition name="page">
@@ -84,37 +84,13 @@
   <div class="result-quote"><p>{{result.quote}}</p></div>
   <div class="result-tags"><span class="result-tag" v-for="t in result.tags" :key="t">{{t}}</span></div>
   <div class="result-tags" style="margin-bottom:20px"><span class="tag-chip" v-for="d in result.dims" :key="d" style="font-size:12px">{{d}}</span></div>
-  <button class="result-share-btn" @click="generatePoster"><span>📸</span> 生成专属海报</button>
+  <div class="share-tip">
+    <div class="share-tip-icon">📱</div>
+    <div class="share-tip-title">截图分享给朋友</div>
+    <div class="share-tip-desc">长按或截图保存结果页面<br>分享到朋友圈/发给好友</div>
+  </div>
   <button class="result-retry-btn" @click="retry">🔄 重新测试</button>
-</div>
-</transition>
-<transition name="page">
-<div class="poster-page" v-if="phase==='poster'">
-  <div class="ios-header">
-    <div class="back-btn" @click="phase='result'">&lt;</div>
-    <h2>分享你的结果</h2>
-    <div style="width:36px"></div>
-  </div>
-  <div style="width:100%;max-width:380px;margin-top:20px">
-    <div id="poster-target" style="background:var(--ios-bg);padding:32px 24px;border-radius:24px">
-      <div style="text-align:center"><canvas ref="posterCanvas" width="332" height="440"></canvas></div>
-      <div style="text-align:center;margin-top:16px">
-        <div style="font-size:14px;font-weight:700;color:var(--ios-text);letter-spacing:2px;margin-bottom:4px">{{result.type}}</div>
-        <div style="font-size:20px;font-weight:800;color:var(--ios-text)">{{result.name}}</div>
-        <div style="font-size:13px;color:var(--ios-gray);margin-top:4px">{{result.subtitle}}</div>
-      </div>
-      <div style="margin-top:16px;background:var(--ios-card);border-radius:16px;padding:16px">
-        <div style="font-size:14px;color:var(--ios-text2);line-height:1.8">{{result.desc.substring(0,80)}}…</div>
-      </div>
-      <div style="text-align:center;margin-top:20px">
-        <div style="font-size:13px;color:var(--ios-gray)">长按保存图片 · 扫码测试你的</div>
-        <div style="font-size:13px;color:var(--ios-blue);font-weight:600">你的单身指数</div>
-        <div style="margin-top:8px"><img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=https://single-index.pages.dev/" style="width:100px;height:100px;border-radius:8px" crossorigin="anonymous"></div>
-      </div>
-    </div>
-    <button class="poster-download-btn" @click="downloadPoster" style="margin-top:16px"><span>⬇️</span> 保存到相册</button>
-    <button class="poster-back-btn" @click="phase='result'">← 返回结果</button>
-  </div>
+  <div class="result-credit">by Poliwhirl</div>
 </div>
 </transition>
 <button class="theme-toggle" @click="toggleTheme">{{isDark?"☀️":"🌙"}}</button>
