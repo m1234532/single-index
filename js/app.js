@@ -127,17 +127,23 @@ const app=createApp({
       }
     };
 
+    const isTransitioning=ref(false);
+
     const selectOpt=(i)=>{
+      if(isTransitioning.value) return;
       answers.value[currentQ.value]=i;
       if(currentQ.value < questions.length - 1){
-        setTimeout(()=>{currentQ.value++;},300);
+        isTransitioning.value=true;
+        setTimeout(()=>{currentQ.value++;isTransitioning.value=false;},300);
       } else {
+        isTransitioning.value=true;
         setTimeout(()=>{
           phase.value='analysis';
           setTimeout(()=>{
             result.value=calcResult(answers.value);
             saveRecord(answers.value, result.value);
             phase.value='result';
+            isTransitioning.value=false;
             nextTick(()=>{
               triggerConfetti();
             });
