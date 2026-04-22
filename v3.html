@@ -465,7 +465,7 @@ function buildResult(gradeKey,dimScores){
   var desc=buildDesc(sa,fa,ha,aa);
   var ta=buildTips(sa,fa,ha,aa);
   var labels=[dimLabels.social[sl],dimLabels.filter[fl],dimLabels.heartbeat[hl],dimLabels.alone[al]];
-  return{name:persona.n,subtitle:sl+' · '+fl+' · '+hl+' · '+al+' '+persona.n,index:idx,type:gradeKey,desc:desc,quote:quote,tips:ta.tips,avoid:ta.avoid,tags:labels,dims:labels,dimScores:dimScores};
+  return{name:persona.n||'神秘型单身者',subtitle:sl+' · '+fl+' · '+hl+' · '+al+' '+persona.n,index:idx||50,type:gradeKey||'MMMM',desc:desc||'',quote:quote||'',tips:ta.tips||[],avoid:ta.avoid||[],tags:labels||[],dims:labels||[],dimScores:dimScores||{}};
 }
 
 function calcResult(answers){
@@ -476,7 +476,11 @@ function calcResult(answers){
     else ds[questions[i].dim].b++;
   }
   var sl=grade(ds.social.a),fl=grade(ds.filter.a),hl=grade(ds.heartbeat.a),al=grade(ds.alone.a);
-  return buildResult(sl+fl+hl+al,ds);
+  var gradeKey=sl+fl+hl+al;
+  var result=buildResult(gradeKey,ds);
+  // Ensure type is always set
+  if(!result.type)result.type=gradeKey;
+  return result;
 }
 
 // ============ Vue App ============
