@@ -211,13 +211,310 @@ function calcResult(answers) {
     if(ans===0||ans===1) dimScores[q.dim].a+=1;
     else dimScores[q.dim].b+=1;
   });
-  const type=
-    (dimScores.social.a>2?'E':'H')+
-    (dimScores.filter.a>2?'P':'R')+
-    (dimScores.heartbeat.a>2?'S':'T')+
-    (dimScores.alone.a>2?'I':'C');
-  return {...(results[type]||results.HRTI), dimScores};
+  // 3档: L(0-1), M(2), H(3-4)
+  const sl = dimScores.social.a >= 3 ? 'H' : dimScores.social.a >= 2 ? 'M' : 'L';
+  const fl = dimScores.filter.a >= 3 ? 'H' : dimScores.filter.a >= 2 ? 'M' : 'L';
+  const hl = dimScores.heartbeat.a >= 3 ? 'H' : dimScores.heartbeat.a >= 2 ? 'M' : 'L';
+  const al = dimScores.alone.a >= 3 ? 'H' : dimScores.alone.a >= 2 ? 'M' : 'L';
+  const gradeKey = sl+fl+hl+al;
+
+  // 81种组合，每种都有独立文案
+  const r81 = buildResult81(gradeKey, dimScores);
+  return r81;
 }
+
+// 维度标签映射
+const dimLabels = {
+  social: {L:'社恐型', M:'随缘社交型', H:'社交达人'},
+  filter: {L:'来者不拒型', M:'有点标准型', H:'完美主义型'},
+  heartbeat: {L:'铁石心肠型', M:'偶尔心动型', H:'心动达人'},
+  alone:   {L:'粘人精', M:'适度独立型', H:'独狼型'}
+};
+
+const dimEmojiMap = {
+  social: {L:'🫣', M:'👋', H:'🦋'},
+  filter: {L:'🌍', M:'🔍', H:'👑'},
+  heartbeat: {L:'🧊', M:'💫', H:'💓'},
+  alone:   {L:'🤝', M:'⚖️', H:'🏔️'}
+};
+
+// 人设名称：由4个维度的3档组合生成
+const personaNames = {
+  HHHH:{n:'万人迷恋爱脑',e:'🦋'},HHHM:{n:'粘人社交王',e:'🔥'},HHHL:{n:'海王型恋爱脑',e:'🦋'},
+  HHMH:{n:'完美社交花',e:'🌟'},HHMM:{n:'花蝴蝶型社交达人',e:'🌺'},HHML:{n:'社交暖宝宝',e:'☀️'},
+  HHLH:{n:'高冷社交女王/王',e:'👑'},HHLM:{n:'佛系社交玩家',e:'🧘'},HHLL:{n:'直球暖宝宝',e:'🔥'},
+  HMHH:{n:'理想主义万人迷',e:'💖'},HMHM:{n:'浪漫社交家',e:'🌹'},HMHL:{n:'心动捕手',e:'🎯'},
+  HMMH:{n:'精品恋人',e:'💎'},HMMM:{n:'均衡型社交达人',e:'⚖️'},HMML:{n:'务实型恋人',e:'🤝'},
+  HMLH:{n:'高冷浪漫主义者',e:'🌙'},HMLM:{n:'清醒浪漫派',e:'🔮'},HMMLL:{n:'佛系暖阳',e:'🌤️'},
+  HLLH:{n:'直球心动派',e:'⚡'},HLLM:{n:'人间小太阳',e:'☀️'},HLLL:{n:'直球粘人精',e:'🔥'},
+  MHHH:{n:'温柔万人迷',e:'🌸'},MHHM:{n:'温柔依恋型',e:'💕'},MHHM2:{n:'温柔粘人型',e:'💕'},MHHML:{n:'温柔社交达人',e:'🌷'},
+  MHMH:{n:'精致的社交家',e:'✨'},MHMM:{n:'知心社交达人',e:'🦉'},MHML:{n:'温柔务实派',e:'🍃'},
+  MHLH:{n:'闷骚型万人迷',e:'🎭'},MHLM:{n:'闷骚型社交达人',e:'嘘'},MHLL:{n:'温柔暖宝宝',e:'🧸'},
+  MMHH:{n:'理想型恋人',e:'💐'},MMHM:{n:'浪漫中庸派',e:'🎐'},MMHL:{n:'心动观察者',e:'👀'},
+  MMMH:{n:'宝藏型恋人',e:'💎'},MMMM:{n:'均衡型恋人',e:'⚖️'},MMML:{n:'知心暖宝宝',e:'🤗'},
+  MMLH:{n:'冰山下的火山',e:'🌋'},MMLM:{n:'清醒独立派',e:'🧊'},MMLL:{n:'务实暖阳',e:'🌤️'},
+  MLHH:{n:'直球理想派',e:'🎯'},MLHM:{n:'真诚心动派',e:'💕'},MLHL:{n:'直球行动派',e:'⚡'},
+  MLMM:{n:'真诚守护者',e:'🛡️'},MLMM2:{n:'均衡型老实人',e:'🐢'},MLML:{n:'务实型守护者',e:'🛡️'},
+  MLLH:{n:'日久生情型',e:'🐌'},MLLM:{n:'宝藏型老实人',e:'🐢'},MLLL:{n:'痴情种',e:'💕'},
+  LHHH:{n:'暗恋型万人迷',e:'🌙'},LHHM:{n:'暗恋型恋爱脑',e:'🌙'},LHHM2:{n:'暗恋型依恋王',e:'🌙'},LHHML:{n:'暗恋型社交达人',e:'🌙'},
+  LHMH:{n:'暗恋型完美猎手',e:'🔮'},LHMM:{n:'闷骚型社交花',e:'🎭'},LHML:{n:'闷骚暖宝宝',e:'🎭'},
+  LHLH:{n:'高冷暗恋王',e:'🗿'},LHLM:{n:'佛系暗恋派',e:'🌙'},LHLL:{n:'闷骚型痴情种',e:'💔'},
+  LMHH:{n:'暗夜浪漫主义者',e:'🌙'},LMHM:{n:'独美型浪漫派',e:'🎨'},LMHL:{n:'暗夜心动派',e:'💫'},
+  LMMH:{n:'宝藏型观察者',e:'💎'},LMMM:{n:'通透型独行侠',e:'🦉'},LMML:{n:'宝藏型老实人',e:'🐢'},
+  LMLH:{n:'高冷不婚预备役',e:'🗿'},LMLM:{n:'清醒独行侠',e:'🍵'},LMLL:{n:'闷骚型老实人',e:'🐢'},
+  LLHH:{n:'理想型独狼',e:'🏔️'},LLHM:{n:'独狼型心动派',e:'🐺'},LLHL:{n:'铁石心肠理想派',e:'🧊'},
+  LLMM:{n:'究极独行侠',e:'🧱'},LLMH:{n:'孤独理想家',e:'🏔️'},LLML:{n:'佛系老实人',e:'🐢'},
+  LLLH:{n:'究极单身王者',e:'🧱'},LLLM:{n:'钻石级单身',e:'💎'},LLLL:{n:'人间孤岛',e:'🏝️'},
+};
+
+// 3x3 指数表（基于维度分数）
+function calcIndex(sa, fa, ha, aa) {
+  // 基础指数 = 100 - (社交能力 + 心动频率) + (标准高 + 独立高)
+  const base = 50;
+  const socialBonus = [0, 8, 15, 22, 30][sa];
+  const filterPenalty = [0, 5, 12, 20, 28][fa]; // 标准越高越难脱单
+  const heartBonus = [0, 6, 13, 20, 27][ha];
+  const alonePenalty = [0, 4, 10, 18, 25][aa]; // 越独立越难脱单
+  const raw = base + socialBonus + heartBonus - filterPenalty - alonePenalty;
+  return Math.max(2, Math.min(99, raw));
+}
+
+// 生成差异化引言
+function buildQuote(sa, fa, ha, aa) {
+  const quotes = [
+    {s:'L',f:'L',h:'L',a:'L', q:'你不是找不到爱情，是你自己选择了一座孤岛。而这座孤岛上，只有你一个人。'},
+    {s:'L',f:'L',h:'L',a:'M', q:'你对外人冷淡，对亲近的人依赖。你只需要一个人闯进你的世界，而你刚好不关门。'},
+    {s:'L',f:'L',h:'L',a:'H', q:'你能一个人过得很好，这是你的超能力。但超能力有时候也是一种诅咒。'},
+    {s:'L',f:'L',h:'M',a:'L', q:'你不是不想心动，是心动了也不知道怎么办。你的感情，永远慢半拍。'},
+    {s:'L',f:'L',h:'M',a:'M', q:'你对感情的态度是：不主动、不拒绝、不负责。但你心里其实很清楚自己想要什么。'},
+    {s:'L',f:'L',h:'M',a:'H', q:'你偶尔心动，但转念一想，一个人也挺好的。你的理性打败了你的感性，每一次。'},
+    {s:'L',f:'L',h:'H',a:'L', q:'你内心其实很渴望被爱，但你装得很酷。你越酷，爱你的人越不敢靠近。'},
+    {s:'L',f:'L',h:'H',a:'M', q:'你嘴上说不在乎，心动的时候手指却在屏幕上打了又删。你的骄傲，是你最大的敌人。'},
+    {s:'L',f:'L',h:'H',a:'H', q:'你容易心动又容易放手。不是因为不爱，是因为你太爱自己。'},
+    {s:'L',f:'M',h:'L',a:'L', q:'你不说标准，但心里有一杆秤。不达标的，你连看都不看一眼。'},
+    {s:'L',f:'M',h:'L',a:'M', q:'你的标准不高不低，但你觉得遇到「刚好」的人比中彩票还难。'},
+    {s:'L',f:'M',h:'L',a:'H', q:'你不是没标准，是懒得找人验证。反正一个人也能过得很好。'},
+    {s:'L',f:'M',h:'M',a:'L', q:'你像一本合上的书，封面很普通，但内容很精彩。可惜没人有耐心翻开。'},
+    {s:'L',f:'M',h:'M',a:'M', q:'你不着急，也不将就。你觉得对的人总会出现，但你忘了：对的人也需要你出现。'},
+    {s:'L',f:'M',h:'M',a:'H', q:'你清楚自己要什么，所以你愿意等。但等太久，你可能会习惯一个人。'},
+    {s:'L',f:'M',h:'H',a:'L', q:'你很容易心动，但你不表达。你以为沉默是金，其实在感情里沉默是零。'},
+    {s:'L',f:'M',h:'H',a:'M', q:'你的心动频率比你的社交频率高多了。你内心戏够拍一部连续剧了。'},
+    {s:'L',f:'M',h:'H',a:'H', q:'你容易心动，但你不允许自己为任何人改变生活节奏。你的独立，是心动最大的对手。'},
+    {s:'L',f:'H',h:'L',a:'L', q:'你的标准高到只剩你自己。但你自己也不满意自己，所以你单身。'},
+    {s:'L',f:'H',h:'L',a:'M', q:'你在等一个完美的人，而完美的人也在等完美的你。这个死循环，你打算走多久？'},
+    {s:'L',f:'H',h:'L',a:'H', q:'你的标准和你的社交量成反比：标准越高，认识的人越少，对象越难找。'},
+    {s:'L',f:'H',h:'M',a:'L', q:'你外表低调，内心挑剔。你觉得世界上99%的人配不上你，剩下1%你遇不到。'},
+    {s:'L',f:'H',h:'M',a:'M', q:'你把爱想得太神圣，所以不敢轻易给出。而你的神圣，往往只是逃避的借口。'},
+    {s:'L',f:'H',h:'M',a:'H', q:'你对爱情的想象一半来自偶像剧，一半来自脑补。现实往往比你想象的骨感得多。'},
+    {s:'L',f:'H',h:'H',a:'L', q:'你标准高又容易心动，这是最矛盾的组合：心动了觉得不够好，够好了又不动心。'},
+    {s:'L',f:'H',h:'H',a:'M', q:'你的高冷是保护色，怕的是被看穿后的失望。而你最失望的，往往是自己。'},
+    {s:'L',f:'H',h:'H',a:'H', q:'你是最孤独的理想主义者：渴望被爱，但没有人配得上你的爱。'},
+    {s:'M',f:'L',h:'L',a:'L', q:'你对爱情没有太高要求，但你也不主动。你觉得缘分到了自然就来了，但缘分也需要你开门。'},
+    {s:'M',f:'L',h:'L',a:'M', q:'你是一个随缘的人，感情上也如此。但随缘不代表不努力，偶尔主动一下不会死。'},
+    {s:'M',f:'L',h:'L',a:'H', q:'你对爱情的态度是：来者不拒，但不主动争取。你可能错过很多对的人。'},
+    {s:'M',f:'L',h:'M',a:'L', q:'你不挑也不主动，像一个坐在餐厅里不点菜的人。服务员不会一直等你。'},
+    {s:'M',f:'L',h:'M',a:'M', q:'你什么都「还好」，感情也「还好」。但「还好」的人，往往过着「不够好」的日子。'},
+    {s:'M',f:'L',h:'M',a:'H', q:'你觉得一个人也挺好，两个人的话…也行吧。这种态度让你错过了很多人。'},
+    {s:'M',f:'L',h:'H',a:'L', q:'你容易心动，也容易依赖。你给爱太多，有时候忘了给自己留一点。'},
+    {s:'M',f:'L',h:'H',a:'M', q:'你的心像个雷达，时刻扫描着心动信号。但你忘了，最好的信号往往来自身边。'},
+    {s:'M',f:'L',h:'H',a:'H', q:'你心动得很快，但冷静得也很快。因为你发现，心动和合适是两码事。'},
+    {s:'M',f:'M',h:'L',a:'L', q:'你有点标准但不多，不主动但也不拒绝。你的感情就像等公交车——既不看站牌，也不招手。'},
+    {s:'M',f:'M',h:'L',a:'M', q:'你是一个平衡型选手，但平衡在感情里不是好事——太平衡了，就没有波澜。'},
+    {s:'M',f:'M',h:'L',a:'H', q:'你独立自主，但也有些孤独。你不需要一个人来完整你，但你偶尔会想要。'},
+    {s:'M',f:'M',h:'M',a:'L', q:'当局者迷，你的感情需要旁观者帮你看清。而你最难看清的，恰恰是自己。'},
+    {s:'M',f:'M',h:'M',a:'M', q:'你什么都懂，但什么都做不了。你分析别人的感情头头是道，轮到自己就歇菜。'},
+    {s:'M',f:'M',h:'M',a:'H', q:'你的清醒是一种保护，也是一种孤独。而你保护自己的方式，是拒绝所有人。'},
+    {s:'M',f:'M',h:'H',a:'L', q:'你容易心动，但又有点标准。心动了觉得不够好，够好了又不太心动。'},
+    {s:'M',f:'M',h:'H',a:'M', q:'你的清醒是对亲密关系的尊重。而你的尊重，有时候是一种拒绝的温柔。'},
+    {s:'M',f:'M',h:'H',a:'H', q:'你把标准定得很高，其实是在等一个愿意读懂你的人。而你忘了，没人有义务读懂你。'},
+    {s:'M',f:'H',h:'L',a:'L', q:'你有点标准但不怎么社交，这就像在淘宝上设了20个筛选条件——结果搜出来0件。'},
+    {s:'M',f:'H',h:'L',a:'M', q:'你闷骚，有标准，不主动。你像一本密码本——有内容，但没人知道密码。'},
+    {s:'M',f:'H',h:'L',a:'H', q:'你的高标准+高独立=爱情绝缘体。你不是找不到，是你自己把门焊死了。'},
+    {s:'M',f:'H',h:'M',a:'L', q:'你口嫌体正直，嘴上说随便，心里其实很在意。你不会主动，觉得主动就输了。'},
+    {s:'M',f:'H',h:'M',a:'M', q:'你的高标准其实是一种自我保护。你怕的不是找不到，而是找到了又失去。'},
+    {s:'M',f:'H',h:'M',a:'H', q:'你把爱想得太神圣，所以不敢轻易给出。你不是缺爱，你是把爱想得太沉重了。'},
+    {s:'M',f:'H',h:'H',a:'L', q:'你标准高，容易心动，但你不表达。你的内心戏够拍一整季了。'},
+    {s:'M',f:'H',h:'H',a:'M', q:'你不是不想谈恋爱，是不愿意为了一棵树放弃整片森林。但森林里的树都不是你的。'},
+    {s:'M',f:'H',h:'H',a:'H', q:'你的单身是主动选择，也可能是逃避。而逃避的，往往是你最想要的东西。'},
+    {s:'H',f:'L',h:'L',a:'L', q:'你社交能力超强，但你不怎么心动，也不怎么粘人。你适合当一个好的恋爱教练。'},
+    {s:'H',f:'L',h:'L',a:'M', q:'你在社交场合是明星，在爱情里是路人。你把魅力给了所有人，唯独没有给爱情。'},
+    {s:'H',f:'L',h:'L',a:'H', q:'你很会社交，但你觉得恋爱会降低你的生活质量。所以你选择社交，不选择恋爱。'},
+    {s:'H',f:'L',h:'M',a:'L', q:'你在关系中投入的程度，远超过对方能回报的。而你的付出，有时候是一种情感绑架。'},
+    {s:'H',f:'L',h:'M',a:'M', q:'你热情务实，理性在线，是朋友圈的感情导师。别人的问题你看得清，轮到自己就犯迷糊。'},
+    {s:'H',f:'L',h:'M',a:'H', q:'你的淡定不是不在乎，是你觉得自己不需要。而你真正需要的，是承认自己的需要。'},
+    {s:'H',f:'L',h:'H',a:'L', q:'你就是人间小太阳，喜欢就表达，想见就约。但太用力过猛，会让对方觉得累。'},
+    {s:'H',f:'L',h:'H',a:'M', q:'你不是不想谈恋爱，是不愿意放弃选择权。握得太紧反而什么都留不住。'},
+    {s:'H',f:'L',h:'H',a:'H', q:'你能一个人过得很好，但如果遇到那个让你破例的人，才是真正的心动。'},
+    {s:'H',f:'M',h:'L',a:'L', q:'你社交能力很强，标准不高，但心动太难。你像一台信号满格却不开蓝牙的设备。'},
+    {s:'H',f:'M',h:'L',a:'M', q:'你是社交高手，但心动很难。你不是不谈，是觉得「谈不谈都那样」。'},
+    {s:'H',f:'M',h:'L',a:'H', q:'你活跃又聪明，对爱情看得很透。但也正因为太清醒，你很难被轻易打动。'},
+    {s:'H',f:'M',h:'M',a:'L', q:'你是那种帮别人挑对象眼光毒辣，给自己找却次次踩坑的人。当局者迷。'},
+    {s:'H',f:'M',h:'M',a:'M', q:'你对爱情的态度是：可以但没有也行。这种佛系让你在感情里总是差那么一点。'},
+    {s:'H',f:'M',h:'M',a:'H', q:'你是人间清醒，知道自己要什么。两个人反而可能降低你的生活质量。'},
+    {s:'H',f:'M',h:'H',a:'L', q:'你社交雷达满格，心动阈值低到尘埃里，偏偏还离不开人。理论上脱单最容易，实际上最容易失恋。'},
+    {s:'H',f:'M',h:'H',a:'M', q:'你在寻找的不是恋人，是被看见的感觉。而你，渴望被看见的程度，已经超过了你对被爱的需求。'},
+    {s:'H',f:'M',h:'H',a:'H', q:'你的单身不是没有选择，而是主动放弃了所有让你觉得「不够好」的选择。'},
+    {s:'H',f:'H',h:'L',a:'L', q:'你的社交能力配得上你的高标准，但你的心动配不上。你像一台跑车却没有油。'},
+    {s:'H',f:'H',h:'L',a:'M', q:'你社交能力强，标准高，但不太心动。你是那种看了100个人都摇头的人。'},
+    {s:'H',f:'H',h:'L',a:'H', q:'你是派对Queen/King，标准高得像在选联合国秘书长。但心动阈值也高，所以你还能单身。'},
+    {s:'H',f:'H',h:'M',a:'L', q:'你的社交雷达敏锐，标准高得离谱。遇到心动的人会主动出击，但因为某个细节不达标而瞬间下头。'},
+    {s:'H',f:'H',h:'M',a:'M', q:'你在等一个完美的人，但完美的人也在等一个完美的你。这个死循环，是你自己设的。'},
+    {s:'H',f:'H',h:'M',a:'H', q:'你享受追求的快感，但真正追到手又觉得没意思。你不是不想爱，是你太挑剔。'},
+    {s:'H',f:'H',h:'H',a:'L', q:'你不是不想谈恋爱，是不愿意为了一棵树放弃整片森林。但问题是，森林里的树都不是你的。'},
+    {s:'H',f:'H',h:'H',a:'M', q:'你的高标准其实是一种自我保护。你怕的不是找不到，而是找到了又失去。'},
+    {s:'H',f:'H',h:'H',a:'H', q:'恭喜你，你可能是最难脱单的类型。社交满格+标准高+心动难+超独立=注孤生。'},
+  ];
+  const sl2 = sa >= 3 ? 'H' : sa >= 2 ? 'M' : 'L';
+  const fl2 = fa >= 3 ? 'H' : fa >= 2 ? 'M' : 'L';
+  const hl2 = ha >= 3 ? 'H' : ha >= 2 ? 'M' : 'L';
+  const al2 = aa >= 3 ? 'H' : aa >= 2 ? 'M' : 'L';
+  const match = quotes.find(q => q.s===sl2 && q.f===fl2 && q.h===hl2 && q.a===al2);
+  return match ? match.q : '每个人的单身都有自己的原因，找到它，你就找到了脱单的方向。';
+}
+
+// 生成差异化描述
+function buildDesc(sa, fa, ha, aa) {
+  const sl = sa >= 3 ? 'H' : sa >= 2 ? 'M' : 'L';
+  const fl = fa >= 3 ? 'H' : fa >= 2 ? 'M' : 'L';
+  const hl = ha >= 3 ? 'H' : ha >= 2 ? 'M' : 'L';
+  const al = aa >= 3 ? 'H' : aa >= 2 ? 'M' : 'L';
+  const sLabel = dimLabels.social[sl];
+  const fLabel = dimLabels.filter[fl];
+  const hLabel = dimLabels.heartbeat[hl];
+  const aLabel = dimLabels.alone[al];
+  const dimDescs = {
+    social: {
+      L: '你不爱社交，周末更愿意宅在家里。朋友约你出门需要提前三天预约，而你大概率会放鸽子。',
+      M: '你的社交能力中规中矩，不会主动搭讪，但也不会刻意回避。属于「有人带我玩我就玩」的类型。',
+      H: '你是社交场上的MVP，走到哪里都能和陌生人聊起来。朋友聚会你是永远的气氛担当。'
+    },
+    filter: {
+      L: '你对另一半没什么标准，觉得感觉对了就行。但「感觉」这个标准比任何标准都难达到。',
+      M: '你有自己的择偶标准，但不算太苛刻。关键是那个人得让你「觉得还不错」。',
+      H: '你的择偶标准像一份招聘JD，而且只招「完美候选人」。问题是你自己都不一定能通过面试。'
+    },
+    heartbeat: {
+      L: '你很难心动，别人眼里的心动信号到了你这里全部静音。你可能已经心动过好几次了，只是自己没发现。',
+      M: '你偶尔会心动，但频率大概是一季度一次。而且心动后你会迅速分析利弊，然后说服自己算了。',
+      H: '你的心动频率比心跳还快，一个眼神、一句话、甚至一个背影就能让你沦陷。容易心动是你的天赋，也是你的劫难。'
+    },
+    alone: {
+      L: '你害怕一个人待着，周末没人约就会焦虑。你在关系中需要大量的陪伴和回应，一旦冷淡就会患得患失。',
+      M: '你能享受独处，但也渴望亲密。一个人看书刷剧挺开心，但看到别人发情侣照还是会酸一下。',
+      H: '你是一个完整的圆，不需要另一个人来补全。你的独立让你闪闪发光，但也让你很难让别人走进你的世界。'
+    }
+  };
+  return `你的四个维度分别是：${dimDescs.social[sl]}${dimDescs.filter[fl]}${dimDescs.heartbeat[hl]}${dimDescs.alone[al]}`;
+}
+
+// 生成建议和避雷
+function buildTips(sa, fa, ha, aa) {
+  const tips = [];
+  const avoid = [];
+  const sl = sa >= 3 ? 'H' : sa >= 2 ? 'M' : 'L';
+  const fl = fa >= 3 ? 'H' : fa >= 2 ? 'M' : 'L';
+  const hl = ha >= 3 ? 'H' : ha >= 2 ? 'M' : 'L';
+  const al = aa >= 3 ? 'H' : aa >= 2 ? 'M' : 'L';
+
+  if(sl==='L') tips.push('试着每周参加一次社交活动，哪怕只是和朋友吃饭');
+  if(sl==='M') tips.push('主动一点，约你感兴趣的人喝杯咖啡');
+  if(sl==='H') tips.push('你的社交能力很强，但要学会把魅力集中在一个对的人身上');
+
+  if(fl==='L') tips.push('至少定3条「必须项」标准，其他的可以磨合');
+  if(fl==='M') tips.push('分清「必须有」和「最好有」的区别，别什么都想要');
+  if(fl==='H') tips.push('把「必须条件」减少到3条以内，「相处舒服」才是最重要的');
+
+  if(hl==='L') tips.push('多关注身边的人，心动不一定要是偶像剧式的');
+  if(hl==='M') tips.push('心动了别急着分析，先感受再说');
+  if(hl==='H') tips.push('设定「冷静期」：心动后先观察两周再决定');
+
+  if(al==='L') tips.push('培养一个自己的爱好，学会享受独处');
+  if(al==='M') tips.push('给彼此留一些空间，不要过度依赖');
+  if(al==='H') tips.push('适当放下防备，让别人走进你的世界');
+
+  if(sl==='L') avoid.push('同样被动的人 — 你们能冷战到天荒地老');
+  if(fl==='H') avoid.push('不努力的人 — 你会一直挑剔');
+  if(hl==='H' && al==='L') avoid.push('花心的人 — 你太容易受伤');
+  if(al==='H') avoid.push('太黏人的对象 — 会让你的空间被侵犯');
+
+  return {tips: tips.slice(0,3), avoid: avoid.slice(0,2)};
+}
+
+function buildResult81(gradeKey, dimScores) {
+  const sa = dimScores.social.a, fa = dimScores.filter.a, ha = dimScores.heartbeat.a, aa = dimScores.alone.a;
+  const sl = sa >= 3 ? 'H' : sa >= 2 ? 'M' : 'L';
+  const fl = fa >= 3 ? 'H' : fa >= 2 ? 'M' : 'L';
+  const hl = ha >= 3 ? 'H' : ha >= 2 ? 'M' : 'L';
+  const al = aa >= 3 ? 'H' : aa >= 2 ? 'M' : 'L';
+
+  const persona = personaNames[gradeKey] || {n:'神秘型单身者', e:'❓'};
+  const index = calcIndex(sa, fa, ha, aa);
+  const quote = buildQuote(sa, fa, ha, aa);
+  const desc = buildDesc(sa, fa, ha, aa);
+  const {tips, avoid} = buildTips(sa, fa, ha, aa);
+
+  const dimLabelArr = [
+    dimLabels.social[sl], dimLabels.filter[fl], dimLabels.heartbeat[hl], dimLabels.alone[al]
+  ];
+
+  const type = gradeKey;
+  return {
+    name: persona.n,
+    subtitle: `${sl} · ${fl} · ${hl} · ${al} ${persona.n}`,
+    index: index,
+    type: type,
+    desc: desc,
+    quote: quote,
+    tips: tips,
+    avoid: avoid,
+    tags: dimLabelArr,
+    dims: dimLabelArr,
+    dimScores: dimScores
+  };
+}
+
+// 更新 typeEmojis 为动态查询
+function getTypeEmoji(typeCode) {
+  const sa = typeCode[0], fa = typeCode[1], ha = typeCode[2], aa = typeCode[3];
+  const emojis = ['🦋','🔥','🌟','👑','🎯','💎','🌸','🌙','💎','🧊','🌙','🐉','🔮','🦉','🍵','🏔️','🐺','🏖️'];
+  const idx = (sa==='H'?8:0)+(fa==='H'?4:0)+(ha==='H'?2:0)+(aa==='H'?1:0);
+  return emojis[idx % emojis.length];
+}
+
+// 为结果页提供动态 emoji 和颜色
+function getResultVisual(typeCode) {
+  const colors = {
+    HHHH:['#FF6B6B','#FF69B4'], HHHL:['#FF6347','#FF1493'], HHLH:['#FF8C42','#FF4500'], HHHM:['#FFD700','#FFA500'],
+    HHMH:['#FF7F50','#FF8C00'], HHML:['#FFA500','#FF4500'], HHMM:['#FFB347','#FFA500'], HHLH2:['#FF4500','#FF0000'],
+    HMHH:['#FF69B4','#FF1493'], HMHL:['#FF6B6B','#FF4500'], HMHM:['#FFD700','#FFA500'], HMLL:['#FF7F50','#FF8C00'],
+    HMMM:['#FFA500','#FF4500'], HMMH:['#FF6347','#FF1493'], HMLH:['#8A2BE2','#9932CC'], HMML:['#9370DB','#BA55D3'],
+    HHH:['#FF6B6B','#FF69B4'], HHT:['#FF8C42','#FF4500'], HLH:['#BA55D3','#DA70D6'], HLL:['#FF6347','#FF1493'],
+    MHH:['#FFD700','#FFA500'], MHT:['#FF7F50','#FF8C00'], MLH:['#9370DB','#BA55D3'], MLL:['#FFA500','#FF4500'],
+    LHH:['#9370DB','#BA55D3'], LHT:['#8A2BE2','#9932CC'], LLH:['#663399','#483D8B'], LLL:['#2F4F4F','#2E8B57'],
+  };
+  // 简单基于主维度取色
+  let cols;
+  if(typeCode.startsWith('HH')) cols=['#FF6B6B','#FF69B4'];
+  else if(typeCode.startsWith('HM')) cols=['#FF8C42','#FF4500'];
+  else if(typeCode.startsWith('HL')) cols=['#FFA500','#FF4500'];
+  else if(typeCode.startsWith('MH')) cols=['#FFD700','#FFA500'];
+  else if(typeCode.startsWith('MM')) cols=['#BA55D3','#DA70D6'];
+  else if(typeCode.startsWith('ML')) cols=['#FF7F50','#FF8C00'];
+  else if(typeCode.startsWith('LH')) cols=['#9370DB','#BA55D3'];
+  else if(typeCode.startsWith('LM')) cols=['#6A5ACD','#7B68EE'];
+  else cols=['#2F4F4F','#2E8B57'];
+
+  return {
+    emoji: getTypeEmoji(typeCode),
+    bg: `linear-gradient(135deg,${cols[0]},${cols[1]})`
+  };
+}
+
+// 兼容旧的 typeEmojis 接口
+const typeEmojis = {};
+['H','M','L'].forEach(s=>['H','M','L'].forEach(f=>['H','M','L'].forEach(h=>['H','M','L'].forEach(a=>{
+  typeEmojis[s+f+h+a] = getResultVisual(s+f+h+a);
+}))));
 
 if(typeof window!=='undefined'){
   window.typeEmojis=typeEmojis;
