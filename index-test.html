@@ -10,452 +10,879 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💔</text></svg>">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.4.27/vue.global.prod.min.js"></script>
 <style>
-:root{--bg:#F2F2F7;--card:#FFF;--blue:#007AFF;--text:#000;--text2:#3A3A3C;--gray:#8E8E93;--gray2:#AEAEB2;--gray3:#C7C7CC;--gray4:#D1D1D6;--gray5:#E5E5EA;--red:#FF3B30;--orange:#FF9500;--green:#34C759;--purple:#5856D6}
-[data-theme=dark]{--bg:#000;--card:#1C1C1E;--blue:#0A84FF;--text:#FFF;--text2:#EBEBF5;--gray:#8E8E93;--gray2:#636366;--gray3:#48484A;--gray4:#3A3A3C;--gray5:#2C2C2E;--red:#FF453A;--orange:#FF9F0A;--green:#30D158;--purple:#5E5CE6}
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Helvetica Neue',sans-serif;background:var(--bg);color:var(--text);transition:background .3s,color .3s;min-height:100vh;overflow-x:hidden}
-button{font-family:inherit;cursor:pointer;border:none;outline:none}
-#app{min-height:100vh;display:flex;flex-direction:column}
-.splash-page{position:fixed;inset:0;background:linear-gradient(135deg,var(--blue),var(--purple));display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;animation:splashIn .5s ease}
-.splash-emoji{font-size:72px;animation:bounce .8s cubic-bezier(.34,1.56,.64,1) .2s both}
-.splash-title{font-size:32px;font-weight:800;color:#fff;margin-top:16px}
-.splash-sub{font-size:14px;color:rgba(255,255,255,.7);margin-top:8px}
-.splash-loading{margin-top:40px;width:200px}
-.splash-bar{height:4px;background:rgba(255,255,255,.2);border-radius:2px;overflow:hidden}
-.splash-fill{height:100%;background:#fff;border-radius:2px;transition:width .3s}
-.splash-text{font-size:12px;color:rgba(255,255,255,.8);margin-top:12px;text-align:center}
-.splash-tap{margin-top:40px;font-size:16px;color:#fff;padding:12px 32px;background:rgba(255,255,255,.2);border-radius:24px;animation:pulse 1.5s ease-in-out infinite}
-.test-badge{position:fixed;top:max(12px,env(safe-area-inset-top,12px));left:50%;transform:translateX(-50%);background:#FF3B30;color:#fff;font-size:11px;font-weight:700;padding:4px 12px;border-radius:0 0 8px 8px;z-index:10001;letter-spacing:1px}
-@keyframes splashIn{from{opacity:0}to{opacity:1}}
-@keyframes bounce{0%{transform:scale(0)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
-.welcome{padding:60px 28px 40px;text-align:center;min-height:100vh;display:flex;flex-direction:column;align-items:center}
-.welcome .emoji{font-size:80px;margin-bottom:24px;animation:pulse 2s ease-in-out infinite}
-.welcome h1{font-size:32px;font-weight:800;letter-spacing:-1px;line-height:1.2}
-.welcome p{font-size:15px;color:var(--gray);margin-top:16px;line-height:1.7;max-width:300px}
-.welcome .divider{width:60px;height:4px;border-radius:2px;background:var(--gray4);margin:32px auto}
-.welcome .tags{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-bottom:auto}
-.tag{background:var(--gray5);color:var(--text2);font-size:13px;font-weight:500;padding:6px 14px;border-radius:20px}
-.welcome .btn{width:100%;padding:16px;background:linear-gradient(135deg,var(--blue),var(--purple));color:#fff;font-size:17px;font-weight:600;border-radius:14px;margin-top:32px;transition:transform .2s;box-shadow:0 8px 24px rgba(0,122,255,.3)}
-.welcome .btn:active{transform:scale(.97)}
-.welcome .btn2{background:var(--gray5);color:var(--text);box-shadow:none;margin-top:12px}
-.quiz{min-height:100vh;display:flex;flex-direction:column}
-.q-header{position:sticky;top:0;z-index:100;padding:12px 20px;padding-top:max(12px,env(safe-area-inset-top,12px)+12px);background:var(--bg);backdrop-filter:saturate(180%) blur(20px);display:flex;align-items:center;justify-content:space-between}
-.q-back{width:36px;height:36px;border-radius:50%;background:var(--gray5);display:flex;align-items:center;justify-content:center;color:var(--text);font-size:18px}
-.q-header h2{font-size:17px;font-weight:600;flex:1;text-align:center}
-.progress{padding:0 20px}
-.progress .bar{height:4px;background:var(--gray5);border-radius:2px;overflow:hidden}
-.progress .fill{height:100%;background:var(--blue);border-radius:2px;transition:width .3s}
-.progress .text{font-size:12px;color:var(--gray);margin-top:8px;text-align:right}
-.q-body{flex:1;padding:20px;display:flex;flex-direction:column}
-.q-emoji{font-size:48px;text-align:center;margin-bottom:16px;line-height:1.3;letter-spacing:2px}
-.q-meta{font-size:13px;color:var(--blue);font-weight:600;margin-bottom:12px}
-.q-text{font-size:18px;font-weight:600;line-height:1.5;margin-bottom:24px}
-.opts{display:flex;flex-direction:column;gap:12px}
-.opt{padding:16px 20px;background:var(--card);border-radius:14px;display:flex;align-items:center;gap:14px;transition:transform .15s,box-shadow .15s;box-shadow:0 2px 8px rgba(0,0,0,.04)}
-.opt:active{transform:scale(.98)}
-.opt.sel{background:var(--blue);color:#fff;box-shadow:0 4px 16px rgba(0,122,255,.3)}
-.opt .letter{width:28px;height:28px;border-radius:50%;background:var(--gray5);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;flex-shrink:0}
-.opt.sel .letter{background:rgba(255,255,255,.3)}
-.opt .text{font-size:15px;line-height:1.4}
-.analysis{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 28px}
-.analysis .orb{font-size:64px;animation:spin 2s linear infinite}
-@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
-.analysis h2{font-size:22px;font-weight:700;margin-top:24px}
-.analysis p{font-size:14px;color:var(--gray);margin-top:8px}
-.analysis .steps{margin-top:32px;display:flex;flex-direction:column;gap:12px;width:100%;}
-.analysis .step{display:flex;align-items:center;gap:14px;background:var(--card);padding:14px 18px;border-radius:14px;opacity:0;transform:translateY(10px);animation:fadeUp .4s ease forwards}
-.analysis .step:nth-child(1){animation-delay:.3s}
-.analysis .step:nth-child(2){animation-delay:.6s}
-.analysis .step:nth-child(3){animation-delay:.9s}
-.analysis .step:nth-child(4){animation-delay:1.2s}
-@keyframes fadeUp{to{opacity:1;transform:translateY(0)}}
-.analysis .step .icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0}
-.analysis .step .label{font-size:14px;color:var(--text2)}
-.result{padding:20px 20px 40px;text-align:center}
-.share-tip{background:var(--card);border-radius:14px;padding:16px;margin-bottom:20px;display:flex;align-items:center;gap:12px;text-align:left;box-shadow:0 2px 8px rgba(0,0,0,.04)}
-.share-tip .icon{font-size:28px;flex-shrink:0}
-.share-tip .title{font-size:14px;font-weight:600}
-.share-tip .desc{font-size:12px;color:var(--gray);margin-top:2px}
-.r-hero{text-align:center;margin-bottom:24px}
-.r-type-code{font-size:22px;color:var(--blue);font-weight:800;letter-spacing:3px;margin-top:8px}
-.r-name{font-size:28px;font-weight:800;margin-top:4px}
-.r-sub{font-size:13px;color:var(--gray);margin-top:4px}
-.r-cards{display:flex;gap:16px;justify-content:center;margin-top:20px}
-.r-avatar{width:100px;height:100px;border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:52px;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.15);flex-shrink:0}
-.r-index{background:var(--card);border-radius:16px;padding:16px 24px;box-shadow:0 2px 8px rgba(0,0,0,.04);display:flex;flex-direction:column;justify-content:center;min-width:120px}
-.r-index .num{font-size:36px;font-weight:800;color:var(--blue)}
-.r-index .label{font-size:12px;color:var(--gray);margin-top:2px}
-.r-index .pct{font-size:11px;color:var(--gray2);margin-top:2px}
-.r-quote{font-size:16px;color:var(--text);line-height:1.8;margin-top:20px;font-style:italic;padding:0 8px}
-.r-radar{background:var(--card);border-radius:16px;padding:20px;margin-top:20px;text-align:left;box-shadow:0 2px 8px rgba(0,0,0,.04)}
-.r-radar h3{font-size:16px;font-weight:700;margin-bottom:16px}
-.r-radar .dim{display:flex;align-items:center;gap:10px;margin-bottom:10px}
-.r-radar .dim .name{font-size:13px;color:var(--text2);width:72px;flex-shrink:0}
-.r-radar .dim .bar{flex:1;height:8px;background:var(--gray5);border-radius:4px;overflow:hidden}
-.r-radar .dim .bar .fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--purple));border-radius:4px;transition:width .6s}
-.r-radar .dim .score{font-size:12px;color:var(--gray);width:36px;text-align:right}
-.r-section{background:var(--card);border-radius:16px;padding:20px;margin-top:16px;text-align:left;box-shadow:0 2px 8px rgba(0,0,0,.04)}
-.r-section h3{font-size:16px;font-weight:700;margin-bottom:12px}
-.r-section p{font-size:14px;color:var(--text2);line-height:1.7}
-.r-section ul{list-style:none;padding:0}
-.r-section li{font-size:14px;color:var(--text2);line-height:1.7;padding-left:20px;position:relative;margin-bottom:6px}
-.r-section li::before{content:"";position:absolute;left:0;top:10px;width:6px;height:6px;border-radius:50%;background:var(--blue)}
-.r-tags{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;margin-top:16px}
-.r-tag{background:var(--red);color:#fff;font-size:12px;font-weight:600;padding:5px 12px;border-radius:20px;opacity:.9}
-.disclaimer{margin-top:24px;padding:20px;background:var(--card);border-radius:16px;text-align:left;box-shadow:0 2px 8px rgba(0,0,0,.04)}
-.disclaimer h3{font-size:14px;font-weight:700;margin-bottom:8px}
-.disclaimer p{font-size:12px;color:var(--gray);line-height:1.6;margin-bottom:6px}
-.retry-btn{width:100%;padding:16px;background:var(--card);color:var(--text);font-size:16px;font-weight:600;border-radius:14px;margin-top:24px;box-shadow:0 2px 8px rgba(0,0,0,.04);transition:transform .2s}
-.retry-btn:active{transform:scale(.97)}
-.credit{font-size:12px;color:var(--gray2);margin-top:16px}
-[v-cloak]{display:none!important}
-.theme-btn{position:fixed;bottom:20px;right:20px;width:48px;height:48px;border-radius:50%;background:var(--card);box-shadow:0 4px 16px rgba(0,0,0,.15);display:flex;align-items:center;justify-content:center;font-size:22px;z-index:9999;transition:transform .2s}
-.theme-btn:active{transform:scale(.9)}
-.sound-btn{position:fixed;bottom:20px;left:20px;width:48px;height:48px;border-radius:50%;background:var(--card);box-shadow:0 4px 16px rgba(0,0,0,.15);display:flex;align-items:center;justify-content:center;font-size:22px;z-index:9999;transition:transform .2s}
-.sound-btn:active{transform:scale(.9)}
-.sound-btn.muted{opacity:.5}
-.confetti-container{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:99999;overflow:hidden}
-.confetti-piece{position:absolute;top:-20px;animation:confettiFall linear forwards}
-@keyframes confettiFall{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
-.page-enter-active,.page-leave-active{transition:opacity .3s,transform .3s}
-.page-enter-from{opacity:0;transform:translateY(20px)}
-.page-leave-to{opacity:0;transform:translateY(-20px)}
-.fade-enter-active,.fade-leave-active{transition:opacity .3s}
-.fade-enter-from,.fade-leave-to{opacity:0}
-.welcome-footer{margin-top:20px;font-size:13px;color:var(--gray2);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
-.welcome-footer:active{opacity:.6}
-.changelog-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:10000;padding:20px}
-.changelog-card{background:var(--card);border-radius:24px;padding:28px 24px;max-width:400px;width:100%;max-height:80vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.3)}
-.changelog-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-.changelog-title{font-size:18px;font-weight:700;color:var(--text)}
-.changelog-close{font-size:20px;color:var(--gray);cursor:pointer;padding:4px 8px;border-radius:8px}
-.changelog-close:active{background:var(--gray5)}
-.changelog-body{display:flex;flex-direction:column;gap:20px}
-.changelog-item{padding-bottom:16px;border-bottom:1px solid var(--gray5)}
-.changelog-item:last-child{border-bottom:none;padding-bottom:0}
-.changelog-ver{font-size:15px;font-weight:700;color:var(--blue);margin-bottom:8px}
-.changelog-item ul{list-style:none;padding:0;margin:0}
-.changelog-item li{font-size:14px;color:var(--text2);line-height:1.7;padding-left:16px;position:relative}
-.changelog-item li::before{content:'•';position:absolute;left:0;color:var(--blue);font-weight:700}
+/* ==================== CSS变量定义 ==================== */
+:root {
+  --bg: #F2F2F7;
+  --card: #FFF;
+  --blue: #007AFF;
+  --text: #000;
+  --text2: #3A3A3C;
+  --gray: #8E8E93;
+  --gray2: #AEAEB2;
+  --gray3: #C7C7CC;
+  --gray4: #D1D1D6;
+  --gray5: #E5E5EA;
+  --red: #FF3B30;
+  --orange: #FF9500;
+  --green: #34C759;
+  --purple: #5856D6;
+}
+
+[data-theme=dark] {
+  --bg: #000;
+  --card: #1C1C1E;
+  --blue: #0A84FF;
+  --text: #FFF;
+  --text2: #EBEBF5;
+  --gray: #8E8E93;
+  --gray2: #636366;
+  --gray3: #48484A;
+  --gray4: #3A3A3C;
+  --gray5: #2C2C2E;
+  --red: #FF453A;
+  --orange: #FF9F0A;
+  --green: #30D158;
+  --purple: #5E5CE6;
+}
+
+/* ==================== 基础样式 ==================== */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  transition: background .3s, color .3s;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+button { font-family: inherit; cursor: pointer; border: none; outline: none; }
+#app { min-height: 100vh; display: flex; flex-direction: column; }
+
+/* Vue挂载前隐藏，防止模板闪烁 */
+[v-cloak] { display: none !important; }
+
+/* ==================== 动画定义 ==================== */
+@keyframes splashIn { from { opacity: 0 } to { opacity: 1 } }
+@keyframes bounce { 0% { transform: scale(0) } 60% { transform: scale(1.15) } 100% { transform: scale(1) } }
+@keyframes pulse { 0%, 100% { transform: scale(1) } 50% { transform: scale(1.05) } }
+@keyframes spin { from { transform: rotate(0) } to { transform: rotate(360deg) } }
+@keyframes fadeUp { to { opacity: 1; transform: translateY(0) } }
+@keyframes confettiFall {
+  0% { transform: translateY(0) rotate(0deg); opacity: 1 }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0 }
+}
+
+/* 页面切换动画 */
+.page-enter-active, .page-leave-active { transition: opacity .3s, transform .3s }
+.page-enter-from { opacity: 0; transform: translateY(20px) }
+.page-leave-to { opacity: 0; transform: translateY(-20px) }
+.fade-enter-active, .fade-leave-active { transition: opacity .3s }
+.fade-enter-from, .fade-leave-to { opacity: 0 }
+
+/* ==================== 测试标记 ==================== */
+.test-badge {
+  position: fixed;
+  top: max(12px, env(safe-area-inset-top, 12px));
+  left: 50%;
+  transform: translateX(-50%);
+  background: #FF3B30;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 0 0 8px 8px;
+  z-index: 10001;
+  letter-spacing: 1px;
+}
+
+/* ==================== 闪屏页 ==================== */
+.splash-page {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, var(--blue), var(--purple));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: splashIn .5s ease;
+}
+.splash-emoji { font-size: 72px; animation: bounce .8s cubic-bezier(.34, 1.56, .64, 1) .2s both }
+.splash-title { font-size: 32px; font-weight: 800; color: #fff; margin-top: 16px }
+.splash-sub { font-size: 14px; color: rgba(255, 255, 255, .7); margin-top: 8px }
+.splash-loading { margin-top: 40px; width: 200px }
+.splash-bar { height: 4px; background: rgba(255, 255, 255, .2); border-radius: 2px; overflow: hidden }
+.splash-fill { height: 100%; background: #fff; border-radius: 2px; transition: width .3s }
+.splash-text { font-size: 12px; color: rgba(255, 255, 255, .8); margin-top: 12px; text-align: center }
+.splash-tap {
+  margin-top: 40px;
+  font-size: 16px;
+  color: #fff;
+  padding: 12px 32px;
+  background: rgba(255, 255, 255, .2);
+  border-radius: 24px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+/* ==================== 欢迎页 ==================== */
+.welcome {
+  padding: 60px 28px 40px;
+  text-align: center;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.welcome .emoji { font-size: 80px; margin-bottom: 24px; animation: pulse 2s ease-in-out infinite }
+.welcome h1 { font-size: 32px; font-weight: 800; letter-spacing: -1px; line-height: 1.2 }
+.welcome p { font-size: 15px; color: var(--gray); margin-top: 16px; line-height: 1.7; max-width: 300px }
+.welcome .divider { width: 60px; height: 4px; border-radius: 2px; background: var(--gray4); margin: 32px auto }
+.welcome .tags { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: auto }
+.tag { background: var(--gray5); color: var(--text2); font-size: 13px; font-weight: 500; padding: 6px 14px; border-radius: 20px }
+.welcome .btn {
+  width: 100%;
+  padding: 16px;
+  background: linear-gradient(135deg, var(--blue), var(--purple));
+  color: #fff;
+  font-size: 17px;
+  font-weight: 600;
+  border-radius: 14px;
+  margin-top: 32px;
+  transition: transform .2s;
+  box-shadow: 0 8px 24px rgba(0, 122, 255, .3);
+}
+.welcome .btn:active { transform: scale(.97) }
+.welcome .btn2 { background: var(--gray5); color: var(--text); box-shadow: none; margin-top: 12px }
+.welcome-footer {
+  margin-top: 20px;
+  font-size: 13px;
+  color: var(--gray2);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.welcome-footer:active { opacity: .6 }
+
+/* ==================== 答题页 ==================== */
+.quiz { min-height: 100vh; display: flex; flex-direction: column }
+.q-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 12px 20px;
+  padding-top: max(12px, env(safe-area-inset-top, 12px) + 12px);
+  background: var(--bg);
+  backdrop-filter: saturate(180%) blur(20px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.q-back { width: 36px; height: 36px; border-radius: 50%; background: var(--gray5); display: flex; align-items: center; justify-content: center; color: var(--text); font-size: 18px }
+.q-header h2 { font-size: 17px; font-weight: 600; flex: 1; text-align: center }
+.progress { padding: 0 20px }
+.progress .bar { height: 4px; background: var(--gray5); border-radius: 2px; overflow: hidden }
+.progress .fill { height: 100%; background: var(--blue); border-radius: 2px; transition: width .3s }
+.progress .text { font-size: 12px; color: var(--gray); margin-top: 8px; text-align: right }
+.q-body { flex: 1; padding: 20px; display: flex; flex-direction: column }
+.q-emoji { font-size: 48px; text-align: center; margin-bottom: 16px; line-height: 1.3; letter-spacing: 2px }
+.q-meta { font-size: 13px; color: var(--blue); font-weight: 600; margin-bottom: 12px }
+.q-text { font-size: 18px; font-weight: 600; line-height: 1.5; margin-bottom: 24px }
+.opts { display: flex; flex-direction: column; gap: 12px }
+.opt {
+  padding: 16px 20px;
+  background: var(--card);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  transition: transform .15s, box-shadow .15s;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .04);
+}
+.opt:active { transform: scale(.98) }
+.opt.sel { background: var(--blue); color: #fff; box-shadow: 0 4px 16px rgba(0, 122, 255, .3) }
+.opt .letter { width: 28px; height: 28px; border-radius: 50%; background: var(--gray5); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0 }
+.opt.sel .letter { background: rgba(255, 255, 255, .3) }
+.opt .text { font-size: 15px; line-height: 1.4 }
+
+/* ==================== 分析页 ==================== */
+.analysis { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 28px }
+.analysis .orb { font-size: 64px; animation: spin 2s linear infinite }
+.analysis h2 { font-size: 22px; font-weight: 700; margin-top: 24px }
+.analysis p { font-size: 14px; color: var(--gray); margin-top: 8px }
+.analysis .steps { margin-top: 32px; display: flex; flex-direction: column; gap: 12px; width: 100%; }
+.analysis .step {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  background: var(--card);
+  padding: 14px 18px;
+  border-radius: 14px;
+  opacity: 0;
+  transform: translateY(10px);
+  animation: fadeUp .4s ease forwards;
+}
+.analysis .step:nth-child(1) { animation-delay: .3s }
+.analysis .step:nth-child(2) { animation-delay: .6s }
+.analysis .step:nth-child(3) { animation-delay: .9s }
+.analysis .step:nth-child(4) { animation-delay: 1.2s }
+.analysis .step .icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0 }
+.analysis .step .label { font-size: 14px; color: var(--text2) }
+
+/* ==================== 结果页 ==================== */
+.result { padding: 20px 20px 40px; text-align: center }
+.share-tip {
+  background: var(--card);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, .04);
+}
+.share-tip .icon { font-size: 28px; flex-shrink: 0 }
+.share-tip .title { font-size: 14px; font-weight: 600 }
+.share-tip .desc { font-size: 12px; color: var(--gray); margin-top: 2px }
+
+/* 结果页头部 */
+.r-hero { text-align: center; margin-bottom: 24px }
+.r-type-code { font-size: 22px; color: var(--blue); font-weight: 800; letter-spacing: 3px; margin-top: 8px }
+.r-name { font-size: 28px; font-weight: 800; margin-top: 4px }
+.r-sub { font-size: 13px; color: var(--gray); margin-top: 4px }
+.r-cards { display: flex; gap: 16px; justify-content: center; margin-top: 20px }
+.r-avatar {
+  width: 100px;
+  height: 100px;
+  border-radius: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 52px;
+  color: #fff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, .15);
+  flex-shrink: 0;
+}
+.r-index { background: var(--card); border-radius: 16px; padding: 16px 24px; box-shadow: 0 2px 8px rgba(0, 0, 0, .04); display: flex; flex-direction: column; justify-content: center; min-width: 120px }
+.r-index .num { font-size: 36px; font-weight: 800; color: var(--blue) }
+.r-index .label { font-size: 12px; color: var(--gray); margin-top: 2px }
+.r-index .pct { font-size: 11px; color: var(--gray2); margin-top: 2px }
+.r-quote { font-size: 16px; color: var(--text); line-height: 1.8; margin-top: 20px; font-style: italic; padding: 0 8px }
+
+/* 雷达图 */
+.r-radar { background: var(--card); border-radius: 16px; padding: 20px; margin-top: 20px; text-align: left; box-shadow: 0 2px 8px rgba(0, 0, 0, .04) }
+.r-radar h3 { font-size: 16px; font-weight: 700; margin-bottom: 16px }
+.r-radar .dim { display: flex; align-items: center; gap: 10px; margin-bottom: 10px }
+.r-radar .dim .name { font-size: 13px; color: var(--text2); width: 72px; flex-shrink: 0 }
+.r-radar .dim .bar { flex: 1; height: 8px; background: var(--gray5); border-radius: 4px; overflow: hidden }
+.r-radar .dim .bar .fill { height: 100%; background: linear-gradient(90deg, var(--blue), var(--purple)); border-radius: 4px; transition: width .6s }
+.r-radar .dim .score { font-size: 12px; color: var(--gray); width: 36px; text-align: right }
+
+/* 内容区块 */
+.r-section { background: var(--card); border-radius: 16px; padding: 20px; margin-top: 16px; text-align: left; box-shadow: 0 2px 8px rgba(0, 0, 0, .04) }
+.r-section h3 { font-size: 16px; font-weight: 700; margin-bottom: 12px }
+.r-section p { font-size: 14px; color: var(--text2); line-height: 1.7 }
+.r-section ul { list-style: none; padding: 0 }
+.r-section li { font-size: 14px; color: var(--text2); line-height: 1.7; padding-left: 20px; position: relative; margin-bottom: 6px }
+.r-section li::before { content: ""; position: absolute; left: 0; top: 10px; width: 6px; height: 6px; border-radius: 50%; background: var(--blue) }
+
+/* 标签 */
+.r-tags { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 16px }
+.r-tag { background: var(--red); color: #fff; font-size: 12px; font-weight: 600; padding: 5px 12px; border-radius: 20px; opacity: .9 }
+
+/* 免责声明 */
+.disclaimer { margin-top: 24px; padding: 20px; background: var(--card); border-radius: 16px; text-align: left; box-shadow: 0 2px 8px rgba(0, 0, 0, .04) }
+.disclaimer h3 { font-size: 14px; font-weight: 700; margin-bottom: 8px }
+.disclaimer p { font-size: 12px; color: var(--gray); line-height: 1.6; margin-bottom: 6px }
+
+/* 重试按钮 */
+.retry-btn { width: 100%; padding: 16px; background: var(--card); color: var(--text); font-size: 16px; font-weight: 600; border-radius: 14px; margin-top: 24px; box-shadow: 0 2px 8px rgba(0, 0, 0, .04); transition: transform .2s }
+.retry-btn:active { transform: scale(.97) }
+.credit { font-size: 12px; color: var(--gray2); margin-top: 16px }
+
+/* ==================== 更新日志弹窗 ==================== */
+.changelog-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, .45); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 20px }
+.changelog-card { background: var(--card); border-radius: 24px; padding: 28px 24px; max-width: 400px; width: 100%; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0, 0, 0, .3) }
+.changelog-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px }
+.changelog-title { font-size: 18px; font-weight: 700; color: var(--text) }
+.changelog-close { font-size: 20px; color: var(--gray); cursor: pointer; padding: 4px 8px; border-radius: 8px }
+.changelog-close:active { background: var(--gray5) }
+.changelog-body { display: flex; flex-direction: column; gap: 20px }
+.changelog-item { padding-bottom: 16px; border-bottom: 1px solid var(--gray5) }
+.changelog-item:last-child { border-bottom: none; padding-bottom: 0 }
+.changelog-ver { font-size: 15px; font-weight: 700; color: var(--blue); margin-bottom: 8px }
+.changelog-item ul { list-style: none; padding: 0; margin: 0 }
+.changelog-item li { font-size: 14px; color: var(--text2); line-height: 1.7; padding-left: 16px; position: relative }
+.changelog-item li::before { content: '•'; position: absolute; left: 0; color: var(--blue); font-weight: 700 }
+
+/* ==================== 悬浮按钮 ==================== */
+.theme-btn, .sound-btn {
+  position: fixed;
+  bottom: 20px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--card);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, .15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 22px;
+  z-index: 9999;
+  transition: transform .2s;
+}
+.theme-btn { right: 20px }
+.sound-btn { left: 20px }
+.theme-btn:active, .sound-btn:active { transform: scale(.9) }
+.sound-btn.muted { opacity: .5 }
+
+/* ==================== 彩带动画 ==================== */
+.confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 99999; overflow: hidden }
+.confetti-piece { position: absolute; top: -20px; animation: confettiFall linear forwards }
 </style>
 </head>
 <body>
 <div id="app" v-cloak>
-<div class="test-badge">TEST PREVIEW</div>
-<div class="splash-page" v-if="phase==='splash'">
-  <div class="splash-emoji">🔮</div>
-  <div class="splash-title">单身人格鉴定</div>
-  <div class="splash-sub">36种单身灵魂，你是哪一种？</div>
-  <div class="splash-loading" v-if="loadingProgress < 100">
-    <div class="splash-bar"><div class="splash-fill" :style="{width: loadingProgress + '%'}"></div></div>
-    <div class="splash-text">{{loadingText}}</div>
-  </div>
-  <div class="splash-tap" v-else @click="phase='welcome'">点击开始 →</div>
-</div>
+  <!-- 测试标记 -->
+  <div class="test-badge">TEST PREVIEW</div>
 
-<transition name="page">
-<div class="welcome" v-if="phase==='welcome'">
-  <div class="emoji">🔮</div>
-  <h1>测测你的单身人格</h1>
-  <p>社交雷达、爱情滤镜、心动阈值、独处电量——四个维度解锁你的专属单身人格，36种灵魂精准匹配。</p>
-  <div class="divider"></div>
-  <div class="tags"><span class="tag">⏱ 3分钟</span><span class="tag">📊 16题</span><span class="tag">🎭 36种人格</span></div>
-  <button class="btn" @click="startQuiz">开始鉴定 →</button>
-  <button class="btn btn2" v-if="hasRecord" @click="viewLastResult">📊 查看上一次结果</button>
-  <div class="welcome-footer" @click="showChangelog=true">v3.1 · 更新日志</div>
-</div>
-</transition>
-
-<!-- 更新日志弹窗 -->
-<transition name="fade">
-<div class="changelog-overlay" v-if="showChangelog" @click.self="showChangelog=false">
-  <div class="changelog-card">
-    <div class="changelog-header">
-      <span class="changelog-title">📋 更新日志</span>
-      <span class="changelog-close" @click="showChangelog=false">✕</span>
+  <!-- ==================== 闪屏页 ==================== -->
+  <div class="splash-page" v-if="phase === 'splash'">
+    <div class="splash-emoji">🔮</div>
+    <div class="splash-title">单身人格鉴定</div>
+    <div class="splash-sub">36种单身灵魂，你是哪一种？</div>
+    <div class="splash-loading" v-if="loadingProgress < 100">
+      <div class="splash-bar"><div class="splash-fill" :style="{width: loadingProgress + '%'}"></div></div>
+      <div class="splash-text">{{loadingText}}</div>
     </div>
-    <div class="changelog-body">
-      <div class="changelog-item">
-        <div class="changelog-ver">v3.1 · 2026.4.23</div>
-        <ul>
-          <li>精简至36种人格（3×3×2×2），每种文案更深入</li>
-          <li>99%单身指数配🧱砖头emoji，文案犀利升级</li>
-          <li>修复结果页emoji和百分比并排显示</li>
-          <li>修复打开时更新日志闪烁问题</li>
-        </ul>
+    <div class="splash-tap" v-else @click="phase = 'welcome'">点击开始 →</div>
+  </div>
+
+  <!-- ==================== 欢迎页 ==================== -->
+  <transition name="page">
+    <div class="welcome" v-if="phase === 'welcome'">
+      <div class="emoji">🔮</div>
+      <h1>测测你的单身人格</h1>
+      <p>社交雷达、爱情滤镜、心动阈值、独处电量——四个维度解锁你的专属单身人格，36种灵魂精准匹配。</p>
+      <div class="divider"></div>
+      <div class="tags">
+        <span class="tag">⏱ 3分钟</span>
+        <span class="tag">📊 16题</span>
+        <span class="tag">🎭 36种人格</span>
       </div>
-      <div class="changelog-item">
-        <div class="changelog-ver">v3.0 · 2026.4.23</div>
-        <ul>
-          <li>全新字母人格系统：A/V/R·P/F/O·S/T/C·I/N/D，像MBTI一样有辨识度</li>
-          <li>81种人格全部独立文案和emoji，扎心犀利风格</li>
-          <li>结果页全新布局</li>
-        </ul>
-      </div>
-      <div class="changelog-item">
-        <div class="changelog-ver">v2.4 · 2026.4.23</div>
-        <ul>
-          <li>每道题目新增 emoji 配图，答题更有趣</li>
-          <li>结论页新增彩带撒花动画</li>
-        </ul>
-      </div>
-      <div class="changelog-item">
-        <div class="changelog-ver">v2.3 · 2026.4.23</div>
-        <ul>
-          <li>新增点击音效和反馈音效（可关闭）</li>
-          <li>首页新增「查看上一次结果」按钮</li>
-        </ul>
-      </div>
-      <div class="changelog-item">
-        <div class="changelog-ver">v2.2 · 2026.4.23</div>
-        <ul>
-          <li>全面升级标题和文案，更有辨识度</li>
-          <li>「单身指数测试」升级为「单身人格鉴定」</li>
-          <li>加载动画文案更有趣</li>
-        </ul>
-      </div>
-      <div class="changelog-item">
-        <div class="changelog-ver">v2.1 · 2026.4.23</div>
-        <ul>
-          <li>结果页维度展示改用中文标签，告别 MHHL</li>
-          <li>选项顺序随机打乱，防止猜答案倾向</li>
-          <li>修复雷达图进度条不显示的问题</li>
-        </ul>
-      </div>
-      <div class="changelog-item">
-        <div class="changelog-ver">v2.0 · 2026.4.23</div>
-        <ul>
-          <li>结果类型从 16 种扩展到 81 种，差异化更强</li>
-          <li>每个维度新增「中」档，3×3×3×3 = 81 种组合</li>
-          <li>新增 81 条差异化引言和诊断描述</li>
-          <li>单身指数动态计算，更精准</li>
-        </ul>
-      </div>
-      <div class="changelog-item">
-        <div class="changelog-ver">v1.3 · 2026.4.22</div>
-        <ul>
-          <li>新增 emoji 头像展示</li>
-          <li>新增四维雷达图可视化</li>
-          <li>新增避雷类型模块</li>
-        </ul>
-      </div>
-      <div class="changelog-item">
-        <div class="changelog-ver">v1.0 · 2026.4.20</div>
-        <ul>
-          <li>首次发布：4维度16题测试</li>
-          <li>16种结果类型</li>
-          <li>诊断报告 + 脱单建议</li>
-        </ul>
+      <button class="btn" @click="startQuiz">开始鉴定 →</button>
+      <button class="btn btn2" v-if="hasRecord" @click="viewLastResult">📊 查看上一次结果</button>
+      <div class="welcome-footer" @click="showChangelog = true">v3.1 · 更新日志</div>
+    </div>
+  </transition>
+
+  <!-- ==================== 更新日志弹窗 ==================== -->
+  <transition name="fade">
+    <div class="changelog-overlay" v-if="showChangelog" @click.self="showChangelog = false">
+      <div class="changelog-card">
+        <div class="changelog-header">
+          <span class="changelog-title">📋 更新日志</span>
+          <span class="changelog-close" @click="showChangelog = false">✕</span>
+        </div>
+        <div class="changelog-body">
+          <div class="changelog-item">
+            <div class="changelog-ver">v3.1 · 2026.4.23</div>
+            <ul>
+              <li>精简至36种人格（3×3×2×2），每种文案更深入</li>
+              <li>99%单身指数配🧱砖头emoji，文案犀利升级</li>
+              <li>代码重构，模块化结构更易维护</li>
+            </ul>
+          </div>
+          <div class="changelog-item">
+            <div class="changelog-ver">v3.0 · 2026.4.23</div>
+            <ul>
+              <li>全新字母人格系统：A/V/R·P/F/O·S/C·I/D</li>
+              <li>36种人格全部独立文案和emoji</li>
+              <li>结果页全新布局</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
-</transition>
+  </transition>
 
-<transition name="page">
-<div class="quiz" v-if="phase==='quiz'">
-  <div class="q-header">
-    <div class="q-back" @click="goBack">&lt;</div>
-    <h2>单身人格鉴定</h2>
-    <div style="width:36px"></div>
-  </div>
-  <div class="progress">
-    <div class="bar"><div class="fill" :style="{width:(currentQ+1)/questions.length*100+'%'}"></div></div>
-    <div class="text">{{currentQ+1}} / {{questions.length}}</div>
-  </div>
-  <div class="q-body">
-    <div class="q-emoji" v-if="questions[currentQ].emoji">{{questions[currentQ].emoji}}</div>
-    <div class="q-meta">{{dimNames[questions[currentQ].dim]}}</div>
-    <div class="q-text">{{questions[currentQ].text}}</div>
-    <div class="opts">
-      <div class="opt" v-for="(opt,i) in questions[currentQ].options" :key="i" :class="{sel:answers[currentQ]===i}" @click="selectOpt(i)">
-        <div class="letter">{{['A','B','C','D'][i]}}</div>
-        <div class="text">{{opt}}</div>
+  <!-- ==================== 答题页 ==================== -->
+  <transition name="page">
+    <div class="quiz" v-if="phase === 'quiz'">
+      <div class="q-header">
+        <div class="q-back" @click="goBack">&lt;</div>
+        <h2>单身人格鉴定</h2>
+        <div style="width:36px"></div>
+      </div>
+      <div class="progress">
+        <div class="bar"><div class="fill" :style="{width: (currentQ + 1) / questions.length * 100 + '%'}"></div></div>
+        <div class="text">{{currentQ + 1}} / {{questions.length}}</div>
+      </div>
+      <div class="q-body">
+        <div class="q-emoji" v-if="questions[currentQ].emoji">{{questions[currentQ].emoji}}</div>
+        <div class="q-meta">{{dimNames[questions[currentQ].dim]}}</div>
+        <div class="q-text">{{questions[currentQ].text}}</div>
+        <div class="opts">
+          <div class="opt" v-for="(opt, i) in questions[currentQ].options" :key="i" 
+               :class="{sel: answers[currentQ] === i}" @click="selectOption(i)">
+            <div class="letter">{{['A','B','C','D'][i]}}</div>
+            <div class="text">{{opt}}</div>
+          </div>
+        </div>
       </div>
     </div>
-  </div>
-</div>
-</transition>
+  </transition>
 
-<transition name="page">
-<div class="analysis" v-if="phase==='analysis'">
-  <div class="orb">🌀</div>
-  <h2>正在分析你的单身DNA…</h2>
-  <p>这可能需要几秒钟</p>
-  <div class="steps">
-    <div class="step" v-for="s in analysisSteps" :key="s.label">
-      <div class="icon" :style="{background:s.bg}">{{s.icon}}</div>
-      <div class="label">{{s.label}}</div>
-    </div>
-  </div>
-</div>
-</transition>
-
-<div class="confetti-container" v-if="showConfetti">
-  <div class="confetti-piece" v-for="i in 40" :key="i" :style="{left:Math.random()*100+'%',backgroundColor:confettiColors[i%confettiColors.length],animationDelay:Math.random()*2+'s',animationDuration:(2+Math.random()*2)+'s',width:(6+Math.random()*8)+'px',height:(6+Math.random()*8)+'px',borderRadius:Math.random()>.5?'50%':'2px'}"></div>
-</div>
-
-<transition name="page">
-<div class="result" v-if="phase==='result' && result">
-  <div class="share-tip">
-    <div class="icon">📱</div>
-    <div><div class="title">截图发给朋友猜猜看</div><div class="desc">长按或截图保存，看看TA是什么人格</div></div>
-  </div>
-  <div class="r-hero">
-    <div class="r-type-code" v-if="result.type">{{result.type}}</div>
-    <div class="r-name">{{result.name}}</div>
-    <div class="r-sub" v-if="result.dims && result.dims.length > 2">{{result.dims.join(' · ')}}</div>
-    <div class="r-cards">
-      <div class="r-avatar" :style="{background: result.visual?.bg || 'linear-gradient(135deg,#007AFF,#5856D6)'}">{{result.visual?.emoji || '❓'}}</div>
-      <div class="r-index">
-        <div class="num">{{result.index}}%</div>
-        <div class="label">单身指数</div>
-        <div class="pct">基于{{questions.length}}题测试</div>
+  <!-- ==================== 分析页 ==================== -->
+  <transition name="page">
+    <div class="analysis" v-if="phase === 'analysis'">
+      <div class="orb">🌀</div>
+      <h2>正在分析你的单身DNA…</h2>
+      <p>这可能需要几秒钟</p>
+      <div class="steps">
+        <div class="step" v-for="step in analysisSteps" :key="step.label">
+          <div class="icon" :style="{background: step.bg}">{{step.icon}}</div>
+          <div class="label">{{step.label}}</div>
+        </div>
       </div>
     </div>
-    <div class="r-quote">"{{result.quote||''}}"</div>
+  </transition>
+
+  <!-- ==================== 彩带动画 ==================== -->
+  <div class="confetti-container" v-if="showConfetti">
+    <div class="confetti-piece" v-for="i in 40" :key="i" 
+         :style="{
+           left: Math.random() * 100 + '%',
+           backgroundColor: confettiColors[i % confettiColors.length],
+           animationDelay: Math.random() * 2 + 's',
+           animationDuration: (2 + Math.random() * 2) + 's',
+           width: (6 + Math.random() * 8) + 'px',
+           height: (6 + Math.random() * 8) + 'px',
+           borderRadius: Math.random() > .5 ? '50%' : '2px'
+         }"></div>
   </div>
-  <div class="r-radar" v-if="result.dimScores">
-    <h3>📊 四维人格画像</h3>
-    <div class="dim" v-for="(score, key) in result.dimScores" :key="key">
-      <span class="name">{{dimNames[key]}}</span>
-      <div class="bar"><div class="fill" :style="{width:(score.a/4*100)+'%'}"></div></div>
-      <span class="score">{{Math.round(score.a/4*100)}}%</span>
+
+  <!-- ==================== 结果页 ==================== -->
+  <transition name="page">
+    <div class="result" v-if="phase === 'result' && result">
+      <!-- 分享提示 -->
+      <div class="share-tip">
+        <div class="icon">📱</div>
+        <div>
+          <div class="title">截图发给朋友猜猜看</div>
+          <div class="desc">长按或截图保存，看看TA是什么人格</div>
+        </div>
+      </div>
+
+      <!-- 结果头部 -->
+      <div class="r-hero">
+        <div class="r-type-code" v-if="result.type">{{result.type}}</div>
+        <div class="r-name">{{result.name}}</div>
+        <div class="r-sub" v-if="result.dims">{{result.dims.join(' · ')}}</div>
+        <div class="r-cards">
+          <div class="r-avatar" :style="{background: result.visual?.bg || 'linear-gradient(135deg,#007AFF,#5856D6)'}">
+            {{result.visual?.emoji || '❓'}}
+          </div>
+          <div class="r-index">
+            <div class="num">{{result.index}}%</div>
+            <div class="label">单身指数</div>
+            <div class="pct">基于{{questions.length}}题测试</div>
+          </div>
+        </div>
+        <div class="r-quote">"{{result.quote}}"</div>
+      </div>
+
+      <!-- 四维雷达图 -->
+      <div class="r-radar" v-if="result.dimScores">
+        <h3>📊 四维人格画像</h3>
+        <div class="dim" v-for="(score, key) in result.dimScores" :key="key">
+          <span class="name">{{dimNames[key]}}</span>
+          <div class="bar"><div class="fill" :style="{width: (score.a / 4 * 100) + '%'}"></div></div>
+          <span class="score">{{Math.round(score.a / 4 * 100)}}%</span>
+        </div>
+      </div>
+
+      <!-- 人格鉴定报告 -->
+      <div class="r-section">
+        <h3>📋 人格鉴定报告</h3>
+        <p v-for="(line, i) in (result.desc || '').split('\n')" :key="i" style="margin-top:8px">{{line}}</p>
+      </div>
+
+      <!-- 脱单处方 -->
+      <div class="r-section" v-if="result.tips && result.tips.length">
+        <h3>💡 脱单处方</h3>
+        <ul>
+          <li v-for="(tip, i) in result.tips" :key="i">{{tip}}</li>
+        </ul>
+      </div>
+
+      <!-- 避雷类型 -->
+      <div class="r-section" v-if="result.avoid && result.avoid.length">
+        <h3>⚠️ 你的天雷类型</h3>
+        <ul>
+          <li v-for="(item, i) in result.avoid" :key="i">{{item}}</li>
+        </ul>
+      </div>
+
+      <!-- 维度标签 -->
+      <div class="r-tags">
+        <span class="r-tag" v-for="tag in result.tags" :key="tag">{{tag}}</span>
+      </div>
+
+      <!-- 免责声明 -->
+      <div class="disclaimer">
+        <h3>📌 小声说</h3>
+        <p>本测试仅供娱乐，请勿当真（但也别不信）。</p>
+        <p>无论单身还是恋爱，你值得被爱 💕</p>
+      </div>
+
+      <!-- 重试按钮 -->
+      <button class="retry-btn" @click="retry">🔄 再鉴定一次</button>
+      <div class="credit">by Poliwhirl</div>
     </div>
-  </div>
-    <div class="r-section"><h3>📋 人格鉴定报告</h3><p v-for="(line,i) in (result.desc||'').split('\n')" :key="i" style="margin-top:8px">{{line}}</p></div>
-  <div class="r-section" v-if="result.tips && result.tips.length">
-    <h3>💡 脱单处方</h3>
-    <ul><li v-for="(tip,i) in result.tips" :key="i">{{tip}}</li></ul>
-  </div>
-  <div class="r-section" v-if="result.avoid && result.avoid.length">
-    <h3>⚠️ 你的天雷类型</h3>
-    <ul><li v-for="(a,i) in result.avoid" :key="i">{{a}}</li></ul>
-  </div>
-  <div class="r-tags"><span class="r-tag" v-for="t in result.tags" :key="t">{{t}}</span></div>
-  <div class="disclaimer"><h3>📌 小声说</h3><p>本测试仅供娱乐，请勿当真（但也别不信）。</p><p>无论单身还是恋爱，你值得被爱 💕</p></div>
-  <button class="retry-btn" @click="retry">🔄 再鉴定一次</button>
-  <div class="credit">by Poliwhirl</div>
-</div>
-</transition>
+  </transition>
 
-<button class="sound-btn" :class="{muted:!soundOn}" @click="toggleSound">{{soundOn?'🔊':'🔇'}}</button>
-<button class="theme-btn" @click="toggleTheme">{{isDark?"☀️":"🌙"}}</button>
+  <!-- ==================== 悬浮按钮 ==================== -->
+  <button class="sound-btn" :class="{muted: !soundOn}" @click="toggleSound">{{soundOn ? '🔊' : '🔇'}}</button>
+  <button class="theme-btn" @click="toggleTheme">{{isDark ? '☀️' : '🌙'}}</button>
 </div>
 
+<!-- ==================== 音效引擎 ==================== -->
 <script>
-// === 音效引擎（Web Audio API） ===
-var SFX=(function(){
-  var ctx=null;
-  function getCtx(){if(!ctx)try{ctx=new(window.AudioContext||window.webkitAudioContext)()}catch(e){}return ctx}
-  function play(freq,type,dur,vol,ramp){
-    var c=getCtx();if(!c)return;
-    if(c.state==='suspended')c.resume();
-    var o=c.createOscillator(),g=c.createGain();
-    o.type=type||'sine';o.frequency.value=freq;
-    g.gain.value=vol||.15;
-    if(ramp){g.gain.exponentialRampToValueAtTime(.001,c.currentTime+(dur||.15))}
-    o.connect(g);g.connect(c.destination);o.start();o.stop(c.currentTime+(dur||.15))
+/**
+ * 音效引擎 - Web Audio API
+ * 提供点击、选择、完成等交互音效
+ */
+const SFX = (function() {
+  let ctx = null;
+  
+  function getCtx() {
+    if (!ctx) {
+      try {
+        ctx = new (window.AudioContext || window.webkitAudioContext)();
+      } catch (e) {
+        console.warn('Web Audio API not supported');
+      }
+    }
+    return ctx;
   }
-  return{
-    tap:function(){play(800,'sine',.08,.12,true)},
-    select:function(){play(660,'sine',.1,.15,true);setTimeout(function(){play(880,'sine',.12,.12,true)},80)},
-    flip:function(){play(440,'sine',.06,.1,true);setTimeout(function(){play(550,'sine',.06,.08,true)},50)},
-    complete:function(){play(523,'sine',.15,.15,true);setTimeout(function(){play(659,'sine',.15,.15,true)},120);setTimeout(function(){play(784,'sine',.25,.18,true)},240)},
-    reveal:function(){play(440,'sine',.2,.1,true);setTimeout(function(){play(554,'sine',.2,.12,true)},150);setTimeout(function(){play(659,'sine',.2,.14,true)},300);setTimeout(function(){play(880,'sine',.4,.16,true)},450)}
+  
+  function play(freq, type, dur, vol, ramp) {
+    const c = getCtx();
+    if (!c) return;
+    if (c.state === 'suspended') c.resume();
+    
+    const osc = c.createOscillator();
+    const gain = c.createGain();
+    
+    osc.type = type || 'sine';
+    osc.frequency.value = freq;
+    gain.gain.value = vol || 0.15;
+    
+    if (ramp) {
+      gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + (dur || 0.15));
+    }
+    
+    osc.connect(gain);
+    gain.connect(c.destination);
+    osc.start();
+    osc.stop(c.currentTime + (dur || 0.15));
   }
+  
+  return {
+    tap: () => play(800, 'sine', 0.08, 0.12, true),
+    select: () => {
+      play(660, 'sine', 0.1, 0.15, true);
+      setTimeout(() => play(880, 'sine', 0.12, 0.12, true), 80);
+    },
+    flip: () => {
+      play(440, 'sine', 0.06, 0.1, true);
+      setTimeout(() => play(550, 'sine', 0.06, 0.08, true), 50);
+    },
+    complete: () => {
+      play(523, 'sine', 0.15, 0.15, true);
+      setTimeout(() => play(659, 'sine', 0.15, 0.15, true), 120);
+      setTimeout(() => play(784, 'sine', 0.25, 0.18, true), 240);
+    },
+    reveal: () => {
+      play(440, 'sine', 0.2, 0.1, true);
+      setTimeout(() => play(554, 'sine', 0.2, 0.12, true), 150);
+      setTimeout(() => play(659, 'sine', 0.2, 0.14, true), 300);
+      setTimeout(() => play(880, 'sine', 0.4, 0.16, true), 450);
+    }
+  };
 })();
 </script>
+
+<!-- ==================== 数据与逻辑模块 ==================== -->
 <script src="js/data-test.js?v=3.1"></script>
+
+<!-- ==================== Vue 应用 ==================== -->
 <script>
-const {createApp,ref,computed,watch,nextTick,onMounted}=Vue;
-const SK='single_index_v2';
-function saveR(a,r){localStorage.setItem(SK,JSON.stringify({answers:a,result:r,t:Date.now()}))}
-function loadR(){try{const d=localStorage.getItem(SK);return d?JSON.parse(d):null}catch(e){return null}}
+const { createApp, ref, computed, onMounted } = Vue;
+const STORAGE_KEY = 'single_index_v3';
 
-const app=createApp({
-  setup(){
-    const phase=ref('splash');
-    const currentQ=ref(0);
-    const answers=ref([]);
-    const result=ref(null);
-    const isDark=ref(false);
-    const loadingProgress=ref(0);
-    const loadingText=ref('正在初始化...');
-    const hasRecord=ref(false);
-    const savedRecord=ref(null);
-    const isTransitioning=ref(false);
-    const showChangelog=ref(false);
-    const soundOn=ref(localStorage.getItem('sfx_on')!=='false');
-    const showConfetti=ref(false);
-    const confettiColors=['#FF3B30','#FF9500','#FFCC00','#34C759','#007AFF','#5856D6','#FF2D55','#5AC8FA'];
+// 本地存储工具
+const storage = {
+  save: (answers, result) => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      answers,
+      result,
+      timestamp: Date.now()
+    }));
+  },
+  load: () => {
+    try {
+      const data = localStorage.getItem(STORAGE_KEY);
+      return data ? JSON.parse(data) : null;
+    } catch (e) {
+      return null;
+    }
+  },
+  clear: () => localStorage.removeItem(STORAGE_KEY)
+};
 
-    const steps=[{p:15,t:'正在解析单身DNA...'},{p:35,t:'匹配36种人格图谱...'},{p:55,t:'校准心动雷达...'},{p:75,t:'生成你的专属鉴定...'},{p:100,t:'鉴定就绪'}];
-
-    onMounted(()=>{
-      let s=0;
-      const iv=setInterval(()=>{if(s<steps.length){loadingProgress.value=steps[s].p;loadingText.value=steps[s].t;s++}else{clearInterval(iv)}},200);
-      const rec=loadR();
-      if(rec){hasRecord.value=true;savedRecord.value=rec}
-    });
-
-    const analysisSteps=computed(()=>[
-      {icon:'🧬',label:'扫描社交基因序列…',bg:'rgba(255,107,53,.15)'},
-      {icon:'🔍',label:'解码爱情滤镜参数…',bg:'rgba(253,121,168,.15)'},
-      {icon:'💓',label:'测量心动阈值波动…',bg:'rgba(225,112,85,.15)'},
-      {icon:'🔋',label:'检测独处电量指数…',bg:'rgba(0,184,148,.15)'}
+createApp({
+  setup() {
+    // ==================== 状态定义 ====================
+    const phase = ref('splash');           // 当前页面: splash/welcome/quiz/analysis/result
+    const currentQ = ref(0);               // 当前题号
+    const answers = ref([]);               // 用户答案数组
+    const result = ref(null);              // 测试结果
+    const isDark = ref(false);             // 暗黑模式
+    const loadingProgress = ref(0);        // 加载进度
+    const loadingText = ref('正在初始化...'); // 加载文案
+    const hasRecord = ref(false);          // 是否有历史记录
+    const savedRecord = ref(null);         // 保存的历史记录
+    const isTransitioning = ref(false);    // 是否正在切换题目
+    const showChangelog = ref(false);      // 是否显示更新日志
+    const soundOn = ref(localStorage.getItem('sfx_on') !== 'false'); // 音效开关
+    const showConfetti = ref(false);       // 是否显示彩带
+    
+    // 彩带颜色
+    const confettiColors = [
+      '#FF3B30', '#FF9500', '#FFCC00', '#34C759',
+      '#007AFF', '#5856D6', '#FF2D55', '#5AC8FA'
+    ];
+    
+    // 加载步骤
+    const loadingSteps = [
+      { progress: 15, text: '正在解析单身DNA...' },
+      { progress: 35, text: '匹配36种人格图谱...' },
+      { progress: 55, text: '校准心动雷达...' },
+      { progress: 75, text: '生成你的专属鉴定...' },
+      { progress: 100, text: '鉴定就绪' }
+    ];
+    
+    // 分析步骤
+    const analysisSteps = computed(() => [
+      { icon: '🧬', label: '扫描社交基因序列…', bg: 'rgba(255,107,53,.15)' },
+      { icon: '🔍', label: '解码爱情滤镜参数…', bg: 'rgba(253,121,168,.15)' },
+      { icon: '💓', label: '测量心动阈值波动…', bg: 'rgba(225,112,85,.15)' },
+      { icon: '🔋', label: '检测独处电量指数…', bg: 'rgba(0,184,148,.15)' }
     ]);
-
-    const startQuiz=()=>{if(soundOn.value)SFX.tap();answers.value=new Array(questions.length).fill(null);currentQ.value=0;phase.value='quiz'};
-    const viewLastResult=()=>{if(savedRecord.value&&savedRecord.value.result){result.value=savedRecord.value.result;phase.value='result';showConfetti.value=true;setTimeout(()=>{showConfetti.value=false},4000);if(soundOn.value)SFX.reveal()}};
-    const goBack=()=>{if(currentQ.value>0){if(soundOn.value)SFX.flip();currentQ.value--}};
-    const retry=()=>{if(soundOn.value)SFX.tap();localStorage.removeItem(SK);hasRecord.value=false;savedRecord.value=null;startQuiz()};
-    const toggleTheme=()=>{isDark.value=!isDark.value;document.documentElement.setAttribute('data-theme',isDark.value?'dark':'light')};
-    const toggleSound=()=>{soundOn.value=!soundOn.value;localStorage.setItem('sfx_on',soundOn.value?'true':'false')};
-
-    const selectOpt=(i)=>{
-      if(isTransitioning.value)return;
-      if(soundOn.value)SFX.select();
-      answers.value[currentQ.value]=i;
-      if(currentQ.value<questions.length-1){
-        isTransitioning.value=true;
-        setTimeout(()=>{currentQ.value++;isTransitioning.value=false},300);
-      }else{
-        isTransitioning.value=true;
-        setTimeout(()=>{
-          phase.value='analysis';
-          setTimeout(()=>{
-            try{
-              result.value=calcResult(answers.value);
-              if(!result.value||!result.value.type){
-                result.value={name:'神秘单身者',subtitle:'默认结果',index:50,type:'ROCI',desc:'请重新测试。',quote:'再试一次吧。',tips:['重新测试'],avoid:[],tags:[],dimScores:{social:{a:2,b:2},filter:{a:2,b:2},heartbeat:{a:2,b:2},alone:{a:2,b:2}}};
-              }
-              // 附加视觉信息
-              if(result.value.type && typeEmojis && typeEmojis[result.value.type]){
-                result.value.visual=typeEmojis[result.value.type];
-              }
-              saveR(answers.value,result.value);
-            }catch(e){
-              console.error('calcResult error:',e);
-              result.value={name:'神秘型单身者',subtitle:'计算出错',index:50,type:'MMMM',desc:'结果计算出错。',quote:'没关系，再试一次。',tips:['重新测试'],avoid:[],tags:[],dimScores:{social:{a:2,b:2},filter:{a:2,b:2},heartbeat:{a:2,b:2},alone:{a:2,b:2}},visual:{emoji:'❓',bg:'linear-gradient(135deg,#007AFF,#5856D6)'}};
-            }
-            phase.value='result';
-            showConfetti.value=true;
-            if(soundOn.value)SFX.reveal();
-            isTransitioning.value=false;
-            setTimeout(()=>{showConfetti.value=false},4000);
-          },3500);
-        },300);
+    
+    // ==================== 生命周期 ====================
+    onMounted(() => {
+      // 模拟加载动画
+      let step = 0;
+      const interval = setInterval(() => {
+        if (step < loadingSteps.length) {
+          loadingProgress.value = loadingSteps[step].progress;
+          loadingText.value = loadingSteps[step].text;
+          step++;
+        } else {
+          clearInterval(interval);
+        }
+      }, 200);
+      
+      // 检查历史记录
+      const record = storage.load();
+      if (record) {
+        hasRecord.value = true;
+        savedRecord.value = record;
+      }
+    });
+    
+    // ==================== 方法定义 ====================
+    
+    /**
+     * 开始答题
+     */
+    const startQuiz = () => {
+      if (soundOn.value) SFX.tap();
+      answers.value = new Array(questions.length).fill(null);
+      currentQ.value = 0;
+      phase.value = 'quiz';
+    };
+    
+    /**
+     * 查看上次结果
+     */
+    const viewLastResult = () => {
+      if (savedRecord.value?.result) {
+        result.value = savedRecord.value.result;
+        phase.value = 'result';
+        showConfetti.value = true;
+        setTimeout(() => { showConfetti.value = false; }, 4000);
+        if (soundOn.value) SFX.reveal();
       }
     };
-
-    return{phase,currentQ,answers,result,isDark,questions,dimNames,analysisSteps,
-      loadingProgress,loadingText,hasRecord,showChangelog,soundOn,showConfetti,confettiColors,
-      startQuiz,viewLastResult,selectOpt,goBack,retry,toggleTheme,toggleSound};
+    
+    /**
+     * 返回上一题
+     */
+    const goBack = () => {
+      if (currentQ.value > 0) {
+        if (soundOn.value) SFX.flip();
+        currentQ.value--;
+      }
+    };
+    
+    /**
+     * 选择选项
+     */
+    const selectOption = (index) => {
+      if (isTransitioning.value) return;
+      if (soundOn.value) SFX.select();
+      
+      answers.value[currentQ.value] = index;
+      
+      if (currentQ.value < questions.length - 1) {
+        isTransitioning.value = true;
+        setTimeout(() => {
+          currentQ.value++;
+          isTransitioning.value = false;
+        }, 300);
+      } else {
+        // 最后一题，进入分析
+        isTransitioning.value = true;
+        setTimeout(() => {
+          phase.value = 'analysis';
+          analyzeResult();
+        }, 300);
+      }
+    };
+    
+    /**
+     * 分析结果
+     */
+    const analyzeResult = () => {
+      setTimeout(() => {
+        try {
+          // 调用 data-test.js 中的计算函数
+          result.value = calcResult(answers.value, questions);
+          
+          // 确保结果有效
+          if (!result.value || !result.value.type) {
+            result.value = createDefaultResult();
+          }
+          
+          // 附加视觉信息
+          if (result.value.type && typeEmojis[result.value.type]) {
+            result.value.visual = typeEmojis[result.value.type];
+          }
+          
+          // 保存结果
+          storage.save(answers.value, result.value);
+          
+          // 显示结果页
+          phase.value = 'result';
+          showConfetti.value = true;
+          setTimeout(() => { showConfetti.value = false; }, 4000);
+          if (soundOn.value) SFX.reveal();
+          
+        } catch (e) {
+          console.error('Result calculation error:', e);
+          result.value = createDefaultResult();
+          phase.value = 'result';
+        }
+      }, 2000);
+    };
+    
+    /**
+     * 创建默认结果（出错时回退）
+     */
+    const createDefaultResult = () => ({
+      name: '神秘单身者',
+      subtitle: '默认结果',
+      index: 50,
+      type: 'ROCI',
+      desc: '请重新测试。',
+      quote: '再试一次吧。',
+      tips: ['重新测试'],
+      avoid: [],
+      tags: [],
+      dims: [],
+      dimScores: {
+        social: { a: 2, b: 2 },
+        filter: { a: 2, b: 2 },
+        heartbeat: { a: 2, b: 2 },
+        alone: { a: 2, b: 2 }
+      }
+    });
+    
+    /**
+     * 重新测试
+     */
+    const retry = () => {
+      if (soundOn.value) SFX.tap();
+      storage.clear();
+      hasRecord.value = false;
+      savedRecord.value = null;
+      startQuiz();
+    };
+    
+    /**
+     * 切换主题
+     */
+    const toggleTheme = () => {
+      isDark.value = !isDark.value;
+      document.documentElement.setAttribute('data-theme', isDark.value ? 'dark' : 'light');
+    };
+    
+    /**
+     * 切换音效
+     */
+    const toggleSound = () => {
+      soundOn.value = !soundOn.value;
+      localStorage.setItem('sfx_on', soundOn.value ? 'true' : 'false');
+    };
+    
+    // ==================== 返回暴露 ====================
+    return {
+      // 状态
+      phase,
+      currentQ,
+      answers,
+      result,
+      isDark,
+      loadingProgress,
+      loadingText,
+      hasRecord,
+      showChangelog,
+      soundOn,
+      showConfetti,
+      confettiColors,
+      
+      // 计算属性
+      analysisSteps,
+      
+      // 全局数据（来自 data-test.js）
+      questions,
+      dimNames,
+      
+      // 方法
+      startQuiz,
+      viewLastResult,
+      goBack,
+      selectOption,
+      retry,
+      toggleTheme,
+      toggleSound
+    };
   }
-});
-app.mount('#app');
+}).mount('#app');
 </script>
 </body>
 </html>
