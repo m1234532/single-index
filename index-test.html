@@ -658,16 +658,29 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 64px;
-  color: #fff;
   flex-shrink: 0;
-  animation: float 4s ease-in-out infinite;
-  background: rgba(192, 132, 252, 0.25);
+  position: relative;
+  background: rgba(192, 132, 252, 0.2);
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255, 255, 255, 0.5);
   box-shadow: 
     0 8px 32px rgba(147, 112, 219, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  overflow: hidden;
+}
+.r-avatar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--avatar-bg);
+  opacity: 0.4;
+  z-index: 0;
+}
+.r-avatar-inner {
+  position: relative;
+  z-index: 1;
+  font-size: 64px;
+  animation: float 4s ease-in-out infinite;
 }
 /* 结果页百分比卡片 - 毛玻璃效果 */
 .r-index { 
@@ -1158,8 +1171,8 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
         <div class="r-name">{{result.name}}</div>
         <div class="r-sub" v-if="result.dims">{{result.dims.join(' · ')}}</div>
         <div class="r-cards">
-          <div class="r-avatar" :style="{background: result.visual?.bg || 'linear-gradient(135deg,#FF6B9D,#C084FC)'}">
-            {{result.visual?.emoji || '❓'}}
+          <div class="r-avatar" :style="{'--avatar-bg': result.visual?.bg || 'linear-gradient(135deg,#FF6B9D,#C084FC)'}">
+            <div class="r-avatar-inner">{{result.visual?.emoji || '❓'}}</div>
           </div>
           <div class="r-index">
             <div class="num">{{result.index}}%</div>
