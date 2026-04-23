@@ -541,6 +541,9 @@ function getTypeEmoji(typeCode) {
 
 // 为结果页提供动态 emoji 和颜色
 function getResultVisual(typeCode) {
+  // 优先使用 personaNames 里精心分配的 emoji
+  const persona = personaNames[typeCode];
+  const emoji = persona ? persona.e : getTypeEmoji(typeCode);
   const colors = {
     HHHH:['#FF6B6B','#FF69B4'], HHHL:['#FF6347','#FF1493'], HHLH:['#FF8C42','#FF4500'], HHHM:['#FFD700','#FFA500'],
     HHMH:['#FF7F50','#FF8C00'], HHML:['#FFA500','#FF4500'], HHMM:['#FFB347','#FFA500'], HHLH2:['#FF4500','#FF0000'],
@@ -563,7 +566,7 @@ function getResultVisual(typeCode) {
   else cols=['#2F4F4F','#2E8B57'];
 
   return {
-    emoji: getTypeEmoji(typeCode),
+    emoji: emoji,
     bg: `linear-gradient(135deg,${cols[0]},${cols[1]})`
   };
 }
