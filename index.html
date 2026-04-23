@@ -262,6 +262,131 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 }
 .welcome-footer:active { opacity: .6; }
 
+/* ==================== 3D玻璃卡片风格 ==================== */
+.welcome-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+.welcome-emoji {
+  font-size: 80px;
+  margin-bottom: 16px;
+  animation: float 4s ease-in-out infinite;
+  filter: drop-shadow(0 12px 32px rgba(255, 107, 157, 0.3));
+}
+.welcome-header h1 {
+  font-size: 32px;
+  font-weight: 800;
+  letter-spacing: -1px;
+  background: linear-gradient(135deg, var(--text), var(--primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.welcome-header p {
+  font-size: 15px;
+  color: var(--text2);
+  margin-top: 8px;
+  font-weight: 500;
+}
+
+/* 玻璃卡片容器 */
+.glass-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 24px;
+}
+
+/* 单个玻璃卡片 */
+.glass-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  padding: 20px 12px;
+  text-align: center;
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 
+    0 4px 24px rgba(147, 112, 219, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  overflow: hidden;
+}
+.glass-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 60%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 100%);
+  border-radius: 20px 20px 0 0;
+  pointer-events: none;
+}
+/* 玻璃卡片 - 纯展示，无交互 */
+
+/* 卡片渐变背景 */
+.glass-card-1 {
+  background: linear-gradient(135deg, rgba(192, 132, 252, 0.2), rgba(255, 182, 193, 0.2));
+}
+.glass-card-2 {
+  background: linear-gradient(135deg, rgba(255, 107, 157, 0.15), rgba(255, 218, 185, 0.15));
+}
+.glass-card-3 {
+  background: linear-gradient(135deg, rgba(147, 197, 253, 0.2), rgba(192, 132, 252, 0.15));
+}
+
+.glass-icon {
+  font-size: 40px;
+  margin-bottom: 12px;
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
+}
+.glass-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+  position: relative;
+  z-index: 1;
+}
+.glass-desc {
+  font-size: 11px;
+  color: var(--text3);
+  position: relative;
+  z-index: 1;
+}
+
+/* 底部信息标签 */
+.welcome-info {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+.info-tag {
+  background: rgba(255, 107, 157, 0.1);
+  color: var(--primary);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(255, 107, 157, 0.2);
+}
+
+/* 玻璃风格按钮 */
+.btn-glass {
+  background: linear-gradient(135deg, rgba(192, 132, 252, 0.9), rgba(255, 107, 157, 0.9)) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow: 
+    0 8px 32px rgba(147, 112, 219, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
+}
+
 /* ==================== 答题页 - ArtGo风格 ==================== */
 .quiz { 
   min-height: 100vh; 
@@ -525,6 +650,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   justify-content: center; 
   margin-top: 28px;
 }
+/* 结果页emoji头像 - 毛玻璃效果 */
 .r-avatar {
   width: 130px;
   height: 130px;
@@ -532,23 +658,46 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 64px;
-  color: #fff;
-  box-shadow: var(--shadow);
   flex-shrink: 0;
+  position: relative;
+  background: rgba(192, 132, 252, 0.2);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 
+    0 8px 32px rgba(147, 112, 219, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  overflow: hidden;
+}
+.r-avatar::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--avatar-bg);
+  opacity: 0.4;
+  z-index: 0;
+}
+.r-avatar-inner {
+  position: relative;
+  z-index: 1;
+  font-size: 64px;
   animation: float 4s ease-in-out infinite;
 }
+/* 结果页百分比卡片 - 毛玻璃效果 */
 .r-index { 
-  background: linear-gradient(135deg, rgba(255, 107, 157, 0.1), rgba(192, 132, 252, 0.1));
-  border-radius: var(--radius-lg);
   width: 130px;
   height: 130px;
   padding: 0;
-  border: 2px solid rgba(255, 107, 157, 0.2);
+  border-radius: var(--radius-lg);
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  background: rgba(255, 107, 157, 0.15);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 
+    0 8px 32px rgba(255, 107, 157, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
   flex-shrink: 0;
   gap: 6px;
 }
@@ -863,7 +1012,8 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 </head>
 <body>
 <div id="app" v-cloak>
-  <!-- 正式版 -->
+  <!-- 测试标记 -->
+  <div class="test-badge">TEST PREVIEW</div>
 
   <!-- ==================== 闪屏页 ==================== -->
   <div class="splash-page" v-if="phase === 'splash'">
@@ -880,17 +1030,38 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   <!-- ==================== 欢迎页 ==================== -->
   <transition name="page">
     <div class="welcome" v-if="phase === 'welcome'">
-      <div class="emoji">🧬</div>
-      <h1>测测你的单身基因</h1>
-      <p>社交雷达、爱情滤镜、心动阈值、独处电量——四大基因序列解码你的单身密码，36种基因类型精准定位。</p>
-      <div class="card">
-        <div class="tags">
-          <span class="tag">⏱ 3分钟</span>
-          <span class="tag">🧬 16题</span>
-          <span class="tag">🔬 36种基因</span>
+      <div class="welcome-header">
+        <div class="welcome-emoji">🧬</div>
+        <h1>测测你的单身基因</h1>
+        <p>四大基因序列解码你的单身密码</p>
+      </div>
+      
+      <!-- 3D玻璃卡片网格 - 纯展示 -->
+      <div class="glass-cards">
+        <div class="glass-card glass-card-1">
+          <div class="glass-icon">🎯</div>
+          <div class="glass-title">社交基因</div>
+          <div class="glass-desc">雷达扫描中</div>
+        </div>
+        <div class="glass-card glass-card-2">
+          <div class="glass-icon">💝</div>
+          <div class="glass-title">择偶基因</div>
+          <div class="glass-desc">标准分析仪</div>
+        </div>
+        <div class="glass-card glass-card-3">
+          <div class="glass-icon">⚡</div>
+          <div class="glass-title">心动基因</div>
+          <div class="glass-desc">阈值检测器</div>
         </div>
       </div>
-      <button class="btn" @click="startQuiz">开始测序 →</button>
+      
+      <div class="welcome-info">
+        <span class="info-tag">⏱ 3分钟</span>
+        <span class="info-tag">🧬 16题</span>
+        <span class="info-tag">🔬 36种基因</span>
+      </div>
+      
+      <button class="btn btn-glass" @click="startQuiz">开始基因测序 →</button>
       <button class="btn btn2" v-if="hasRecord" @click="viewLastResult">📊 查看上一次结果</button>
       <div class="welcome-footer" @click="showChangelog = true">v3.1 · 更新日志</div>
     </div>
@@ -1000,8 +1171,8 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
         <div class="r-name">{{result.name}}</div>
         <div class="r-sub" v-if="result.dims">{{result.dims.join(' · ')}}</div>
         <div class="r-cards">
-          <div class="r-avatar" :style="{background: result.visual?.bg || 'linear-gradient(135deg,#FF6B9D,#C084FC)'}">
-            {{result.visual?.emoji || '❓'}}
+          <div class="r-avatar" :style="{'--avatar-bg': result.visual?.bg || 'linear-gradient(135deg,#FF6B9D,#C084FC)'}">
+            <div class="r-avatar-inner">{{result.visual?.emoji || '❓'}}</div>
           </div>
           <div class="r-index">
             <div class="num">{{result.index}}%</div>
@@ -1135,7 +1306,7 @@ const SFX = (function() {
 </script>
 
 <!-- ==================== 数据与逻辑模块 ==================== -->
-<script src="js/data.js?v=3.1"></script>
+<script src="js/data-test.js?v=3.1b"></script>
 
 <!-- ==================== Vue 应用 ==================== -->
 <script>
@@ -1239,8 +1410,15 @@ createApp({
     
     const goBack = () => {
       if (currentQ.value > 0) {
+        // 返回上一题
         if (soundOn.value) SFX.flip();
         currentQ.value--;
+      } else {
+        // 第一题时返回首页
+        if (soundOn.value) SFX.click();
+        phase.value = 'welcome';
+        // 清空当前答题进度
+        answers.value = [];
       }
     };
     
