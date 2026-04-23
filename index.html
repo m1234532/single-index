@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>你的单身指数</title>
+<title>单身人格鉴定 · 81种灵魂等你解锁</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💔</text></svg>">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.4.27/vue.global.prod.min.js"></script>
 <style>
@@ -134,9 +134,9 @@ button{font-family:inherit;cursor:pointer;border:none;outline:none}
 <body>
 <div id="app">
 <div class="splash-page" v-if="phase==='splash'">
-  <div class="splash-emoji">💔</div>
-  <div class="splash-title">你的单身指数</div>
-  <div class="splash-sub">一份专业的单身诊断测试</div>
+  <div class="splash-emoji">🔮</div>
+  <div class="splash-title">单身人格鉴定</div>
+  <div class="splash-sub">81种单身灵魂，你是哪一种？</div>
   <div class="splash-loading" v-if="loadingProgress < 100">
     <div class="splash-bar"><div class="splash-fill" :style="{width: loadingProgress + '%'}"></div></div>
     <div class="splash-text">{{loadingText}}</div>
@@ -146,14 +146,14 @@ button{font-family:inherit;cursor:pointer;border:none;outline:none}
 
 <transition name="page">
 <div class="welcome" v-if="phase==='welcome'">
-  <div class="emoji">🔬</div>
-  <h1>你的单身指数</h1>
-  <p>基于专业爱情心理学框架，从社交、理想、心动、独处四个维度，诊断你的单身原因。</p>
+  <div class="emoji">🔮</div>
+  <h1>测测你的单身人格</h1>
+  <p>社交雷达、爱情滤镜、心动阈值、独处电量——四个维度解锁你的专属单身人格，81种灵魂精准匹配。</p>
   <div class="divider"></div>
-  <div class="tags"><span class="tag">⏱ 约3分钟</span><span class="tag">📊 16道题</span><span class="tag">🎭 81种结果</span></div>
-  <button class="btn" @click="startQuiz">开始测试 →</button>
+  <div class="tags"><span class="tag">⏱ 3分钟</span><span class="tag">📊 16题</span><span class="tag">🎭 81种人格</span></div>
+  <button class="btn" @click="startQuiz">开始鉴定 →</button>
   <button class="btn btn2" v-if="hasRecord" @click="continueQuiz">继续上次的测试 →</button>
-  <div class="welcome-footer" @click="showChangelog=true">v2.1 · 更新日志</div>
+  <div class="welcome-footer" @click="showChangelog=true">v2.2 · 更新日志</div>
 </div>
 </transition>
 
@@ -166,6 +166,14 @@ button{font-family:inherit;cursor:pointer;border:none;outline:none}
       <span class="changelog-close" @click="showChangelog=false">✕</span>
     </div>
     <div class="changelog-body">
+      <div class="changelog-item">
+        <div class="changelog-ver">v2.2 · 2026.4.23</div>
+        <ul>
+          <li>全面升级标题和文案，更有辨识度</li>
+          <li>「单身指数测试」升级为「单身人格鉴定」</li>
+          <li>加载动画文案更有趣</li>
+        </ul>
+      </div>
       <div class="changelog-item">
         <div class="changelog-ver">v2.1 · 2026.4.23</div>
         <ul>
@@ -208,7 +216,7 @@ button{font-family:inherit;cursor:pointer;border:none;outline:none}
 <div class="quiz" v-if="phase==='quiz'">
   <div class="q-header">
     <div class="q-back" @click="goBack">&lt;</div>
-    <h2>你的单身指数</h2>
+    <h2>单身人格鉴定</h2>
     <div style="width:36px"></div>
   </div>
   <div class="progress">
@@ -246,7 +254,7 @@ button{font-family:inherit;cursor:pointer;border:none;outline:none}
 <div class="result" v-if="phase==='result' && result">
   <div class="share-tip">
     <div class="icon">📱</div>
-    <div><div class="title">截图分享给朋友</div><div class="desc">长按或截图保存结果页面</div></div>
+    <div><div class="title">截图发给朋友猜猜看</div><div class="desc">长按或截图保存，看看TA是什么人格</div></div>
   </div>
   <div class="r-hero">
     <div class="r-type-code" v-if="result.dims && result.dims.length">{{result.dims[0]}} · {{result.dims[1]}}</div>
@@ -263,26 +271,26 @@ button{font-family:inherit;cursor:pointer;border:none;outline:none}
     <div class="r-quote">"{{result.quote||''}}"</div>
   </div>
   <div class="r-radar" v-if="result.dimScores">
-    <h3>📊 四维雷达图</h3>
+    <h3>📊 四维人格画像</h3>
     <div class="dim" v-for="(score, key) in result.dimScores" :key="key">
       <span class="name">{{dimNames[key]}}</span>
       <div class="bar"><div class="fill" :style="{width:(score.a/4*100)+'%'}"></div></div>
       <span class="score">{{Math.round(score.a/4*100)}}%</span>
     </div>
   </div>
-  <div class="r-section"><h3>📋 诊断报告</h3><p>{{result.desc}}</p></div>
+    <div class="r-section"><h3>📋 人格鉴定报告</h3><p>{{result.desc}}</p></div>
   <div class="r-section"><p style="font-style:italic">{{result.quote}}</p></div>
   <div class="r-section" v-if="result.tips && result.tips.length">
-    <h3>💡 脱单建议</h3>
+    <h3>💡 脱单处方</h3>
     <ul><li v-for="(tip,i) in result.tips" :key="i">{{tip}}</li></ul>
   </div>
   <div class="r-section" v-if="result.avoid && result.avoid.length">
-    <h3>⚠️ 避雷类型</h3>
+    <h3>⚠️ 你的天雷类型</h3>
     <ul><li v-for="(a,i) in result.avoid" :key="i">{{a}}</li></ul>
   </div>
   <div class="r-tags"><span class="r-tag" v-for="t in result.tags" :key="t">{{t}}</span></div>
-  <div class="disclaimer"><h3>📌 免责声明</h3><p>本测试仅供娱乐参考，结果并非绝对。</p><p>无论你现在是单身还是恋爱中，都祝你幸福！💕</p></div>
-  <button class="retry-btn" @click="retry">🔄 重新测试</button>
+  <div class="disclaimer"><h3>📌 小声说</h3><p>本测试仅供娱乐，请勿当真（但也别不信）。</p><p>无论单身还是恋爱，你值得被爱 💕</p></div>
+  <button class="retry-btn" @click="retry">🔄 再鉴定一次</button>
   <div class="credit">by Poliwhirl</div>
 </div>
 </transition>
@@ -311,7 +319,7 @@ const app=createApp({
     const isTransitioning=ref(false);
     const showChangelog=ref(false);
 
-    const steps=[{p:15,t:'加载题目数据...'},{p:35,t:'随机抽取题目...'},{p:55,t:'初始化分析引擎...'},{p:75,t:'准备结果图谱...'},{p:90,t:'即将完成...'},{p:100,t:'点击开始'}];
+    const steps=[{p:15,t:'正在解析单身DNA...'},{p:35,t:'匹配81种人格图谱...'},{p:55,t:'校准心动雷达...'},{p:75,t:'生成你的专属鉴定...'},{p:90,t:'即将揭晓...'}];
 
     onMounted(()=>{
       let s=0;
