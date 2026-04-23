@@ -325,9 +325,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   border-radius: 20px 20px 0 0;
   pointer-events: none;
 }
-.glass-card:active {
-  transform: scale(0.95);
-}
+/* 玻璃卡片 - 纯展示，无交互 */
 
 /* 卡片渐变背景 */
 .glass-card-1 {
@@ -360,21 +358,6 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   color: var(--text3);
   position: relative;
   z-index: 1;
-}
-.glass-arrow {
-  position: absolute;
-  bottom: 12px;
-  right: 12px;
-  width: 24px;
-  height: 24px;
-  background: rgba(255, 255, 255, 0.8);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  color: var(--text2);
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 /* 底部信息标签 */
@@ -1029,25 +1012,22 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
         <p>四大基因序列解码你的单身密码</p>
       </div>
       
-      <!-- 3D玻璃卡片网格 -->
+      <!-- 3D玻璃卡片网格 - 纯展示 -->
       <div class="glass-cards">
         <div class="glass-card glass-card-1">
           <div class="glass-icon">🎯</div>
           <div class="glass-title">社交基因</div>
           <div class="glass-desc">雷达扫描中</div>
-          <div class="glass-arrow">→</div>
         </div>
         <div class="glass-card glass-card-2">
           <div class="glass-icon">💝</div>
           <div class="glass-title">择偶基因</div>
           <div class="glass-desc">标准分析仪</div>
-          <div class="glass-arrow">→</div>
         </div>
         <div class="glass-card glass-card-3">
           <div class="glass-icon">⚡</div>
           <div class="glass-title">心动基因</div>
           <div class="glass-desc">阈值检测器</div>
-          <div class="glass-arrow">→</div>
         </div>
       </div>
       
