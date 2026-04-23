@@ -8,8 +8,42 @@
   <meta http-equiv="Expires" content="0">
   <title>打工人体质检测 · 你的职场基因</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💼</text></svg>">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.prod.min.js"></script>
-  <style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.prod.min.js"></script>
+<style>
+    /* 初始化加载提示 */
+    #initial-loading {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(180deg, #F0F4F8 0%, #FFFFFF 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
+      transition: opacity 0.3s;
+    }
+    #initial-loading.hide { opacity: 0; pointer-events: none; }
+    #initial-loading .loading-icon {
+      font-size: 60px;
+      animation: bounce 1s ease infinite;
+      margin-bottom: 16px;
+    }
+    @keyframes bounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+    #initial-loading .loading-text {
+      font-size: 15px;
+      color: #5D6D7E;
+      margin-bottom: 8px;
+    }
+    #initial-loading .loading-error {
+      display: none;
+      font-size: 13px;
+      color: #e74c3c;
+      text-align: center;
+      padding: 0 40px;
+      margin-top: 16px;
+    }
+    #initial-loading.show-error .loading-normal { display: none; }
+    #initial-loading.show-error .loading-error { display: block; }
 
     /* ==================== CSS变量定义 - 职场蓝灰系 ==================== */
     :root {
@@ -149,6 +183,20 @@
   </style>
 </head>
 <body>
+<!-- 初始化加载提示 -->
+<div id="initial-loading">
+  <div class="loading-normal">
+    <div class="loading-icon">💼</div>
+    <div class="loading-text">正在加载...</div>
+  </div>
+  <div class="loading-error">
+    <div style="font-size: 40px; margin-bottom: 12px;">⚠️</div>
+    <div>加载失败，请检查网络连接</div>
+    <div style="margin-top: 8px; color: #7f8c8d;">建议：切换WiFi/流量 或 稍后再试</div>
+    <button onclick="location.reload()" style="margin-top: 20px; padding: 12px 24px; background: #4A90D9; color: white; border: none; border-radius: 24px; font-size: 14px; cursor: pointer;">重新加载</button>
+  </div>
+</div>
+
 <div id="app" v-cloak>
 
   <!-- ==================== 欢迎页 ==================== -->
@@ -315,6 +363,24 @@
 
 <script src="data.js"></script>
 <script>
+// 加载超时检测（10秒）
+const loadTimeout = setTimeout(() => {
+  if (document.getElementById('initial-loading') && !document.getElementById('initial-loading').classList.contains('hide')) {
+    document.getElementById('initial-loading').classList.add('show-error');
+  }
+}, 10000);
+
+// 检测 Vue 是否加载成功
+if (typeof Vue === 'undefined') {
+  clearTimeout(loadTimeout);
+  document.getElementById('initial-loading').classList.add('show-error');
+  throw new Error('Vue library failed to load');
+}
+
+// 隐藏初始化 loading
+clearTimeout(loadTimeout);
+document.getElementById('initial-loading').classList.add('hide');
+
 const { createApp, ref, onMounted, computed } = Vue;
 
 createApp({
