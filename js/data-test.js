@@ -462,7 +462,7 @@ function buildDesc(sa, fa, ha, aa) {
       H: '你是一个完整的圆，不需要另一个人来补全。你的独立让你闪闪发光，但也让你很难让别人走进你的世界。'
     }
   };
-  return `你的四个维度分别是：${dimDescs.social[sl]}${dimDescs.filter[fl]}${dimDescs.heartbeat[hl]}${dimDescs.alone[al]}`;
+  return `${dimDescs.social[sl]}${dimDescs.filter[fl]}${dimDescs.heartbeat[hl]}${dimDescs.alone[al]}`;
 }
 
 // 生成建议和避雷
