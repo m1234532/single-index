@@ -2,64 +2,460 @@
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="refresh" content="3;url=https://m1234532.github.io/worker-index/">
-  <title>页面已迁移 - 打工人体质检测</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>打工人体质检测 · 你的职场基因</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💼</text></svg>">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.prod.min.js"></script>
+<style>
+    /* 初始化加载提示 */
+    #initial-loading {
+      position: fixed;
+      inset: 0;
       background: linear-gradient(180deg, #F0F4F8 0%, #FFFFFF 100%);
-      min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 20px;
-      text-align: center;
+      z-index: 99999;
+      transition: opacity 0.3s;
     }
-    .emoji { font-size: 64px; margin-bottom: 16px; }
-    h1 { font-size: 22px; color: #2C3E50; margin-bottom: 12px; }
-    p { font-size: 15px; color: #5D6D7E; margin-bottom: 24px; line-height: 1.6; }
-    .btn {
-      display: inline-block;
-      background: linear-gradient(135deg, #4A90D9, #7FB3E8);
-      color: #fff;
-      padding: 14px 28px;
-      border-radius: 50px;
-      text-decoration: none;
-      font-size: 16px;
-      font-weight: 600;
-      box-shadow: 0 8px 24px rgba(74, 144, 217, 0.3);
-      transition: transform 0.2s;
+    #initial-loading.hide { opacity: 0; pointer-events: none; }
+    #initial-loading .loading-icon {
+      font-size: 60px;
+      animation: bounce 1s ease infinite;
+      margin-bottom: 16px;
     }
-    .btn:active { transform: scale(0.97); }
-    .countdown {
-      margin-top: 20px;
+    @keyframes bounce { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+    #initial-loading .loading-text {
+      font-size: 15px;
+      color: #5D6D7E;
+      margin-bottom: 8px;
+    }
+    #initial-loading .loading-error {
+      display: none;
       font-size: 13px;
-      color: #95A5A6;
+      color: #e74c3c;
+      text-align: center;
+      padding: 0 40px;
+      margin-top: 16px;
     }
+    #initial-loading.show-error .loading-normal { display: none; }
+    #initial-loading.show-error .loading-error { display: block; }
+
+    /* ==================== CSS变量定义 - 职场蓝灰系 ==================== */
+    :root {
+      --bg: #F0F4F8;
+      --card: #FFFFFF;
+      --primary: #4A90D9;
+      --primary-light: #7FB3E8;
+      --secondary: #6B7B8C;
+      --accent: #5AC8FA;
+      --text: #2C3E50;
+      --text2: #5D6D7E;
+      --text3: #95A5A6;
+      --gray: #E8EDF2;
+      --shadow: 0 8px 32px rgba(74, 144, 217, 0.15);
+      --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.08);
+      --radius-lg: 24px;
+      --radius-md: 16px;
+      --radius-pill: 50px;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    @keyframes float { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-10px) } }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(20px) } to { opacity: 1; transform: translateY(0) } }
+    .page-enter-active, .page-leave-active { transition: all 0.4s ease }
+    .page-enter-from { opacity: 0; transform: translateX(30px) }
+    .page-leave-to { opacity: 0; transform: translateX(-30px) }
+    [v-cloak] { display: none !important; }
+    
+    /* ==================== 欢迎页 ==================== */
+    .welcome { padding: 60px 24px 40px; text-align: center; min-height: 100vh; display: flex; flex-direction: column; align-items: center; background: linear-gradient(180deg, var(--bg) 0%, #FFFFFF 100%); }
+    .welcome-emoji { font-size: 80px; margin-bottom: 16px; animation: float 4s ease-in-out infinite; filter: drop-shadow(0 12px 32px rgba(74, 144, 217, 0.3)); }
+    .welcome h1 { font-size: 32px; font-weight: 800; letter-spacing: -1px; background: linear-gradient(135deg, var(--text), var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .welcome-subtitle { font-size: 15px; color: var(--text2); margin-top: 8px; margin-bottom: 32px; font-weight: 500; }
+    .glass-cards { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; width: 100%; max-width: 400px; margin-bottom: 24px; }
+    .glass-card { position: relative; border-radius: 20px; padding: 20px 12px; text-align: center; backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: 0 4px 24px rgba(74, 144, 217, 0.1); overflow: hidden; }
+    .glass-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 60%; background: linear-gradient(180deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 100%); border-radius: 20px 20px 0 0; pointer-events: none; }
+    .glass-card-1 { background: linear-gradient(135deg, rgba(74, 144, 217, 0.2), rgba(90, 200, 250, 0.15)); }
+    .glass-card-2 { background: linear-gradient(135deg, rgba(107, 123, 140, 0.2), rgba(149, 165, 166, 0.15)); }
+    .glass-card-3 { background: linear-gradient(135deg, rgba(90, 200, 250, 0.2), rgba(74, 144, 217, 0.15)); }
+    .glass-card-4 { background: linear-gradient(135deg, rgba(127, 179, 232, 0.2), rgba(107, 123, 140, 0.15)); }
+    .glass-icon { font-size: 36px; margin-bottom: 10px; position: relative; z-index: 1; }
+    .glass-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; position: relative; z-index: 1; }
+    .glass-desc { font-size: 11px; color: var(--text3); position: relative; z-index: 1; }
+    .welcome-info { display: flex; gap: 12px; justify-content: center; margin-bottom: 24px; }
+    .info-tag { background: rgba(74, 144, 217, 0.1); color: var(--primary); font-size: 13px; font-weight: 600; padding: 8px 16px; border-radius: 20px; border: 1px solid rgba(74, 144, 217, 0.2); }
+    .btn { width: 100%; max-width: 360px; padding: 18px; background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: #fff; border: none; border-radius: var(--radius-pill); font-size: 17px; font-weight: 700; cursor: pointer; margin-top: 8px; transition: transform 0.2s, box-shadow 0.2s; box-shadow: var(--shadow); }
+    .btn:active { transform: scale(0.97); }
+    .btn-secondary { background: var(--card); color: var(--text); box-shadow: var(--shadow-sm); border: 2px solid var(--gray); margin-top: 12px; }
+    .cross-link { margin-top: 20px; text-align: center; }
+    .cross-link a { color: var(--primary); font-size: 15px; font-weight: 600; text-decoration: none; padding: 12px 20px; border-radius: var(--radius-pill); background: rgba(74, 144, 217, 0.1); border: 1px solid rgba(74, 144, 217, 0.2); display: inline-block; transition: all 0.2s; }
+    .cross-link a:hover { background: rgba(74, 144, 217, 0.2); }
+    .welcome-footer { margin-top: 24px; font-size: 14px; color: var(--text3); font-weight: 500; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+    
+    /* ==================== 答题页 ==================== */
+    .quiz { min-height: 100vh; display: flex; flex-direction: column; background: var(--bg); }
+    .q-header { padding: 16px 20px; display: flex; align-items: center; justify-content: space-between; background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0, 0, 0, 0.05); }
+    .q-back { width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; cursor: pointer; background: var(--gray); }
+    .q-progress { flex: 1; margin: 0 16px; height: 6px; background: var(--gray); border-radius: 3px; overflow: hidden; }
+    .q-progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-light)); border-radius: 3px; transition: width 0.4s ease; }
+    .q-body { flex: 1; padding: 24px 20px; display: flex; flex-direction: column; }
+    .q-number { font-size: 13px; color: var(--text3); margin-bottom: 12px; font-weight: 600; }
+    .q-text { font-size: 22px; font-weight: 700; line-height: 1.4; margin-bottom: 32px; color: var(--text); }
+    .q-options { display: flex; flex-direction: column; gap: 12px; }
+    .q-option { background: var(--card); border: 2px solid var(--gray); border-radius: var(--radius-md); padding: 18px 20px; font-size: 16px; cursor: pointer; transition: all 0.2s; text-align: left; font-weight: 500; }
+    .q-option.selected { border-color: var(--primary); background: linear-gradient(135deg, rgba(74, 144, 217, 0.1), rgba(90, 200, 250, 0.05)); }
+    
+    /* ==================== 结果页 ==================== */
+    .result { padding: 20px 20px 40px; background: linear-gradient(180deg, var(--bg) 0%, #FFFFFF 100%); text-align: center; }
+    .r-hero { text-align: center; margin-bottom: 28px; background: var(--card); border-radius: var(--radius-lg); padding: 32px 24px; box-shadow: var(--shadow); }
+    .r-type-code { font-size: 22px; font-weight: 800; letter-spacing: 3px; background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    .r-name { font-size: 28px; font-weight: 800; margin-top: 8px; color: var(--text); }
+    .r-sub { font-size: 13px; color: var(--text3); margin-top: 8px; font-weight: 500; }
+    .r-cards { display: flex; gap: 16px; justify-content: center; margin-top: 24px; }
+    .r-avatar { width: 120px; height: 120px; border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center; font-size: 56px; backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: 0 8px 32px rgba(74, 144, 217, 0.2); position: relative; overflow: hidden; }
+    .r-avatar::before { content: ''; position: absolute; inset: 0; background: var(--avatar-bg); opacity: 0.5; z-index: 0; }
+    .r-avatar-inner { position: relative; z-index: 1; animation: float 4s ease-in-out infinite; }
+    .r-scores { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 20px; }
+    .r-score-item { background: rgba(74, 144, 217, 0.08); border-radius: 16px; padding: 16px 12px; text-align: center; border: 1px solid rgba(74, 144, 217, 0.15); }
+    .r-score-label { font-size: 12px; color: var(--text3); margin-bottom: 4px; }
+    .r-score-value { font-size: 24px; font-weight: 800; color: var(--primary); }
+    .r-section { background: rgba(74, 144, 217, 0.08); border-radius: var(--radius-lg); padding: 24px; margin-top: 16px; border: 2px solid rgba(74, 144, 217, 0.2); }
+    .r-section h3 { font-size: 17px; font-weight: 700; margin-bottom: 12px; color: var(--text); }
+    .r-quote { font-size: 16px; color: var(--text2); line-height: 1.8; margin: 24px 0; font-style: italic; padding: 0 12px; font-weight: 500; text-align: center; }
+    .r-actions { display: flex; flex-direction: column; gap: 12px; margin-top: 32px; align-items: center; }
+    .r-actions .btn { width: 100%; max-width: 280px; }
+    
+    /* 分享卡片样式 */
+    .share-card { margin-top: 24px; padding: 20px; background: var(--card); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); border: 2px solid var(--gray); }
+    .share-title { font-size: 15px; font-weight: 700; color: var(--text); margin-bottom: 12px; }
+    .share-preview { background: #f8f9fa; border-radius: 12px; padding: 16px; margin-bottom: 16px; text-align: left; }
+    .share-text { font-size: 14px; color: var(--text2); line-height: 1.6; white-space: pre-wrap; word-break: break-all; }
+    .share-btn { width: 100%; padding: 14px; background: linear-gradient(135deg, #07C160, #05a350); color: #fff; border: none; border-radius: var(--radius-pill); font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+    .share-btn:active { transform: scale(0.98); }
+    
+    /* 职场搭子 */
+    .buddy-list { display: flex; flex-direction: column; gap: 12px; margin-top: 16px; }
+    .buddy-card { background: linear-gradient(135deg, rgba(74, 144, 217, 0.12), rgba(90, 200, 250, 0.08)); border-radius: 16px; padding: 16px; display: flex; align-items: center; gap: 12px; border: 1px solid rgba(255,255,255,0.2); }
+    .buddy-rank-1 { border-left: 4px solid #FFD700; }
+    .buddy-rank-2 { border-left: 4px solid #C0C0C0; }
+    .buddy-rank-3 { border-left: 4px solid #CD7F32; }
+    .buddy-rank { font-size: 24px; width: 32px; text-align: center; }
+    .buddy-emoji { font-size: 32px; width: 40px; text-align: center; }
+    .buddy-info { flex: 1; text-align: left; }
+    .buddy-name { font-weight: 700; font-size: 15px; color: var(--text); }
+    .buddy-subtitle { font-size: 12px; color: var(--text3); margin-top: 2px; }
+    .buddy-match { font-size: 11px; padding: 4px 10px; border-radius: 20px; background: rgba(74,144,217,0.15); color: var(--primary); white-space: nowrap; font-weight: 600; }
+    
+    /* 加载动画 */
+    .result-loading { position: fixed; inset: 0; background: linear-gradient(135deg, var(--bg) 0%, #FFFFFF 100%); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; z-index: 100; }
+    .loading-emoji { font-size: 80px; animation: bounce 1s ease infinite; margin-bottom: 24px; }
+    @keyframes bounce { 0%, 100% { transform: scale(1) rotate(0deg); } 25% { transform: scale(1.1) rotate(-5deg); } 75% { transform: scale(1.1) rotate(5deg); } }
+    .loading-text { font-size: 16px; color: var(--text2); margin-bottom: 32px; font-weight: 500; }
+    .loading-bar { width: 240px; height: 8px; background: rgba(74, 144, 217, 0.15); border-radius: 4px; overflow: hidden; margin-bottom: 12px; }
+    .loading-progress { height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); border-radius: 4px; transition: width 0.3s ease; }
+    .loading-percent { font-size: 24px; font-weight: 700; color: var(--primary); }
+
+    /* ==================== 更新日志弹窗 ==================== */
+    .changelog-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.5); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 20px; backdrop-filter: blur(10px); }
+    .changelog-card { background: var(--card); border-radius: var(--radius-lg); padding: 32px 28px; max-width: 400px; width: 100%; max-height: 80vh; overflow-y: auto; box-shadow: 0 24px 80px rgba(0,0,0,.3); }
+    .changelog-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .changelog-title { font-size: 20px; font-weight: 800; color: var(--text); }
+    .changelog-close { font-size: 24px; color: var(--text3); cursor: pointer; padding: 4px 8px; border-radius: 8px; font-weight: 600; }
+    .changelog-close:active { background: var(--gray); }
+    .changelog-body { display: flex; flex-direction: column; gap: 24px; }
+    .changelog-item { padding-bottom: 20px; border-bottom: 1px solid var(--gray); }
+    .changelog-item:last-child { border-bottom: none; padding-bottom: 0; }
+    .changelog-ver { font-size: 16px; font-weight: 800; background: linear-gradient(135deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 12px; }
+    .changelog-item ul { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+    .changelog-item li { font-size: 15px; color: var(--text2); padding-left: 8px; font-weight: 500; }
   </style>
 </head>
 <body>
-  <div class="emoji">💼</div>
-  <h1>页面已搬家啦</h1>
-  <p>打工人体质检测已迁移到新的地址<br>3秒后自动跳转...</p>
-  <a href="https://m1234532.github.io/worker-index/" class="btn">立即访问新页面</a>
-  <p class="countdown">如果没有自动跳转，请点击上方按钮</p>
-  
-  <script>
-    // 倒计时显示
-    let seconds = 3;
-    const countdownEl = document.querySelector('.countdown');
-    const timer = setInterval(() => {
-      seconds--;
-      if (seconds > 0) {
-        countdownEl.textContent = `${seconds}秒后自动跳转...`;
-      } else {
-        clearInterval(timer);
+<!-- 初始化加载提示 -->
+<div id="initial-loading">
+  <div class="loading-normal">
+    <div class="loading-icon">💼</div>
+    <div class="loading-text">正在加载...</div>
+  </div>
+  <div class="loading-error">
+    <div style="font-size: 40px; margin-bottom: 12px;">⚠️</div>
+    <div>加载失败，请检查网络连接</div>
+    <div style="margin-top: 8px; color: #7f8c8d;">建议：切换WiFi/流量 或 稍后再试</div>
+    <button onclick="location.reload()" style="margin-top: 20px; padding: 12px 24px; background: #4A90D9; color: white; border: none; border-radius: 24px; font-size: 14px; cursor: pointer;">重新加载</button>
+  </div>
+</div>
+
+<div id="app" v-cloak>
+
+  <!-- ==================== 欢迎页 ==================== -->
+  <transition name="page">
+    <div class="welcome" v-if="phase === 'welcome'">
+      <div class="welcome-emoji">💼</div>
+      <h1>打工人体质检测</h1>
+      <p class="welcome-subtitle">基于社会学四大理论 · 解码你的职场基因</p>
+      
+      <div class="glass-cards">
+        <div class="glass-card glass-card-1"><div class="glass-icon">🏃</div><div class="glass-title">内卷指数</div><div class="glass-desc">资本争夺度</div></div>
+        <div class="glass-card glass-card-2"><div class="glass-icon">🐟</div><div class="glass-title">摸鱼天赋</div><div class="glass-desc">抵抗策略</div></div>
+        <div class="glass-card glass-card-3"><div class="glass-icon">🎭</div><div class="glass-title">表演人格</div><div class="glass-desc">拟剧管理</div></div>
+        <div class="glass-card glass-card-4"><div class="glass-icon">🤖</div><div class="glass-title">异化程度</div><div class="glass-desc">意义感知</div></div>
+      </div>
+      
+      <div class="welcome-info">
+        <span class="info-tag">⏱ 3分钟</span>
+        <span class="info-tag">📊 16题</span>
+        <span class="info-tag">🎯 16种类型</span>
+      </div>
+      
+      <button class="btn" @click="startQuiz">开始检测 →</button>
+      <button class="btn btn-secondary" v-if="hasRecord" @click="viewLastResult">📊 查看上一次结果</button>
+      <div class="cross-link"><a href="../">🧬 测测你的单身基因 →</a></div>
+      <div class="welcome-footer" @click="showChangelog = true">v1.2 · 更新日志</div>
+    </div>
+  </transition>
+
+  <!-- ==================== 答题页 ==================== -->
+  <transition name="page">
+    <div class="quiz" v-if="phase === 'quiz'">
+      <div class="q-header">
+        <div class="q-back" @click="goBack">←</div>
+        <div class="q-progress"><div class="q-progress-fill" :style="{width: ((currentQ + 1) / questions.length * 100) + '%'}"></div></div>
+        <div style="width:44px"></div>
+      </div>
+      <div class="q-body">
+        <div class="q-number">题目 {{currentQ + 1}} / {{questions.length}}</div>
+        <div class="q-text">{{questions[currentQ]?.text}}</div>
+        <div class="q-options">
+          <button class="q-option" v-for="(opt, idx) in questions[currentQ]?.options" :key="idx" :class="{selected: selectedOption === idx}" @click="selectOption(idx)">{{opt.text}}</button>
+        </div>
+      </div>
+    </div>
+  </transition>
+
+  <!-- ==================== 结果加载动画 ==================== -->
+  <transition name="page">
+    <div class="result-loading" v-if="phase === 'loading'">
+      <div class="loading-emoji">{{workEmojis[emojiIndex]}}</div>
+      <div class="loading-text">正在分析你的职场基因...</div>
+      <div class="loading-bar"><div class="loading-progress" :style="{width: loadingProgress + '%'}"></div></div>
+      <div class="loading-percent">{{loadingProgress}}%</div>
+    </div>
+  </transition>
+
+  <!-- ==================== 结果页 ==================== -->
+  <transition name="page">
+    <div class="result" v-if="phase === 'result'" v-show="result">
+      <div class="r-hero">
+        <div class="r-type-code">{{result?.type}}</div>
+        <div class="r-name">{{result?.name}}</div>
+        <div class="r-sub" v-if="result?.subtitle">{{result.subtitle}}</div>
+        <div class="r-cards">
+          <div class="r-avatar" :style="{'--avatar-bg': result?.visual?.bg}">
+            <div class="r-avatar-inner">{{result?.visual?.emoji}}</div>
+          </div>
+        </div>
+        <div class="r-scores">
+          <div class="r-score-item"><div class="r-score-label">内卷指数</div><div class="r-score-value">{{result?.scores?.neijuan}}%</div></div>
+          <div class="r-score-item"><div class="r-score-label">摸鱼天赋</div><div class="r-score-value">{{result?.scores?.moyu}}%</div></div>
+          <div class="r-score-item"><div class="r-score-label">表演人格</div><div class="r-score-value">{{result?.scores?.biaoyan}}%</div></div>
+          <div class="r-score-item"><div class="r-score-label">异化程度</div><div class="r-score-value">{{result?.scores?.yihua}}%</div></div>
+        </div>
+      </div>
+
+      <div class="r-quote">"{{result?.quote}}"</div>
+
+      <div class="r-section">
+        <h3>📋 体质诊断报告</h3>
+        <p v-for="(line, i) in (result?.desc || '').split('\n')" :key="i">{{line}}</p>
+      </div>
+
+      <div class="r-section" v-if="result?.theory">
+        <h3>📚 社会学视角</h3>
+        <p>{{result.theory}}</p>
+      </div>
+
+      <!-- 职场搭子匹配 -->
+      <div class="r-section" v-if="result && workBuddies.length > 0">
+        <h3>🤝 与你最匹配的职场搭子</h3>
+        <div class="buddy-list">
+          <div v-for="(buddy, idx) in workBuddies" :key="buddy.code" class="buddy-card" :class="'buddy-rank-' + (idx + 1)">
+            <div class="buddy-rank">{{idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉'}}</div>
+            <div class="buddy-emoji">{{buddy.emoji}}</div>
+            <div class="buddy-info">
+              <div class="buddy-name">{{buddy.name}}</div>
+              <div class="buddy-subtitle">{{buddy.subtitle}}</div>
+            </div>
+            <div class="buddy-match">{{idx === 0 ? '天作之合' : idx === 1 ? '默契搭档' : '不错选择'}}</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="r-actions">
+        <button class="btn" @click="retry">重新检测</button>
+      </div>
+
+      <!-- 分享卡片（带描述文字） -->
+      <div class="share-card">
+        <div class="share-title">📤 分享给朋友</div>
+        <div class="share-preview">
+          <div class="share-text">{{shareText}}</div>
+        </div>
+        <button class="share-btn" @click="copyShareText">{{copied ? '✓ 已复制!' : '一键复制分享文案'}}</button>
+      </div>
+    </div>
+  </transition>
+
+  <!-- ==================== 更新日志弹窗 ==================== -->
+  <transition name="fade">
+    <div class="changelog-overlay" v-show="showChangelog" @click.self="showChangelog = false" style="display: none;">
+      <div class="changelog-card">
+        <div class="changelog-header">
+          <span class="changelog-title">📋 更新日志</span>
+          <span class="changelog-close" @click="showChangelog = false">✕</span>
+        </div>
+        <div class="changelog-body">
+          <div class="changelog-item">
+            <div class="changelog-ver">v1.2 · 2026.4.23</div>
+            <ul>
+              <li>🤝 新增职场搭子匹配功能，展示最匹配的3位搭档</li>
+              <li>📤 新增一键复制分享文案功能</li>
+              <li>✨ 新增结果加载动画：工作emoji + 进度条</li>
+              <li>🎨 结果页内容统一居中，搭子卡片背景加深</li>
+              <li>🔘 修复结果页按钮居中</li>
+              <li>🏷️ 修复首页版本号显示</li>
+            </ul>
+          </div>
+          <div class="changelog-item">
+            <div class="changelog-ver">v1.1 · 2026.4.23</div>
+            <ul>
+              <li>📱 替换分享按钮为复制链接功能</li>
+              <li>📝 修复封面文案：81种 → 16种</li>
+            </ul>
+          </div>
+          <div class="changelog-item">
+            <div class="changelog-ver">v1.0 · 2026.4.23</div>
+            <ul>
+              <li>🎉 打工人体质检测正式上线</li>
+              <li>📊 四大维度：内卷/摸鱼/表演/异化</li>
+              <li>🎯 16种职场人格类型</li>
+              <li>📚 基于社会学理论解读</li>
+              <li>🧬 支持与单身基因测试互相跳转</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </transition>
+
+</div>
+
+<script src="data.js"></script>
+<script>
+// 加载超时检测（10秒）
+const loadTimeout = setTimeout(() => {
+  if (document.getElementById('initial-loading') && !document.getElementById('initial-loading').classList.contains('hide')) {
+    document.getElementById('initial-loading').classList.add('show-error');
+  }
+}, 10000);
+
+// 检测 Vue 是否加载成功
+if (typeof Vue === 'undefined') {
+  clearTimeout(loadTimeout);
+  document.getElementById('initial-loading').classList.add('show-error');
+  throw new Error('Vue library failed to load');
+}
+
+// 隐藏初始化 loading
+clearTimeout(loadTimeout);
+document.getElementById('initial-loading').classList.add('hide');
+
+const { createApp, ref, onMounted, computed } = Vue;
+
+createApp({
+  setup() {
+    const phase = ref('welcome');
+    const currentQ = ref(0);
+    const answers = ref([]);
+    const selectedOption = ref(null);
+    const result = ref(null);
+    const hasRecord = ref(false);
+    const showChangelog = ref(false);
+    const questions = ref(QUESTION_BANK);
+    const copied = ref(false);
+    const loadingProgress = ref(0);
+    const emojiIndex = ref(0);
+    const workEmojis = ['💼', '📊', '☕', '🖥️', '📈', '🗂️', '📎', '✉️', '📋', '💻'];
+    let loadingTimer = null;
+    let emojiTimer = null;
+
+    const workBuddies = computed(() => {
+      if (!result.value || !result.value.type) return [];
+      const matches = WORK_BUDDY_MATCHES[result.value.type];
+      if (!matches) return [];
+      return matches.slice(0, 3).map(code => ({ code, ...PERSONALITY_TYPES[code] }));
+    });
+
+    // 生成分享文案（带描述）
+    const shareText = computed(() => {
+      if (!result.value) return '';
+      const url = typeof window !== 'undefined' ? window.location.href.split('?')[0] : '';
+      const buddies = workBuddies.value.map((b, i) => `${i+1}. ${b.emoji} ${b.name} (${b.subtitle})`).join('\n');
+      return `【打工人体质检测结果】\n\n我是「${result.value.name}」${result.value.visual?.emoji || ''}\n${result.value.subtitle}\n\n📊 四维指数：\n内卷指数 ${result.value.scores?.neijuan}% | 摸鱼天赋 ${result.value.scores?.moyu}%\n表演人格 ${result.value.scores?.biaoyan}% | 异化程度 ${result.value.scores?.yihua}%\n\n💬 ${result.value.quote}\n\n🤝 最适合我的职场搭子：\n${buddies}\n\n👉 测测你的职场基因：${url}`;
+    });
+
+    const storage = {
+      save: (key, val) => localStorage.setItem(`worker_${key}`, JSON.stringify(val)),
+      load: (key) => JSON.parse(localStorage.getItem(`worker_${key}`) || 'null'),
+      clear: (key) => localStorage.removeItem(`worker_${key}`)
+    };
+
+    const startQuiz = () => { phase.value = 'quiz'; currentQ.value = 0; answers.value = []; selectedOption.value = null; storage.clear('answers'); };
+    const selectOption = (idx) => { selectedOption.value = idx; answers.value[currentQ.value] = idx; storage.save('answers', answers.value); setTimeout(() => { selectedOption.value = null; if (currentQ.value < questions.value.length - 1) { currentQ.value++; } else { analyzeResult(); } }, 250); };
+    const goBack = () => { selectedOption.value = null; if (currentQ.value > 0) { currentQ.value--; } else { phase.value = 'welcome'; answers.value = []; } };
+    
+    const analyzeResult = () => {
+      phase.value = 'loading'; loadingProgress.value = 0; emojiIndex.value = 0;
+      emojiTimer = setInterval(() => { emojiIndex.value = (emojiIndex.value + 1) % workEmojis.length; }, 300);
+      loadingTimer = setInterval(() => {
+        loadingProgress.value += Math.floor(Math.random() * 15) + 5;
+        if (loadingProgress.value >= 100) {
+          loadingProgress.value = 100; clearInterval(loadingTimer); clearInterval(emojiTimer);
+          setTimeout(() => { phase.value = 'result'; result.value = calcResult(answers.value, questions.value); storage.save('lastResult', result.value); hasRecord.value = true; }, 300);
+        }
+      }, 200);
+    };
+
+    const viewLastResult = () => { const last = storage.load('lastResult'); if (last) { result.value = last; phase.value = 'result'; } };
+    
+    const copyShareText = async () => {
+      try {
+        await navigator.clipboard.writeText(shareText.value);
+        copied.value = true; setTimeout(() => copied.value = false, 2000);
+      } catch (e) {
+        const input = document.createElement('input'); input.value = shareText.value; document.body.appendChild(input); input.select(); document.execCommand('copy'); document.body.removeChild(input);
+        copied.value = true; setTimeout(() => copied.value = false, 2000);
       }
-    }, 1000);
-  </script>
+    };
+
+    const retry = () => { phase.value = 'welcome'; currentQ.value = 0; answers.value = []; result.value = null; storage.clear('answers'); };
+
+    onMounted(() => { hasRecord.value = !!storage.load('lastResult'); const saved = storage.load('answers'); if (saved && saved.length > 0) { answers.value = saved; currentQ.value = saved.length - 1; } });
+
+    return { phase, currentQ, answers, selectedOption, result, hasRecord, showChangelog, questions, workBuddies, copied, shareText, loadingProgress, emojiIndex, workEmojis, startQuiz, selectOption, goBack, viewLastResult, retry, copyShareText };
+  }
+}).mount('#app');
+</script>
 </body>
 </html>
