@@ -508,6 +508,11 @@
       flex-direction: column;
       gap: 12px;
       margin-top: 32px;
+      align-items: center;
+    }
+    .r-actions .btn {
+      width: 100%;
+      max-width: 280px;
     }
 
     /* 职场搭子样式 */
@@ -571,6 +576,54 @@
       color: var(--text3);
       margin-top: 16px;
       opacity: 0.8;
+    }
+
+    /* ==================== 结果加载动画 ==================== */
+    .result-loading {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(135deg, var(--bg) 0%, #FFFFFF 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+      z-index: 100;
+    }
+    .loading-emoji {
+      font-size: 80px;
+      animation: emojiBounce 1s ease infinite;
+      margin-bottom: 24px;
+    }
+    @keyframes emojiBounce {
+      0%, 100% { transform: scale(1) rotate(0deg); }
+      25% { transform: scale(1.1) rotate(-5deg); }
+      75% { transform: scale(1.1) rotate(5deg); }
+    }
+    .loading-text {
+      font-size: 16px;
+      color: var(--text2);
+      margin-bottom: 32px;
+      font-weight: 500;
+    }
+    .loading-bar {
+      width: 240px;
+      height: 8px;
+      background: rgba(74, 144, 217, 0.15);
+      border-radius: 4px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .loading-progress {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--secondary));
+      border-radius: 4px;
+      transition: width 0.3s ease;
+    }
+    .loading-percent {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--primary);
     }
 
     /* 分享链接区域 */
@@ -679,7 +732,7 @@
       <div class="cross-link">
         <a href="../">🧬 测测你的单身基因 →</a>
       </div>
-      <div class="welcome-footer" @click="showChangelog = true">v1.0 · 更新日志</div>
+      <div class="welcome-footer" @click="showChangelog = true">v1.1 · 更新日志</div>
     </div>
   </transition>
 
@@ -706,6 +759,18 @@
           >{{opt.text}}</button>
         </div>
       </div>
+    </div>
+  </transition>
+
+  <!-- ==================== 结果加载动画 ==================== -->
+  <transition name="page">
+    <div class="result-loading" v-if="phase === 'loading'">
+      <div class="loading-emoji">{{workEmojis[emojiIndex]}}</div>
+      <div class="loading-text">正在分析你的职场基因...</div>
+      <div class="loading-bar">
+        <div class="loading-progress" :style="{width: loadingProgress + '%'}"></div>
+      </div>
+      <div class="loading-percent">{{loadingProgress}}%</div>
     </div>
   </transition>
 
@@ -803,6 +868,9 @@
               <li>📝 修复封面文案：81种 → 16种</li>
               <li>🐛 修复潜在空白页问题</li>
               <li>🎨 结果页内容统一居中，搭子卡片背景加深</li>
+              <li>✨ 新增结果加载动画：工作emoji + 进度条</li>
+              <li>🔘 修复结果页按钮居中</li>
+              <li>🏷️ 修复首页版本号显示</li>
             </ul>
           </div>
           <div class="changelog-item">
@@ -838,6 +906,13 @@ createApp({
     const showChangelog = ref(false);
     const questions = ref(QUESTION_BANK);
     const copied = ref(false);
+
+    // ==================== 加载动画状态 ====================
+    const loadingProgress = ref(0);
+    const emojiIndex = ref(0);
+    const workEmojis = ['💼', '📊', '☕', '🖥️', '📈', '🗂️', '📎', '✉️', '📋', '💻'];
+    let loadingTimer = null;
+    let emojiTimer = null;
 
     // ==================== 计算职场搭子 ====================
     const workBuddies = computed(() => {
@@ -892,10 +967,32 @@ createApp({
     };
 
     const analyzeResult = () => {
-      phase.value = 'result';
-      result.value = calcResult(answers.value, questions.value);
-      storage.save('lastResult', result.value);
-      hasRecord.value = true;
+      // 先进入加载状态
+      phase.value = 'loading';
+      loadingProgress.value = 0;
+      emojiIndex.value = 0;
+      
+      // emoji 轮播动画
+      emojiTimer = setInterval(() => {
+        emojiIndex.value = (emojiIndex.value + 1) % workEmojis.length;
+      }, 300);
+      
+      // 进度条增长
+      loadingTimer = setInterval(() => {
+        loadingProgress.value += Math.floor(Math.random() * 15) + 5;
+        if (loadingProgress.value >= 100) {
+          loadingProgress.value = 100;
+          clearInterval(loadingTimer);
+          clearInterval(emojiTimer);
+          // 显示结果
+          setTimeout(() => {
+            phase.value = 'result';
+            result.value = calcResult(answers.value, questions.value);
+            storage.save('lastResult', result.value);
+            hasRecord.value = true;
+          }, 300);
+        }
+      }, 200);
     };
 
     const viewLastResult = () => {
@@ -962,6 +1059,9 @@ createApp({
       workBuddies,
       copied,
       shareUrl,
+      loadingProgress,
+      emojiIndex,
+      workEmojis,
       startQuiz,
       selectOption,
       goBack,
