@@ -378,7 +378,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 
   <!-- ==================== 更新日志弹窗 ==================== -->
   <transition name="fade">
-    <div class="changelog-overlay" v-if="showChangelog" @click.self="showChangelog = false">
+    <div class="changelog-overlay" v-show="showChangelog" @click.self="showChangelog = false" style="display: none;">
       <div class="changelog-card">
         <div class="changelog-header">
           <span class="changelog-title">📋 更新日志</span>
