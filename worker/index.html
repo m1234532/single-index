@@ -572,7 +572,7 @@
       opacity: 0.8;
     }
 
-    /* 二维码区域 */
+    /* 分享链接区域 */
     .qr-section {
       margin-top: 28px;
       padding: 20px;
@@ -587,20 +587,44 @@
       color: var(--text);
       margin-bottom: 12px;
     }
-    .qr-code {
-      width: 160px;
-      height: 160px;
-      margin: 0 auto;
-      background: white;
+    .share-link-box {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255,255,255,0.9);
       border-radius: 12px;
-      padding: 8px;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      padding: 12px 16px;
+      margin: 0 auto;
+      max-width: 100%;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
-    .qr-code canvas,
-    .qr-code img {
-      width: 100%;
-      height: 100%;
-      border-radius: 8px;
+    .share-link-box:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+    }
+    .share-link-box:active {
+      transform: scale(0.98);
+    }
+    .share-url {
+      font-size: 13px;
+      color: #555;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1;
+      text-align: left;
+    }
+    .copy-btn {
+      font-size: 12px;
+      color: #4a6cf7;
+      font-weight: 600;
+      margin-left: 12px;
+      padding: 4px 10px;
+      background: rgba(74,108,247,0.1);
+      border-radius: 6px;
+      white-space: nowrap;
     }
     .qr-hint {
       font-size: 12px;
@@ -749,11 +773,14 @@
         <button class="btn" @click="retry">重新检测</button>
       </div>
 
-      <!-- 二维码分享 -->
+      <!-- 分享链接 -->
       <div class="qr-section">
-        <p class="qr-title">📱 扫码分享结果</p>
-        <div class="qr-code" ref="qrCanvas"></div>
-        <p class="qr-hint">截图保存，分享给朋友看看谁是最佳职场搭子</p>
+        <p class="qr-title">📱 分享给朋友</p>
+        <div class="share-link-box" @click="copyLink">
+          <span class="share-url">{{shareUrl}}</span>
+          <span class="copy-btn">{{copied ? '已复制!' : '复制'}}</span>
+        </div>
+        <p class="qr-hint">点击复制链接，发给朋友测测谁是最佳职场搭子</p>
       </div>
     </div>
   </transition>
@@ -785,7 +812,6 @@
 </div>
 
 <script src="data.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 const { createApp, ref, onMounted, computed } = Vue;
 
@@ -800,8 +826,7 @@ createApp({
     const hasRecord = ref(false);
     const showChangelog = ref(false);
     const questions = ref(QUESTION_BANK);
-    const qrCanvas = ref(null);
-    let qrCodeInstance = null;
+    const copied = ref(false);
 
     // ==================== 计算职场搭子 ====================
     const workBuddies = computed(() => {
@@ -860,7 +885,6 @@ createApp({
       result.value = calcResult(answers.value, questions.value);
       storage.save('lastResult', result.value);
       hasRecord.value = true;
-      generateQRCode();
     };
 
     const viewLastResult = () => {
@@ -868,38 +892,31 @@ createApp({
       if (last) {
         result.value = last;
         phase.value = 'result';
-        generateQRCode();
       }
     };
 
-    // ==================== 生成二维码 ====================
-    const generateQRCode = () => {
-      setTimeout(() => {
-        if (!qrCanvas.value) return;
-        // 检查 QRCode 库是否可用
-        if (typeof QRCode === 'undefined') {
-          console.warn('QRCode library not loaded');
-          qrCanvas.value.innerHTML = '<div style="padding:20px;color:#999;font-size:12px;">二维码加载失败</div>';
-          return;
-        }
-        // 清除旧的二维码
-        qrCanvas.value.innerHTML = '';
-        // 生成新二维码
-        try {
-          const url = window.location.href.split('?')[0]; // 去掉参数
-          qrCodeInstance = new QRCode(qrCanvas.value, {
-            text: url,
-            width: 144,
-            height: 144,
-            colorDark: '#2c3e50',
-            colorLight: '#ffffff',
-            correctLevel: QRCode.CorrectLevel.M
-          });
-        } catch (e) {
-          console.error('QRCode generation failed:', e);
-          qrCanvas.value.innerHTML = '<div style="padding:20px;color:#999;font-size:12px;">二维码生成失败</div>';
-        }
-      }, 100);
+    // ==================== 分享链接 ====================
+    const shareUrl = computed(() => {
+      if (typeof window === 'undefined') return '';
+      return window.location.href.split('?')[0];
+    });
+
+    const copyLink = async () => {
+      try {
+        await navigator.clipboard.writeText(shareUrl.value);
+        copied.value = true;
+        setTimeout(() => copied.value = false, 2000);
+      } catch (e) {
+        // 降级方案
+        const input = document.createElement('input');
+        input.value = shareUrl.value;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        document.body.removeChild(input);
+        copied.value = true;
+        setTimeout(() => copied.value = false, 2000);
+      }
     };
 
     const retry = () => {
@@ -932,12 +949,14 @@ createApp({
       showChangelog,
       questions,
       workBuddies,
-      qrCanvas,
+      copied,
+      shareUrl,
       startQuiz,
       selectOption,
       goBack,
       viewLastResult,
-      retry
+      retry,
+      copyLink
     };
   }
 }).mount('#app');
