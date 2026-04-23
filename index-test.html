@@ -632,7 +632,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   font-weight: 700;
 }
 
-/* 内容区块 */
+/* 内容区块 - 加粗渐变边框 */
 .r-section { 
   background: var(--card);
   border-radius: var(--radius-lg);
@@ -640,6 +640,17 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   margin-top: 16px;
   text-align: left;
   box-shadow: var(--shadow-sm);
+  border: 3px solid transparent;
+  background-clip: padding-box;
+  position: relative;
+}
+.r-section::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: calc(var(--radius-lg) + 3px);
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  z-index: -1;
 }
 .r-section h3 { 
   font-size: 18px; 
