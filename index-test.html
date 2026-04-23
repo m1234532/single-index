@@ -1386,8 +1386,15 @@ createApp({
     
     const goBack = () => {
       if (currentQ.value > 0) {
+        // 返回上一题
         if (soundOn.value) SFX.flip();
         currentQ.value--;
+      } else {
+        // 第一题时返回首页
+        if (soundOn.value) SFX.click();
+        phase.value = 'welcome';
+        // 清空当前答题进度
+        answers.value = [];
       }
     };
     
