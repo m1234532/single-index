@@ -508,6 +508,106 @@
       gap: 12px;
       margin-top: 32px;
     }
+
+    /* 职场搭子样式 */
+    .buddy-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .buddy-card {
+      background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
+      border-radius: 16px;
+      padding: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: 1px solid rgba(255,255,255,0.2);
+      transition: all 0.3s ease;
+    }
+    .buddy-card:hover {
+      transform: translateX(4px);
+      background: linear-gradient(135deg, rgba(255,255,255,0.2), rgba(255,255,255,0.08));
+    }
+    .buddy-rank-1 { border-left: 4px solid #FFD700; }
+    .buddy-rank-2 { border-left: 4px solid #C0C0C0; }
+    .buddy-rank-3 { border-left: 4px solid #CD7F32; }
+    .buddy-rank {
+      font-size: 24px;
+      width: 32px;
+      text-align: center;
+    }
+    .buddy-emoji {
+      font-size: 32px;
+      width: 40px;
+      text-align: center;
+    }
+    .buddy-info {
+      flex: 1;
+    }
+    .buddy-name {
+      font-weight: 700;
+      font-size: 15px;
+      color: var(--text);
+    }
+    .buddy-subtitle {
+      font-size: 12px;
+      color: var(--text3);
+      margin-top: 2px;
+    }
+    .buddy-match {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.2);
+      color: var(--text2);
+      white-space: nowrap;
+    }
+    .buddy-hint {
+      text-align: center;
+      font-size: 13px;
+      color: var(--text3);
+      margin-top: 16px;
+      opacity: 0.8;
+    }
+
+    /* 二维码区域 */
+    .qr-section {
+      margin-top: 28px;
+      padding: 20px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05));
+      border-radius: 20px;
+      text-align: center;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .qr-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 12px;
+    }
+    .qr-code {
+      width: 160px;
+      height: 160px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      padding: 8px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+    .qr-code canvas,
+    .qr-code img {
+      width: 100%;
+      height: 100%;
+      border-radius: 8px;
+    }
+    .qr-hint {
+      font-size: 12px;
+      color: var(--text3);
+      margin-top: 12px;
+      opacity: 0.8;
+    }
   </style>
 </head>
 <body>
@@ -546,7 +646,7 @@
       <div class="welcome-info">
         <span class="info-tag">⏱ 3分钟</span>
         <span class="info-tag">📊 16题</span>
-        <span class="info-tag">🎯 81种类型</span>
+        <span class="info-tag">🎯 16种类型</span>
       </div>
       
       <button class="btn" @click="startQuiz">开始检测 →</button>
@@ -630,9 +730,30 @@
         <p>{{result.theory}}</p>
       </div>
 
+      <!-- 职场搭子匹配 -->
+      <div class="r-section" v-if="result && workBuddies.length > 0">
+        <h3>🤝 与你最匹配的职场搭子</h3>
+        <div class="buddy-list">
+          <div v-for="(buddy, idx) in workBuddies" :key="buddy.code" class="buddy-card" :class="'buddy-rank-' + (idx + 1)">
+            <div class="buddy-rank">{{idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉'}}</div>
+            <div class="buddy-emoji">{{buddy.emoji}}</div>
+            <div class="buddy-name">{{buddy.name}}</div>
+            <div class="buddy-subtitle">{{buddy.subtitle}}</div>
+            <div class="buddy-match">{{idx === 0 ? '天作之合' : idx === 1 ? '默契搭档' : '不错选择'}}</div>
+          </div>
+        </div>
+        <p class="buddy-hint">💡 和你们搭子组队，职场生存效率翻倍！</p>
+      </div>
+
       <div class="r-actions">
         <button class="btn" @click="retry">重新检测</button>
-        <button class="btn btn-secondary" @click="share">分享结果</button>
+      </div>
+
+      <!-- 二维码分享 -->
+      <div class="qr-section">
+        <p class="qr-title">📱 扫码分享结果</p>
+        <div class="qr-code" ref="qrCanvas"></div>
+        <p class="qr-hint">截图保存，分享给朋友看看谁是最佳职场搭子</p>
       </div>
     </div>
   </transition>
@@ -664,6 +785,7 @@
 </div>
 
 <script src="data.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script>
 const { createApp, ref, onMounted, computed } = Vue;
 
@@ -678,6 +800,19 @@ createApp({
     const hasRecord = ref(false);
     const showChangelog = ref(false);
     const questions = ref(QUESTION_BANK);
+    const qrCanvas = ref(null);
+    let qrCodeInstance = null;
+
+    // ==================== 计算职场搭子 ====================
+    const workBuddies = computed(() => {
+      if (!result.value || !result.value.type) return [];
+      const matches = WORK_BUDDY_MATCHES[result.value.type];
+      if (!matches) return [];
+      return matches.slice(0, 3).map(code => ({
+        code,
+        ...PERSONALITY_TYPES[code]
+      }));
+    });
 
     // ==================== 本地存储 ====================
     const storage = {
@@ -725,6 +860,7 @@ createApp({
       result.value = calcResult(answers.value, questions.value);
       storage.save('lastResult', result.value);
       hasRecord.value = true;
+      generateQRCode();
     };
 
     const viewLastResult = () => {
@@ -732,7 +868,27 @@ createApp({
       if (last) {
         result.value = last;
         phase.value = 'result';
+        generateQRCode();
       }
+    };
+
+    // ==================== 生成二维码 ====================
+    const generateQRCode = () => {
+      setTimeout(() => {
+        if (!qrCanvas.value) return;
+        // 清除旧的二维码
+        qrCanvas.value.innerHTML = '';
+        // 生成新二维码
+        const url = window.location.href.split('?')[0]; // 去掉参数
+        qrCodeInstance = new QRCode(qrCanvas.value, {
+          text: url,
+          width: 144,
+          height: 144,
+          colorDark: '#2c3e50',
+          colorLight: '#ffffff',
+          correctLevel: QRCode.CorrectLevel.M
+        });
+      }, 100);
     };
 
     const retry = () => {
@@ -743,14 +899,7 @@ createApp({
       storage.clear('answers');
     };
 
-    const share = () => {
-      const text = `【打工人体质检测】我是「${result.value?.name}」\n内卷指数${result.value?.scores?.neijuan}% | 摸鱼天赋${result.value?.scores?.moyu}%\n${result.value?.quote}\n\n测测你的：${location.href}`;
-      if (navigator.share) {
-        navigator.share({ title: '打工人体质检测', text });
-      } else {
-        alert('已复制分享文案');
-      }
-    };
+
 
     // ==================== 生命周期 ====================
     onMounted(() => {
@@ -771,12 +920,13 @@ createApp({
       hasRecord,
       showChangelog,
       questions,
+      workBuddies,
+      qrCanvas,
       startQuiz,
       selectOption,
       goBack,
       viewLastResult,
-      retry,
-      share
+      retry
     };
   }
 }).mount('#app');

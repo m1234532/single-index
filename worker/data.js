@@ -358,6 +358,34 @@ const PERSONALITY_TYPES = {
   }
 };
 
+// ==================== 职场搭子匹配表 ====================
+// 定义每种人格最适合的职场搭档（按匹配度排序）
+const WORK_BUDDY_MATCHES = {
+  // 卷系
+  'NMBH': ['LYYD', 'LYYH', 'NYYD'],  // 卷王需要道家/佛系来平衡
+  'NMBD': ['NYBH', 'LYBD', 'LMBD'],  // 精算型配心机/本分人
+  'NMYH': ['LYYH', 'NYYH', 'LYYD'],  // 矛盾斗士需要佛系安抚
+  'NMYD': ['LMBD', 'LYBD', 'LMYD'],  // 事业型配老实/理想主义者
+  
+  // 躺平系
+  'NYBH': ['NMBD', 'LYBD', 'LMBD'],  // 心机躺平配精算/本分人
+  'NYBD': ['LYBD', 'LMBD', 'LYYH'],  // 明哲保身配同类或佛系
+  'NYYH': ['NMYH', 'LYYH', 'LYYD'],  // 犬儒配矛盾斗士或佛系
+  'NYYD': ['NMBH', 'LYYH', 'LYYD'],  // 透明人配卷王（需要存在感）
+  
+  // 低卷系
+  'LMBH': ['LYYH', 'LYYD', 'LMYD'],  // 被迫营业需要佛系/理想主义治愈
+  'LMBD': ['NMYD', 'LYBD', 'NYBD'],  // 老实人配事业型/本分人
+  'LMYH': ['LMYD', 'LYYH', 'LYYD'],  // 觉醒韭菜配理想主义/佛系
+  'LMYD': ['LMYH', 'LMBD', 'LYBD'],  // 理想主义者配觉醒韭菜/老实人
+  
+  // 低卷躺平系
+  'LYBH': ['LYBD', 'NYBD', 'LMBD'],  // 老好人配本分/明哲保身
+  'LYBD': ['LYBH', 'LMBD', 'NYBD'],  // 本分人配老好人/明哲保身
+  'LYYH': ['LYYD', 'NYYH', 'LMBH'],  // 佛系配道家/犬儒/被迫营业
+  'LYYD': ['LYYH', 'NYYD', 'NMBH']   // 道家配佛系/透明人/卷王
+};
+
 // ==================== 核心计算函数 ====================
 function calcResult(answers, questions) {
   // 计算四维度得分
