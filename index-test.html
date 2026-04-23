@@ -162,7 +162,7 @@ button{font-family:inherit;cursor:pointer;border:none;outline:none}
   <div class="tags"><span class="tag">⏱ 3分钟</span><span class="tag">📊 16题</span><span class="tag">🎭 81种人格</span></div>
   <button class="btn" @click="startQuiz">开始鉴定 →</button>
   <button class="btn btn2" v-if="hasRecord" @click="viewLastResult">📊 查看上一次结果</button>
-  <div class="welcome-footer" @click="showChangelog=true">v2.3 · 更新日志</div>
+  <div class="welcome-footer" @click="showChangelog=true">v2.4 · 更新日志</div>
 </div>
 </transition>
 
@@ -175,6 +175,13 @@ button{font-family:inherit;cursor:pointer;border:none;outline:none}
       <span class="changelog-close" @click="showChangelog=false">✕</span>
     </div>
     <div class="changelog-body">
+      <div class="changelog-item">
+        <div class="changelog-ver">v2.4 · 2026.4.23</div>
+        <ul>
+          <li>每道题目新增 emoji 配图，答题更有趣</li>
+          <li>结论页新增彩带撒花动画</li>
+        </ul>
+      </div>
       <div class="changelog-item">
         <div class="changelog-ver">v2.3 · 2026.4.23</div>
         <ul>
@@ -342,7 +349,7 @@ var SFX=(function(){
   }
 })();
 </script>
-<script src="js/data-test.js"></script>
+<script src="js/data-test.js?v=2.4"></script>
 <script>
 const {createApp,ref,computed,watch,nextTick,onMounted}=Vue;
 const SK='single_index_v2';
