@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>单身人格鉴定 · 36种灵魂等你解锁</title>
+<title>单身狗基因测序 · 你的单身密码</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💔</text></svg>">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.4.27/vue.global.prod.min.js"></script>
 <style>
@@ -868,9 +868,9 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 
   <!-- ==================== 闪屏页 ==================== -->
   <div class="splash-page" v-if="phase === 'splash'">
-    <div class="splash-emoji">🔮</div>
-    <div class="splash-title">单身人格鉴定</div>
-    <div class="splash-sub">36种单身灵魂，你是哪一种？</div>
+    <div class="splash-emoji">🧬</div>
+    <div class="splash-title">单身狗基因测序</div>
+    <div class="splash-sub">36种单身基因，解码你的单身密码</div>
     <div class="splash-loading" v-if="loadingProgress < 100">
       <div class="splash-bar"><div class="splash-fill" :style="{width: loadingProgress + '%'}"></div></div>
       <div class="splash-text">{{loadingText}}</div>
@@ -881,17 +881,17 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   <!-- ==================== 欢迎页 ==================== -->
   <transition name="page">
     <div class="welcome" v-if="phase === 'welcome'">
-      <div class="emoji">🔮</div>
-      <h1>测测你的单身人格</h1>
-      <p>社交雷达、爱情滤镜、心动阈值、独处电量——四个维度解锁你的专属单身人格，36种灵魂精准匹配。</p>
+      <div class="emoji">🧬</div>
+      <h1>测测你的单身基因</h1>
+      <p>社交雷达、爱情滤镜、心动阈值、独处电量——四大基因序列解码你的单身密码，36种基因类型精准定位。</p>
       <div class="card">
         <div class="tags">
           <span class="tag">⏱ 3分钟</span>
-          <span class="tag">📊 16题</span>
-          <span class="tag">🎭 36种人格</span>
+          <span class="tag">🧬 16题</span>
+          <span class="tag">🔬 36种基因</span>
         </div>
       </div>
-      <button class="btn" @click="startQuiz">开始鉴定 →</button>
+      <button class="btn" @click="startQuiz">开始测序 →</button>
       <button class="btn btn2" v-if="hasRecord" @click="viewLastResult">📊 查看上一次结果</button>
       <div class="welcome-footer" @click="showChangelog = true">v3.1 · 更新日志</div>
     </div>
@@ -932,7 +932,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
     <div class="quiz" v-if="phase === 'quiz'">
       <div class="q-header">
         <div class="q-back" @click="goBack">&lt;</div>
-        <h2>单身人格鉴定</h2>
+        <h2>单身狗基因测序</h2>
         <div style="width:44px"></div>
       </div>
       <div class="progress">
@@ -1023,9 +1023,9 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
         </div>
       </div>
 
-      <!-- 人格鉴定报告 -->
+      <!-- 基因测序报告 -->
       <div class="r-section r-section-highlight">
-        <h3>📋 人格鉴定报告</h3>
+        <h3>🧬 基因测序报告</h3>
         <p v-for="(line, i) in (result.desc || '').split('\n')" :key="i" style="margin-top:8px">{{line}}</p>
       </div>
 
@@ -1186,8 +1186,8 @@ createApp({
     ];
     
     const loadingSteps = [
-      { progress: 15, text: '正在解析单身DNA...' },
-      { progress: 35, text: '匹配36种人格图谱...' },
+      { progress: 15, text: '正在提取单身基因...' },
+      { progress: 35, text: '匹配36种基因序列...' },
       { progress: 55, text: '校准心动雷达...' },
       { progress: 75, text: '生成你的专属鉴定...' },
       { progress: 100, text: '鉴定就绪' }
