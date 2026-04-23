@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <title>打工人体质检测 · 你的职场基因</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💼</text></svg>">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.3.4/vue.global.prod.min.js"></script>
+  <style>
+    /* ==================== CSS变量定义 - 职场蓝灰系 ==================== */
+    :root {
+      --bg: #F0F4F8;
+      --card: #FFFFFF;
+      --primary: #4A90D9;
+      --primary-light: #7FB3E8;
+      --secondary: #6B7B8C;
+      --accent: #5AC8FA;
+      --text: #2C3E50;
+      --text2: #5D6D7E;
+      --text3: #95A5A6;
+      --gray: #E8EDF2;
+      --shadow: 0 8px 32px rgba(74, 144, 217, 0.15);
+      --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.08);
+      --radius-lg: 24px;
+      --radius-md: 16px;
+      --radius-pill: 50px;
+    }
+
+    [data-theme=dark] {
+      --bg: #1a1f2e;
+      --card: #252b3a;
+      --primary: #5BA3E8;
+      --primary-light: #8FC5F5;
+      --secondary: #8FA5B8;
+      --accent: #7DD3FC;
+      --text: #F0F4F8;
+      --text2: #B8C5D1;
+      --text3: #7A8B9A;
+      --gray: #374151;
+      --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ==================== 动画定义 ==================== */
+    @keyframes float {
+      0%, 100% { transform: translateY(0) }
+      50% { transform: translateY(-10px) }
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px) }
+      to { opacity: 1; transform: translateY(0) }
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1) }
+      50% { transform: scale(1.05) }
+    }
+    @keyframes shimmer {
+      0% { background-position: -200% 0 }
+      100% { background-position: 200% 0 }
+    }
+
+    /* ==================== 页面过渡 ==================== */
+    .page-enter-active, .page-leave-active { transition: all 0.4s ease }
+    .page-enter-from { opacity: 0; transform: translateX(30px) }
+    .page-leave-to { opacity: 0; transform: translateX(-30px) }
+    .fade-enter-active, .fade-leave-active { transition: opacity 0.3s }
+    .fade-enter-from, .fade-leave-to { opacity: 0 }
+
+    /* Vue挂载前隐藏 */
+    [v-cloak] { display: none !important; }
+
+    /* ==================== 欢迎页 ==================== */
+    .welcome {
+      padding: 60px 24px 40px;
+      text-align: center;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background: linear-gradient(180deg, var(--bg) 0%, #FFFFFF 100%);
+    }
+    .welcome-emoji {
+      font-size: 80px;
+      margin-bottom: 16px;
+      animation: float 4s ease-in-out infinite;
+      filter: drop-shadow(0 12px 32px rgba(74, 144, 217, 0.3));
+    }
+    .welcome h1 {
+      font-size: 32px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      background: linear-gradient(135deg, var(--text), var(--primary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .welcome-subtitle {
+      font-size: 15px;
+      color: var(--text2);
+      margin-top: 8px;
+      margin-bottom: 32px;
+      font-weight: 500;
+    }
+
+    /* 玻璃卡片网格 */
+    .glass-cards {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      width: 100%;
+      max-width: 400px;
+      margin-bottom: 24px;
+    }
+    .glass-card {
+      position: relative;
+      border-radius: 20px;
+      padding: 20px 12px;
+      text-align: center;
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      box-shadow: 0 4px 24px rgba(74, 144, 217, 0.1);
+      overflow: hidden;
+    }
+    .glass-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60%;
+      background: linear-gradient(180deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 100%);
+      border-radius: 20px 20px 0 0;
+      pointer-events: none;
+    }
+    .glass-card-1 { background: linear-gradient(135deg, rgba(74, 144, 217, 0.2), rgba(90, 200, 250, 0.15)); }
+    .glass-card-2 { background: linear-gradient(135deg, rgba(107, 123, 140, 0.2), rgba(149, 165, 166, 0.15)); }
+    .glass-card-3 { background: linear-gradient(135deg, rgba(90, 200, 250, 0.2), rgba(74, 144, 217, 0.15)); }
+    .glass-card-4 { background: linear-gradient(135deg, rgba(127, 179, 232, 0.2), rgba(107, 123, 140, 0.15)); }
+    .glass-icon { font-size: 36px; margin-bottom: 10px; position: relative; z-index: 1; }
+    .glass-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; position: relative; z-index: 1; }
+    .glass-desc { font-size: 11px; color: var(--text3); position: relative; z-index: 1; }
+
+    .welcome-info {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+    .info-tag {
+      background: rgba(74, 144, 217, 0.1);
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 16px;
+      border-radius: 20px;
+      border: 1px solid rgba(74, 144, 217, 0.2);
+    }
+
+    /* 按钮 */
+    .btn {
+      width: 100%;
+      max-width: 360px;
+      padding: 18px;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-pill);
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: var(--shadow);
+    }
+    .btn:active { transform: scale(0.97); }
+    .btn-secondary {
+      background: var(--card);
+      color: var(--text);
+      box-shadow: var(--shadow-sm);
+      border: 2px solid var(--gray);
+      margin-top: 12px;
+    }
+
+    /* ==================== 答题页 ==================== */
+    .quiz {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      background: var(--bg);
+    }
+    .q-header {
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    .q-back {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      cursor: pointer;
+      background: var(--gray);
+    }
+    .q-back:active { background: var(--primary); color: #fff; }
+    .q-header h2 { font-size: 18px; font-weight: 700; }
+    .q-progress {
+      flex: 1;
+      margin: 0 16px;
+      height: 6px;
+      background: var(--gray);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .q-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--primary), var(--primary-light));
+      border-radius: 3px;
+      transition: width 0.4s ease;
+    }
+
+    .q-body {
+      flex: 1;
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+    }
+    .q-number {
+      font-size: 13px;
+      color: var(--text3);
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+    .q-text {
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1.4;
+      margin-bottom: 32px;
+      color: var(--text);
+    }
+    .q-options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .q-option {
+      background: var(--card);
+      border: 2px solid var(--gray);
+      border-radius: var(--radius-md);
+      padding: 18px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: left;
+      font-weight: 500;
+    }
+    .q-option:hover { border-color: var(--primary-light); }
+    .q-option.selected {
+      border-color: var(--primary);
+      background: linear-gradient(135deg, rgba(74, 144, 217, 0.1), rgba(90, 200, 250, 0.05));
+    }
+    .q-option:active { transform: scale(0.98); }
+
+    /* ==================== 结果页 ==================== */
+    .result {
+      padding: 20px 20px 40px;
+      background: linear-gradient(180deg, var(--bg) 0%, #FFFFFF 100%);
+    }
+    .r-hero {
+      text-align: center;
+      margin-bottom: 28px;
+      background: var(--card);
+      border-radius: var(--radius-lg);
+      padding: 32px 24px;
+      box-shadow: var(--shadow);
+    }
+    .r-type-code {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: 3px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .r-name {
+      font-size: 28px;
+      font-weight: 800;
+      margin-top: 8px;
+      color: var(--text);
+    }
+    .r-sub {
+      font-size: 13px;
+      color: var(--text3);
+      margin-top: 8px;
+      font-weight: 500;
+    }
+    .r-cards {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin-top: 24px;
+    }
+    .r-avatar {
+      width: 120px;
+      height: 120px;
+      border-radius: var(--radius-lg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 56px;
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      box-shadow: 0 8px 32px rgba(74, 144, 217, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+    .r-avatar::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: var(--avatar-bg);
+      opacity: 0.5;
+      z-index: 0;
+    }
+    .r-avatar-inner { position: relative; z-index: 1; animation: float 4s ease-in-out infinite; }
+    .r-scores {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-top: 20px;
+    }
+    .r-score-item {
+      background: rgba(74, 144, 217, 0.08);
+      border-radius: 16px;
+      padding: 16px 12px;
+      text-align: center;
+      border: 1px solid rgba(74, 144, 217, 0.15);
+    }
+    .r-score-label {
+      font-size: 12px;
+      color: var(--text3);
+      margin-bottom: 4px;
+    }
+    .r-score-value {
+      font-size: 24px;
+      font-weight: 800;
+      color: var(--primary);
+    }
+    .r-section {
+      background: rgba(74, 144, 217, 0.08);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      margin-top: 16px;
+      border: 2px solid rgba(74, 144, 217, 0.2);
+    }
+    .r-section h3 {
+      font-size: 17px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+    .r-section p {
+      font-size: 15px;
+      color: var(--text2);
+      line-height: 1.7;
+      font-weight: 500;
+    }
+    .r-quote {
+      font-size: 16px;
+      color: var(--text2);
+      line-height: 1.8;
+      margin: 24px 0;
+      font-style: italic;
+      padding: 0 12px;
+      font-weight: 500;
+      text-align: center;
+    }
+    .r-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 32px;
+    }
+  </style>
+</head>
+<body>
+<div id="app" v-cloak>
+
+  <!-- ==================== 欢迎页 ==================== -->
+  <transition name="page">
+    <div class="welcome" v-if="phase === 'welcome'">
+      <div class="welcome-emoji">💼</div>
+      <h1>打工人体质检测</h1>
+      <p class="welcome-subtitle">基于社会学四大理论 · 解码你的职场基因</p>
+      
+      <div class="glass-cards">
+        <div class="glass-card glass-card-1">
+          <div class="glass-icon">🏃</div>
+          <div class="glass-title">内卷指数</div>
+          <div class="glass-desc">资本争夺度</div>
+        </div>
+        <div class="glass-card glass-card-2">
+          <div class="glass-icon">🐟</div>
+          <div class="glass-title">摸鱼天赋</div>
+          <div class="glass-desc">抵抗策略</div>
+        </div>
+        <div class="glass-card glass-card-3">
+          <div class="glass-icon">🎭</div>
+          <div class="glass-title">表演人格</div>
+          <div class="glass-desc">拟剧管理</div>
+        </div>
+        <div class="glass-card glass-card-4">
+          <div class="glass-icon">🤖</div>
+          <div class="glass-title">异化程度</div>
+          <div class="glass-desc">意义感知</div>
+        </div>
+      </div>
+      
+      <div class="welcome-info">
+        <span class="info-tag">⏱ 3分钟</span>
+        <span class="info-tag">📊 16题</span>
+        <span class="info-tag">🎯 81种类型</span>
+      </div>
+      
+      <button class="btn" @click="startQuiz">开始检测 →</button>
+      <button class="btn btn-secondary" v-if="hasRecord" @click="viewLastResult">📊 查看上一次结果</button>
+    </div>
+  </transition>
+
+  <!-- ==================== 答题页 ==================== -->
+  <transition name="page">
+    <div class="quiz" v-if="phase === 'quiz'">
+      <div class="q-header">
+        <div class="q-back" @click="goBack">←</div>
+        <div class="q-progress">
+          <div class="q-progress-fill" :style="{width: ((currentQ + 1) / questions.length * 100) + '%'}"></div>
+        </div>
+        <div style="width:44px"></div>
+      </div>
+      <div class="q-body">
+        <div class="q-number">题目 {{currentQ + 1}} / {{questions.length}}</div>
+        <div class="q-text">{{questions[currentQ]?.text}}</div>
+        <div class="q-options">
+          <button
+            class="q-option"
+            v-for="(opt, idx) in questions[currentQ]?.options"
+            :key="idx"
+            :class="{selected: answers[currentQ] === idx}"
+            @click="selectOption(idx)"
+          >{{opt.text}}</button>
+        </div>
+      </div>
+    </div>
+  </transition>
+
+  <!-- ==================== 结果页 ==================== -->
+  <transition name="page">
+    <div class="result" v-if="phase === 'result'" v-show="result">
+      <div class="r-hero">
+        <div class="r-type-code">{{result?.type}}</div>
+        <div class="r-name">{{result?.name}}</div>
+        <div class="r-sub" v-if="result?.subtitle">{{result.subtitle}}</div>
+        
+        <div class="r-cards">
+          <div class="r-avatar" :style="{'--avatar-bg': result?.visual?.bg}">
+            <div class="r-avatar-inner">{{result?.visual?.emoji}}</div>
+          </div>
+        </div>
+        
+        <div class="r-scores">
+          <div class="r-score-item">
+            <div class="r-score-label">内卷指数</div>
+            <div class="r-score-value">{{result?.scores?.neijuan}}%</div>
+          </div>
+          <div class="r-score-item">
+            <div class="r-score-label">摸鱼天赋</div>
+            <div class="r-score-value">{{result?.scores?.moyu}}%</div>
+          </div>
+          <div class="r-score-item">
+            <div class="r-score-label">表演人格</div>
+            <div class="r-score-value">{{result?.scores?.biaoyan}}%</div>
+          </div>
+          <div class="r-score-item">
+            <div class="r-score-label">异化程度</div>
+            <div class="r-score-value">{{result?.scores?.yihua}}%</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="r-quote">"{{result?.quote}}"</div>
+
+      <div class="r-section">
+        <h3>📋 体质诊断报告</h3>
+        <p v-for="(line, i) in (result?.desc || '').split('\n')" :key="i">{{line}}</p>
+      </div>
+
+      <div class="r-section" v-if="result?.theory">
+        <h3>📚 社会学视角</h3>
+        <p>{{result.theory}}</p>
+      </div>
+
+      <div class="r-actions">
+        <button class="btn" @click="retry">重新检测</button>
+        <button class="btn btn-secondary" @click="share">分享结果</button>
+      </div>
+    </div>
+  </transition>
+
+</div>
+
+<script src="data.js"></script>
+<script>
+const { createApp, ref, onMounted, computed } = Vue;
+
+createApp({
+  setup() {
+    // ==================== 状态管理 ====================
+    const phase = ref('welcome');
+    const currentQ = ref(0);
+    const answers = ref([]);
+    const result = ref(null);
+    const hasRecord = ref(false);
+    const questions = ref(QUESTION_BANK);
+
+    // ==================== 本地存储 ====================
+    const storage = {
+      save: (key, val) => localStorage.setItem(`worker_${key}`, JSON.stringify(val)),
+      load: (key) => JSON.parse(localStorage.getItem(`worker_${key}`) || 'null'),
+      clear: (key) => localStorage.removeItem(`worker_${key}`)
+    };
+
+    // ==================== 方法 ====================
+    const startQuiz = () => {
+      phase.value = 'quiz';
+      currentQ.value = 0;
+      answers.value = [];
+      storage.clear('answers');
+    };
+
+    const selectOption = (idx) => {
+      answers.value[currentQ.value] = idx;
+      storage.save('answers', answers.value);
+      
+      setTimeout(() => {
+        if (currentQ.value < questions.value.length - 1) {
+          currentQ.value++;
+        } else {
+          analyzeResult();
+        }
+      }, 250);
+    };
+
+    const goBack = () => {
+      if (currentQ.value > 0) {
+        currentQ.value--;
+      } else {
+        phase.value = 'welcome';
+        answers.value = [];
+      }
+    };
+
+    const analyzeResult = () => {
+      phase.value = 'result';
+      result.value = calcResult(answers.value, questions.value);
+      storage.save('lastResult', result.value);
+      hasRecord.value = true;
+    };
+
+    const viewLastResult = () => {
+      const last = storage.load('lastResult');
+      if (last) {
+        result.value = last;
+        phase.value = 'result';
+      }
+    };
+
+    const retry = () => {
+      phase.value = 'welcome';
+      currentQ.value = 0;
+      answers.value = [];
+      result.value = null;
+      storage.clear('answers');
+    };
+
+    const share = () => {
+      const text = `【打工人体质检测】我是「${result.value?.name}」\n内卷指数${result.value?.scores?.neijuan}% | 摸鱼天赋${result.value?.scores?.moyu}%\n${result.value?.quote}\n\n测测你的：${location.href}`;
+      if (navigator.share) {
+        navigator.share({ title: '打工人体质检测', text });
+      } else {
+        alert('已复制分享文案');
+      }
+    };
+
+    // ==================== 生命周期 ====================
+    onMounted(() => {
+      hasRecord.value = !!storage.load('lastResult');
+      const saved = storage.load('answers');
+      if (saved && saved.length > 0) {
+        answers.value = saved;
+        currentQ.value = saved.length - 1;
+      }
+    });
+
+    return {
+      phase,
+      currentQ,
+      answers,
+      result,
+      hasRecord,
+      questions,
+      startQuiz,
+      selectOption,
+      goBack,
+      viewLastResult,
+      retry,
+      share
+    };
+  }
+}).mount('#app');
+</script>
+</body>
+</html>
