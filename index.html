@@ -6,43 +6,43 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>单身人格鉴定 · 36种灵魂等你解锁</title>
+<title>单身狗基因测序 · 你的单身密码</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💔</text></svg>">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.4.27/vue.global.prod.min.js"></script>
 <style>
-/* ==================== CSS变量定义 ==================== */
+/* ==================== CSS变量定义 - ArtGo风格 ==================== */
 :root {
-  --bg: #F2F2F7;
-  --card: #FFF;
-  --blue: #007AFF;
-  --text: #000;
-  --text2: #3A3A3C;
-  --gray: #8E8E93;
-  --gray2: #AEAEB2;
-  --gray3: #C7C7CC;
-  --gray4: #D1D1D6;
-  --gray5: #E5E5EA;
-  --red: #FF3B30;
-  --orange: #FF9500;
-  --green: #34C759;
-  --purple: #5856D6;
+  --bg: #FFF5F7;
+  --card: #FFFFFF;
+  --primary: #FF6B9D;
+  --primary-light: #FFB8D0;
+  --secondary: #C084FC;
+  --accent: #60A5FA;
+  --text: #1F2937;
+  --text2: #4B5563;
+  --text3: #9CA3AF;
+  --gray: #E5E7EB;
+  --shadow: 0 8px 32px rgba(255, 107, 157, 0.15);
+  --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.08);
+  --radius-lg: 24px;
+  --radius-md: 16px;
+  --radius-sm: 12px;
+  --radius-pill: 50px;
 }
 
 [data-theme=dark] {
-  --bg: #000;
-  --card: #1C1C1E;
-  --blue: #0A84FF;
-  --text: #FFF;
-  --text2: #EBEBF5;
-  --gray: #8E8E93;
-  --gray2: #636366;
-  --gray3: #48484A;
-  --gray4: #3A3A3C;
-  --gray5: #2C2C2E;
-  --red: #FF453A;
-  --orange: #FF9F0A;
-  --green: #30D158;
-  --purple: #5E5CE6;
+  --bg: #1a1a2e;
+  --card: #252542;
+  --primary: #FF8FAB;
+  --primary-light: #FFB8D0;
+  --secondary: #D8B4FE;
+  --accent: #7DD3FC;
+  --text: #F9FAFB;
+  --text2: #E5E7EB;
+  --text3: #9CA3AF;
+  --gray: #374151;
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.2);
 }
 
 /* ==================== 基础样式 ==================== */
@@ -65,6 +65,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 @keyframes splashIn { from { opacity: 0 } to { opacity: 1 } }
 @keyframes bounce { 0% { transform: scale(0) } 60% { transform: scale(1.15) } 100% { transform: scale(1) } }
 @keyframes pulse { 0%, 100% { transform: scale(1) } 50% { transform: scale(1.05) } }
+@keyframes float { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-10px) } }
 @keyframes spin { from { transform: rotate(0) } to { transform: rotate(360deg) } }
 @keyframes fadeUp { to { opacity: 1; transform: translateY(0) } }
 @keyframes confettiFall {
@@ -85,21 +86,22 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   top: max(12px, env(safe-area-inset-top, 12px));
   left: 50%;
   transform: translateX(-50%);
-  background: #FF3B30;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
   color: #fff;
   font-size: 11px;
   font-weight: 700;
-  padding: 4px 12px;
-  border-radius: 0 0 8px 8px;
+  padding: 6px 16px;
+  border-radius: var(--radius-pill);
   z-index: 10001;
   letter-spacing: 1px;
+  box-shadow: var(--shadow-sm);
 }
 
-/* ==================== 闪屏页 ==================== */
+/* ==================== 闪屏页 - ArtGo风格 ==================== */
 .splash-page {
   position: fixed;
   inset: 0;
-  background: linear-gradient(135deg, var(--blue), var(--purple));
+  background: linear-gradient(135deg, #FFE4EC 0%, #F3E8FF 50%, #E0F2FE 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -107,250 +109,768 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   z-index: 9999;
   animation: splashIn .5s ease;
 }
-.splash-emoji { font-size: 72px; animation: bounce .8s cubic-bezier(.34, 1.56, .64, 1) .2s both }
-.splash-title { font-size: 32px; font-weight: 800; color: #fff; margin-top: 16px }
-.splash-sub { font-size: 14px; color: rgba(255, 255, 255, .7); margin-top: 8px }
-.splash-loading { margin-top: 40px; width: 200px }
-.splash-bar { height: 4px; background: rgba(255, 255, 255, .2); border-radius: 2px; overflow: hidden }
-.splash-fill { height: 100%; background: #fff; border-radius: 2px; transition: width .3s }
-.splash-text { font-size: 12px; color: rgba(255, 255, 255, .8); margin-top: 12px; text-align: center }
+.splash-emoji { 
+  font-size: 100px; 
+  animation: float 3s ease-in-out infinite;
+  filter: drop-shadow(0 8px 24px rgba(255, 107, 157, 0.3));
+}
+.splash-title { 
+  font-size: 36px; 
+  font-weight: 800; 
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-top: 24px;
+  letter-spacing: -1px;
+}
+.splash-sub { 
+  font-size: 16px; 
+  color: var(--text2); 
+  margin-top: 12px;
+  font-weight: 500;
+}
+.splash-loading { 
+  margin-top: 48px; 
+  width: 200px;
+  background: rgba(255, 255, 255, 0.8);
+  padding: 16px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+.splash-bar { 
+  height: 6px; 
+  background: var(--gray); 
+  border-radius: var(--radius-pill); 
+  overflow: hidden;
+}
+.splash-fill { 
+  height: 100%; 
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  border-radius: var(--radius-pill);
+  transition: width .3s;
+}
+.splash-text { 
+  font-size: 13px; 
+  color: var(--text2); 
+  margin-top: 12px; 
+  text-align: center;
+  font-weight: 500;
+}
 .splash-tap {
-  margin-top: 40px;
+  margin-top: 48px;
   font-size: 16px;
   color: #fff;
-  padding: 12px 32px;
-  background: rgba(255, 255, 255, .2);
-  border-radius: 24px;
+  padding: 16px 40px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border-radius: var(--radius-pill);
   animation: pulse 1.5s ease-in-out infinite;
+  box-shadow: var(--shadow);
+  font-weight: 600;
 }
 
-/* ==================== 欢迎页 ==================== */
+/* ==================== 欢迎页 - ArtGo风格 ==================== */
 .welcome {
-  padding: 60px 28px 40px;
+  padding: 80px 24px 40px;
   text-align: center;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
+  background: linear-gradient(180deg, var(--bg) 0%, #FFFFFF 100%);
 }
-.welcome .emoji { font-size: 80px; margin-bottom: 24px; animation: pulse 2s ease-in-out infinite }
-.welcome h1 { font-size: 32px; font-weight: 800; letter-spacing: -1px; line-height: 1.2 }
-.welcome p { font-size: 15px; color: var(--gray); margin-top: 16px; line-height: 1.7; max-width: 300px }
-.welcome .divider { width: 60px; height: 4px; border-radius: 2px; background: var(--gray4); margin: 32px auto }
-.welcome .tags { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-bottom: auto }
-.tag { background: var(--gray5); color: var(--text2); font-size: 13px; font-weight: 500; padding: 6px 14px; border-radius: 20px }
+.welcome .emoji { 
+  font-size: 100px; 
+  margin-bottom: 32px;
+  animation: float 4s ease-in-out infinite;
+  filter: drop-shadow(0 12px 32px rgba(255, 107, 157, 0.25));
+}
+.welcome h1 { 
+  font-size: 36px; 
+  font-weight: 800; 
+  letter-spacing: -1px;
+  line-height: 1.2;
+  background: linear-gradient(135deg, var(--text), var(--primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.welcome p { 
+  font-size: 16px; 
+  color: var(--text2); 
+  margin-top: 20px; 
+  line-height: 1.7; 
+  max-width: 320px;
+  font-weight: 500;
+}
+.welcome .card {
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-top: 32px;
+  box-shadow: var(--shadow);
+  width: 100%;
+  max-width: 360px;
+}
+.welcome .tags { 
+  display: flex; 
+  gap: 10px; 
+  flex-wrap: wrap; 
+  justify-content: center;
+}
+.tag { 
+  background: linear-gradient(135deg, rgba(255, 107, 157, 0.1), rgba(192, 132, 252, 0.1));
+  color: var(--primary);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: var(--radius-pill);
+  border: 1px solid rgba(255, 107, 157, 0.2);
+}
 .welcome .btn {
   width: 100%;
-  padding: 16px;
-  background: linear-gradient(135deg, var(--blue), var(--purple));
+  max-width: 360px;
+  padding: 18px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
   color: #fff;
-  font-size: 17px;
-  font-weight: 600;
-  border-radius: 14px;
+  font-size: 18px;
+  font-weight: 700;
+  border-radius: var(--radius-pill);
   margin-top: 32px;
-  transition: transform .2s;
-  box-shadow: 0 8px 24px rgba(0, 122, 255, .3);
+  transition: transform .2s, box-shadow .2s;
+  box-shadow: var(--shadow);
 }
-.welcome .btn:active { transform: scale(.97) }
-.welcome .btn2 { background: var(--gray5); color: var(--text); box-shadow: none; margin-top: 12px }
+.welcome .btn:active { 
+  transform: scale(.97);
+  box-shadow: 0 4px 16px rgba(255, 107, 157, 0.2);
+}
+.welcome .btn2 { 
+  background: var(--card);
+  color: var(--text);
+  box-shadow: var(--shadow-sm);
+  border: 2px solid var(--gray);
+  margin-top: 16px;
+}
 .welcome-footer {
-  margin-top: 20px;
-  font-size: 13px;
-  color: var(--gray2);
+  margin-top: 24px;
+  font-size: 14px;
+  color: var(--text3);
+  font-weight: 500;
   text-decoration: underline;
   text-underline-offset: 3px;
   cursor: pointer;
 }
-.welcome-footer:active { opacity: .6 }
+.welcome-footer:active { opacity: .6; }
 
-/* ==================== 答题页 ==================== */
-.quiz { min-height: 100vh; display: flex; flex-direction: column }
+/* ==================== 答题页 - ArtGo风格 ==================== */
+.quiz { 
+  min-height: 100vh; 
+  display: flex; 
+  flex-direction: column;
+  background: var(--bg);
+}
 .q-header {
   position: sticky;
   top: 0;
   z-index: 100;
-  padding: 12px 20px;
-  padding-top: max(12px, env(safe-area-inset-top, 12px) + 12px);
-  background: var(--bg);
+  padding: 16px 20px;
+  padding-top: max(16px, env(safe-area-inset-top, 16px) + 16px);
+  background: rgba(255, 245, 247, 0.95);
   backdrop-filter: saturate(180%) blur(20px);
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
-.q-back { width: 36px; height: 36px; border-radius: 50%; background: var(--gray5); display: flex; align-items: center; justify-content: center; color: var(--text); font-size: 18px }
-.q-header h2 { font-size: 17px; font-weight: 600; flex: 1; text-align: center }
-.progress { padding: 0 20px }
-.progress .bar { height: 4px; background: var(--gray5); border-radius: 2px; overflow: hidden }
-.progress .fill { height: 100%; background: var(--blue); border-radius: 2px; transition: width .3s }
-.progress .text { font-size: 12px; color: var(--gray); margin-top: 8px; text-align: right }
-.q-body { flex: 1; padding: 20px; display: flex; flex-direction: column }
-.q-emoji { font-size: 48px; text-align: center; margin-bottom: 16px; line-height: 1.3; letter-spacing: 2px }
-.q-meta { font-size: 13px; color: var(--blue); font-weight: 600; margin-bottom: 12px }
-.q-text { font-size: 18px; font-weight: 600; line-height: 1.5; margin-bottom: 24px }
-.opts { display: flex; flex-direction: column; gap: 12px }
-.opt {
-  padding: 16px 20px;
+.q-back { 
+  width: 44px; 
+  height: 44px; 
+  border-radius: 50%; 
   background: var(--card);
-  border-radius: 14px;
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  color: var(--text);
+  font-size: 20px;
+  box-shadow: var(--shadow-sm);
+  font-weight: 600;
+}
+.q-header h2 { 
+  font-size: 18px; 
+  font-weight: 700;
+  flex: 1; 
+  text-align: center;
+  color: var(--text);
+}
+.progress { padding: 0 20px; margin-top: 8px; }
+.progress .bar { 
+  height: 8px; 
+  background: var(--gray); 
+  border-radius: var(--radius-pill); 
+  overflow: hidden;
+}
+.progress .fill { 
+  height: 100%; 
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  border-radius: var(--radius-pill);
+  transition: width .3s;
+}
+.progress .text { 
+  font-size: 13px; 
+  color: var(--text3); 
+  margin-top: 10px; 
+  text-align: right;
+  font-weight: 600;
+}
+.q-body { 
+  flex: 1; 
+  padding: 24px 20px; 
+  display: flex; 
+  flex-direction: column;
+}
+.q-emoji { 
+  font-size: 56px; 
+  text-align: center; 
+  margin-bottom: 20px;
+  animation: float 3s ease-in-out infinite;
+}
+.q-meta { 
+  font-size: 14px; 
+  color: var(--primary);
+  font-weight: 700;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.q-text { 
+  font-size: 20px; 
+  font-weight: 700;
+  line-height: 1.5; 
+  margin-bottom: 32px;
+  color: var(--text);
+}
+.opts { display: flex; flex-direction: column; gap: 12px; }
+.opt {
+  padding: 20px;
+  background: var(--card);
+  border-radius: var(--radius-md);
   display: flex;
   align-items: center;
-  gap: 14px;
-  transition: transform .15s, box-shadow .15s;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, .04);
+  gap: 16px;
+  transition: all .2s;
+  box-shadow: var(--shadow-sm);
+  border: 2px solid transparent;
 }
-.opt:active { transform: scale(.98) }
-.opt.sel { background: var(--blue); color: #fff; box-shadow: 0 4px 16px rgba(0, 122, 255, .3) }
-.opt .letter { width: 28px; height: 28px; border-radius: 50%; background: var(--gray5); display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 600; flex-shrink: 0 }
-.opt.sel .letter { background: rgba(255, 255, 255, .3) }
-.opt .text { font-size: 15px; line-height: 1.4 }
+.opt:active { transform: scale(.98); }
+.opt.sel { 
+  background: linear-gradient(135deg, rgba(255, 107, 157, 0.1), rgba(192, 132, 252, 0.1));
+  border-color: var(--primary);
+  box-shadow: 0 4px 20px rgba(255, 107, 157, 0.15);
+}
+.opt .letter { 
+  width: 36px; 
+  height: 36px; 
+  border-radius: 50%; 
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #fff;
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  font-size: 14px; 
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.opt.sel .letter { 
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+}
+.opt .text { 
+  font-size: 16px; 
+  line-height: 1.5;
+  color: var(--text);
+  font-weight: 500;
+}
 
 /* ==================== 分析页 ==================== */
-.analysis { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 40px 28px }
-.analysis .orb { font-size: 64px; animation: spin 2s linear infinite }
-.analysis h2 { font-size: 22px; font-weight: 700; margin-top: 24px }
-.analysis p { font-size: 14px; color: var(--gray); margin-top: 8px }
-.analysis .steps { margin-top: 32px; display: flex; flex-direction: column; gap: 12px; width: 100%; }
+.analysis { 
+  min-height: 100vh; 
+  display: flex; 
+  flex-direction: column; 
+  align-items: center; 
+  justify-content: center; 
+  padding: 40px 28px;
+  background: linear-gradient(180deg, var(--bg) 0%, #FFFFFF 100%);
+}
+.analysis .orb { 
+  font-size: 80px; 
+  animation: spin 2s linear infinite;
+  filter: drop-shadow(0 8px 24px rgba(255, 107, 157, 0.3));
+}
+.analysis h2 { 
+  font-size: 26px; 
+  font-weight: 800;
+  margin-top: 32px;
+  color: var(--text);
+}
+.analysis p { 
+  font-size: 15px; 
+  color: var(--text2); 
+  margin-top: 12px;
+  font-weight: 500;
+}
+.analysis .steps { 
+  margin-top: 40px; 
+  display: flex; 
+  flex-direction: column; 
+  gap: 16px; 
+  width: 100%;
+  max-width: 360px;
+}
 .analysis .step {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 16px;
   background: var(--card);
-  padding: 14px 18px;
-  border-radius: 14px;
+  padding: 18px 20px;
+  border-radius: var(--radius-md);
   opacity: 0;
   transform: translateY(10px);
   animation: fadeUp .4s ease forwards;
+  box-shadow: var(--shadow-sm);
 }
 .analysis .step:nth-child(1) { animation-delay: .3s }
 .analysis .step:nth-child(2) { animation-delay: .6s }
 .analysis .step:nth-child(3) { animation-delay: .9s }
 .analysis .step:nth-child(4) { animation-delay: 1.2s }
-.analysis .step .icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0 }
-.analysis .step .label { font-size: 14px; color: var(--text2) }
+.analysis .step .icon { 
+  width: 48px; 
+  height: 48px; 
+  border-radius: var(--radius-sm);
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  font-size: 24px;
+  flex-shrink: 0;
+}
+.analysis .step .label { 
+  font-size: 15px; 
+  color: var(--text);
+  font-weight: 600;
+}
 
-/* ==================== 结果页 ==================== */
-.result { padding: 20px 20px 40px; text-align: center }
+/* ==================== 结果页 - ArtGo风格 ==================== */
+.result { 
+  padding: 20px 20px 40px;
+  background: linear-gradient(180deg, var(--bg) 0%, #FFFFFF 100%);
+}
 .share-tip {
   background: var(--card);
-  border-radius: 14px;
-  padding: 16px;
-  margin-bottom: 20px;
+  border-radius: var(--radius-md);
+  padding: 18px;
+  margin-bottom: 24px;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
   text-align: left;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, .04);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(255, 107, 157, 0.1);
 }
-.share-tip .icon { font-size: 28px; flex-shrink: 0 }
-.share-tip .title { font-size: 14px; font-weight: 600 }
-.share-tip .desc { font-size: 12px; color: var(--gray); margin-top: 2px }
+.share-tip .icon { 
+  font-size: 32px; 
+  flex-shrink: 0;
+}
+.share-tip .title { 
+  font-size: 15px; 
+  font-weight: 700;
+  color: var(--text);
+}
+.share-tip .desc { 
+  font-size: 13px; 
+  color: var(--text3); 
+  margin-top: 4px;
+  font-weight: 500;
+}
 
 /* 结果页头部 */
-.r-hero { text-align: center; margin-bottom: 24px }
-.r-type-code { font-size: 22px; color: var(--blue); font-weight: 800; letter-spacing: 3px; margin-top: 8px }
-.r-name { font-size: 28px; font-weight: 800; margin-top: 4px }
-.r-sub { font-size: 13px; color: var(--gray); margin-top: 4px }
-.r-cards { display: flex; gap: 16px; justify-content: center; margin-top: 20px }
+.r-hero { 
+  text-align: center; 
+  margin-bottom: 28px;
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  padding: 32px 24px;
+  box-shadow: var(--shadow);
+}
+.r-type-code { 
+  font-size: 24px; 
+  font-weight: 800;
+  letter-spacing: 4px;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.r-name { 
+  font-size: 32px; 
+  font-weight: 800;
+  margin-top: 8px;
+  color: var(--text);
+}
+.r-sub { 
+  font-size: 14px; 
+  color: var(--text3); 
+  margin-top: 8px;
+  font-weight: 500;
+}
+.r-cards { 
+  display: flex; 
+  gap: 20px; 
+  justify-content: center; 
+  margin-top: 28px;
+}
 .r-avatar {
-  width: 100px;
-  height: 100px;
-  border-radius: 22px;
+  width: 130px;
+  height: 130px;
+  border-radius: var(--radius-lg);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 52px;
+  font-size: 64px;
   color: #fff;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, .15);
+  box-shadow: var(--shadow);
   flex-shrink: 0;
+  animation: float 4s ease-in-out infinite;
 }
-.r-index { background: var(--card); border-radius: 16px; padding: 16px 24px; box-shadow: 0 2px 8px rgba(0, 0, 0, .04); display: flex; flex-direction: column; justify-content: center; min-width: 120px }
-.r-index .num { font-size: 36px; font-weight: 800; color: var(--blue) }
-.r-index .label { font-size: 12px; color: var(--gray); margin-top: 2px }
-.r-index .pct { font-size: 11px; color: var(--gray2); margin-top: 2px }
-.r-quote { font-size: 16px; color: var(--text); line-height: 1.8; margin-top: 20px; font-style: italic; padding: 0 8px }
+.r-index { 
+  background: linear-gradient(135deg, rgba(255, 107, 157, 0.1), rgba(192, 132, 252, 0.1));
+  border-radius: var(--radius-lg);
+  width: 130px;
+  height: 130px;
+  padding: 0;
+  border: 2px solid rgba(255, 107, 157, 0.2);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 6px;
+}
+.r-index .num { 
+  font-size: 44px; 
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+}
+.r-index .label { 
+  font-size: 14px; 
+  color: var(--text2); 
+  font-weight: 600;
+  line-height: 1;
+}
+.r-index .pct { 
+  font-size: 12px; 
+  color: var(--text3); 
+  font-weight: 500;
+  line-height: 1;
+}
+.r-quote { 
+  font-size: 17px; 
+  color: var(--text2);
+  line-height: 1.8; 
+  margin-top: 28px;
+  font-style: italic;
+  padding: 0 12px;
+  font-weight: 500;
+}
 
 /* 雷达图 */
-.r-radar { background: var(--card); border-radius: 16px; padding: 20px; margin-top: 20px; text-align: left; box-shadow: 0 2px 8px rgba(0, 0, 0, .04) }
-.r-radar h3 { font-size: 16px; font-weight: 700; margin-bottom: 16px }
-.r-radar .dim { display: flex; align-items: center; gap: 10px; margin-bottom: 10px }
-.r-radar .dim .name { font-size: 13px; color: var(--text2); width: 72px; flex-shrink: 0 }
-.r-radar .dim .bar { flex: 1; height: 8px; background: var(--gray5); border-radius: 4px; overflow: hidden }
-.r-radar .dim .bar .fill { height: 100%; background: linear-gradient(90deg, var(--blue), var(--purple)); border-radius: 4px; transition: width .6s }
-.r-radar .dim .score { font-size: 12px; color: var(--gray); width: 36px; text-align: right }
+.r-radar { 
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-top: 20px;
+  text-align: left;
+  box-shadow: var(--shadow-sm);
+}
+.r-radar h3 { 
+  font-size: 18px; 
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: var(--text);
+}
+.r-radar .dim { 
+  display: flex; 
+  align-items: center; 
+  gap: 12px; 
+  margin-bottom: 14px;
+}
+.r-radar .dim .name { 
+  font-size: 14px; 
+  color: var(--text2);
+  width: 80px;
+  flex-shrink: 0;
+  font-weight: 600;
+}
+.r-radar .dim .bar { 
+  flex: 1; 
+  height: 10px; 
+  background: var(--gray);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+}
+.r-radar .dim .bar .fill { 
+  height: 100%; 
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  border-radius: var(--radius-pill);
+  transition: width .6s;
+}
+.r-radar .dim .score { 
+  font-size: 13px; 
+  color: var(--text3);
+  width: 40px;
+  text-align: right;
+  font-weight: 700;
+}
 
 /* 内容区块 */
-.r-section { background: var(--card); border-radius: 16px; padding: 20px; margin-top: 16px; text-align: left; box-shadow: 0 2px 8px rgba(0, 0, 0, .04) }
-.r-section h3 { font-size: 16px; font-weight: 700; margin-bottom: 12px }
-.r-section p { font-size: 14px; color: var(--text2); line-height: 1.7 }
+.r-section { 
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-top: 16px;
+  text-align: left;
+  box-shadow: var(--shadow-sm);
+}
+/* 人格鉴定报告高亮 */
+.r-section-highlight {
+  background: linear-gradient(135deg, rgba(255, 107, 157, 0.12), rgba(192, 132, 252, 0.12));
+  border: 2px solid rgba(255, 107, 157, 0.3);
+}
+.r-section h3 { 
+  font-size: 18px; 
+  font-weight: 700;
+  margin-bottom: 16px;
+  color: var(--text);
+}
+.r-section p { 
+  font-size: 15px; 
+  color: var(--text2);
+  line-height: 1.8;
+  font-weight: 500;
+}
 .r-section ul { list-style: none; padding: 0 }
-.r-section li { font-size: 14px; color: var(--text2); line-height: 1.7; padding-left: 20px; position: relative; margin-bottom: 6px }
-.r-section li::before { content: ""; position: absolute; left: 0; top: 10px; width: 6px; height: 6px; border-radius: 50%; background: var(--blue) }
+.r-section li { 
+  font-size: 15px; 
+  color: var(--text2);
+  line-height: 1.8;
+  padding-left: 24px;
+  position: relative;
+  margin-bottom: 10px;
+  font-weight: 500;
+}
+.r-section li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 10px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+}
 
 /* 标签 */
-.r-tags { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 16px }
-.r-tag { background: var(--red); color: #fff; font-size: 12px; font-weight: 600; padding: 5px 12px; border-radius: 20px; opacity: .9 }
+.r-tags { 
+  display: flex; 
+  gap: 10px; 
+  flex-wrap: wrap; 
+  justify-content: center; 
+  margin-top: 20px;
+}
+.r-tag { 
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+}
 
 /* 免责声明 */
-.disclaimer { margin-top: 24px; padding: 20px; background: var(--card); border-radius: 16px; text-align: left; box-shadow: 0 2px 8px rgba(0, 0, 0, .04) }
-.disclaimer h3 { font-size: 14px; font-weight: 700; margin-bottom: 8px }
-.disclaimer p { font-size: 12px; color: var(--gray); line-height: 1.6; margin-bottom: 6px }
+.disclaimer { 
+  margin-top: 28px;
+  padding: 24px;
+  background: var(--card);
+  border-radius: var(--radius-lg);
+  text-align: left;
+  box-shadow: var(--shadow-sm);
+}
+.disclaimer h3 { 
+  font-size: 15px; 
+  font-weight: 700;
+  margin-bottom: 12px;
+  color: var(--text);
+}
+.disclaimer p { 
+  font-size: 13px; 
+  color: var(--text3);
+  line-height: 1.7;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
 
 /* 重试按钮 */
-.retry-btn { width: 100%; padding: 16px; background: var(--card); color: var(--text); font-size: 16px; font-weight: 600; border-radius: 14px; margin-top: 24px; box-shadow: 0 2px 8px rgba(0, 0, 0, .04); transition: transform .2s }
-.retry-btn:active { transform: scale(.97) }
-.credit { font-size: 12px; color: var(--gray2); margin-top: 16px }
+.retry-btn { 
+  width: 100%;
+  padding: 18px;
+  background: var(--card);
+  color: var(--text);
+  font-size: 17px;
+  font-weight: 700;
+  border-radius: var(--radius-pill);
+  margin-top: 28px;
+  box-shadow: var(--shadow-sm);
+  transition: all .2s;
+  border: 2px solid var(--gray);
+}
+.retry-btn:active { 
+  transform: scale(.97);
+  background: var(--bg);
+}
+.credit { 
+  font-size: 13px; 
+  color: var(--text3); 
+  margin-top: 20px;
+  font-weight: 500;
+}
 
 /* ==================== 更新日志弹窗 ==================== */
-.changelog-overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, .45); display: flex; align-items: center; justify-content: center; z-index: 10000; padding: 20px }
-.changelog-card { background: var(--card); border-radius: 24px; padding: 28px 24px; max-width: 400px; width: 100%; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0, 0, 0, .3) }
-.changelog-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px }
-.changelog-title { font-size: 18px; font-weight: 700; color: var(--text) }
-.changelog-close { font-size: 20px; color: var(--gray); cursor: pointer; padding: 4px 8px; border-radius: 8px }
-.changelog-close:active { background: var(--gray5) }
-.changelog-body { display: flex; flex-direction: column; gap: 20px }
-.changelog-item { padding-bottom: 16px; border-bottom: 1px solid var(--gray5) }
+.changelog-overlay { 
+  position: fixed; 
+  inset: 0; 
+  background: rgba(0, 0, 0, .5);
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  z-index: 10000; 
+  padding: 20px;
+  backdrop-filter: blur(10px);
+}
+.changelog-card { 
+  background: var(--card); 
+  border-radius: var(--radius-lg); 
+  padding: 32px 28px; 
+  max-width: 400px; 
+  width: 100%; 
+  max-height: 80vh; 
+  overflow-y: auto; 
+  box-shadow: 0 24px 80px rgba(0, 0, 0, .3);
+}
+.changelog-header { 
+  display: flex; 
+  justify-content: space-between; 
+  align-items: center; 
+  margin-bottom: 24px;
+}
+.changelog-title { 
+  font-size: 20px; 
+  font-weight: 800;
+  color: var(--text);
+}
+.changelog-close { 
+  font-size: 24px; 
+  color: var(--text3);
+  cursor: pointer; 
+  padding: 4px 8px; 
+  border-radius: var(--radius-sm);
+  font-weight: 600;
+}
+.changelog-close:active { background: var(--gray) }
+.changelog-body { 
+  display: flex; 
+  flex-direction: column; 
+  gap: 24px;
+}
+.changelog-item { 
+  padding-bottom: 20px; 
+  border-bottom: 1px solid var(--gray);
+}
 .changelog-item:last-child { border-bottom: none; padding-bottom: 0 }
-.changelog-ver { font-size: 15px; font-weight: 700; color: var(--blue); margin-bottom: 8px }
+.changelog-ver { 
+  font-size: 16px; 
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 12px;
+}
 .changelog-item ul { list-style: none; padding: 0; margin: 0 }
-.changelog-item li { font-size: 14px; color: var(--text2); line-height: 1.7; padding-left: 16px; position: relative }
-.changelog-item li::before { content: '•'; position: absolute; left: 0; color: var(--blue); font-weight: 700 }
+.changelog-item li { 
+  font-size: 15px; 
+  color: var(--text2);
+  line-height: 1.8;
+  padding-left: 20px;
+  position: relative;
+  font-weight: 500;
+}
+.changelog-item li::before { 
+  content: '•'; 
+  position: absolute; 
+  left: 0; 
+  color: var(--primary);
+  font-weight: 700;
+}
 
 /* ==================== 悬浮按钮 ==================== */
 .theme-btn, .sound-btn {
   position: fixed;
-  bottom: 20px;
-  width: 48px;
-  height: 48px;
+  bottom: 24px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   background: var(--card);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, .15);
+  box-shadow: var(--shadow);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
+  font-size: 24px;
   z-index: 9999;
   transition: transform .2s;
 }
-.theme-btn { right: 20px }
-.sound-btn { left: 20px }
+.theme-btn { right: 24px }
+.sound-btn { left: 24px }
 .theme-btn:active, .sound-btn:active { transform: scale(.9) }
 .sound-btn.muted { opacity: .5 }
 
 /* ==================== 彩带动画 ==================== */
-.confetti-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 99999; overflow: hidden }
-.confetti-piece { position: absolute; top: -20px; animation: confettiFall linear forwards }
+.confetti-container { 
+  position: fixed; 
+  top: 0; 
+  left: 0; 
+  width: 100%; 
+  height: 100%; 
+  pointer-events: none; 
+  z-index: 99999; 
+  overflow: hidden;
+}
+.confetti-piece { 
+  position: absolute; 
+  top: -20px; 
+  animation: confettiFall linear forwards;
+}
 </style>
 </head>
 <body>
 <div id="app" v-cloak>
   <!-- 测试标记 -->
-  <!-- 正式版 -->
+  <div class="test-badge">TEST PREVIEW</div>
 
   <!-- ==================== 闪屏页 ==================== -->
   <div class="splash-page" v-if="phase === 'splash'">
-    <div class="splash-emoji">🔮</div>
-    <div class="splash-title">单身人格鉴定</div>
-    <div class="splash-sub">36种单身灵魂，你是哪一种？</div>
+    <div class="splash-emoji">🧬</div>
+    <div class="splash-title">单身狗基因测序</div>
+    <div class="splash-sub">36种单身基因，解码你的单身密码</div>
     <div class="splash-loading" v-if="loadingProgress < 100">
       <div class="splash-bar"><div class="splash-fill" :style="{width: loadingProgress + '%'}"></div></div>
       <div class="splash-text">{{loadingText}}</div>
@@ -361,16 +881,17 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   <!-- ==================== 欢迎页 ==================== -->
   <transition name="page">
     <div class="welcome" v-if="phase === 'welcome'">
-      <div class="emoji">🔮</div>
-      <h1>测测你的单身人格</h1>
-      <p>社交雷达、爱情滤镜、心动阈值、独处电量——四个维度解锁你的专属单身人格，36种灵魂精准匹配。</p>
-      <div class="divider"></div>
-      <div class="tags">
-        <span class="tag">⏱ 3分钟</span>
-        <span class="tag">📊 16题</span>
-        <span class="tag">🎭 36种人格</span>
+      <div class="emoji">🧬</div>
+      <h1>测测你的单身基因</h1>
+      <p>社交雷达、爱情滤镜、心动阈值、独处电量——四大基因序列解码你的单身密码，36种基因类型精准定位。</p>
+      <div class="card">
+        <div class="tags">
+          <span class="tag">⏱ 3分钟</span>
+          <span class="tag">🧬 16题</span>
+          <span class="tag">🔬 36种基因</span>
+        </div>
       </div>
-      <button class="btn" @click="startQuiz">开始鉴定 →</button>
+      <button class="btn" @click="startQuiz">开始测序 →</button>
       <button class="btn btn2" v-if="hasRecord" @click="viewLastResult">📊 查看上一次结果</button>
       <div class="welcome-footer" @click="showChangelog = true">v3.1 · 更新日志</div>
     </div>
@@ -411,8 +932,8 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
     <div class="quiz" v-if="phase === 'quiz'">
       <div class="q-header">
         <div class="q-back" @click="goBack">&lt;</div>
-        <h2>单身人格鉴定</h2>
-        <div style="width:36px"></div>
+        <h2>单身狗基因测序</h2>
+        <div style="width:44px"></div>
       </div>
       <div class="progress">
         <div class="bar"><div class="fill" :style="{width: (currentQ + 1) / questions.length * 100 + '%'}"></div></div>
@@ -480,7 +1001,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
         <div class="r-name">{{result.name}}</div>
         <div class="r-sub" v-if="result.dims">{{result.dims.join(' · ')}}</div>
         <div class="r-cards">
-          <div class="r-avatar" :style="{background: result.visual?.bg || 'linear-gradient(135deg,#007AFF,#5856D6)'}">
+          <div class="r-avatar" :style="{background: result.visual?.bg || 'linear-gradient(135deg,#FF6B9D,#C084FC)'}">
             {{result.visual?.emoji || '❓'}}
           </div>
           <div class="r-index">
@@ -502,9 +1023,9 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
         </div>
       </div>
 
-      <!-- 人格鉴定报告 -->
-      <div class="r-section">
-        <h3>📋 人格鉴定报告</h3>
+      <!-- 基因测序报告 -->
+      <div class="r-section r-section-highlight">
+        <h3>🧬 基因测序报告</h3>
         <p v-for="(line, i) in (result.desc || '').split('\n')" :key="i" style="margin-top:8px">{{line}}</p>
       </div>
 
@@ -615,7 +1136,7 @@ const SFX = (function() {
 </script>
 
 <!-- ==================== 数据与逻辑模块 ==================== -->
-<script src="js/data.js?v=3.1"></script>
+<script src="js/data-test.js?v=3.1b"></script>
 
 <!-- ==================== Vue 应用 ==================== -->
 <script>
@@ -645,46 +1166,42 @@ const storage = {
 createApp({
   setup() {
     // ==================== 状态定义 ====================
-    const phase = ref('splash');           // 当前页面: splash/welcome/quiz/analysis/result
-    const currentQ = ref(0);               // 当前题号
-    const answers = ref([]);               // 用户答案数组
-    const result = ref(null);              // 测试结果
-    const isDark = ref(false);             // 暗黑模式
-    const loadingProgress = ref(0);        // 加载进度
-    const loadingText = ref('正在初始化...'); // 加载文案
-    const hasRecord = ref(false);          // 是否有历史记录
-    const savedRecord = ref(null);         // 保存的历史记录
-    const isTransitioning = ref(false);    // 是否正在切换题目
-    const showChangelog = ref(false);      // 是否显示更新日志
-    const soundOn = ref(localStorage.getItem('sfx_on') !== 'false'); // 音效开关
-    const showConfetti = ref(false);       // 是否显示彩带
+    const phase = ref('splash');
+    const currentQ = ref(0);
+    const answers = ref([]);
+    const result = ref(null);
+    const isDark = ref(false);
+    const loadingProgress = ref(0);
+    const loadingText = ref('正在初始化...');
+    const hasRecord = ref(false);
+    const savedRecord = ref(null);
+    const isTransitioning = ref(false);
+    const showChangelog = ref(false);
+    const soundOn = ref(localStorage.getItem('sfx_on') !== 'false');
+    const showConfetti = ref(false);
     
-    // 彩带颜色
     const confettiColors = [
-      '#FF3B30', '#FF9500', '#FFCC00', '#34C759',
-      '#007AFF', '#5856D6', '#FF2D55', '#5AC8FA'
+      '#FF6B9D', '#C084FC', '#60A5FA', '#34D399',
+      '#FBBF24', '#F87171', '#A78BFA', '#22D3EE'
     ];
     
-    // 加载步骤
     const loadingSteps = [
-      { progress: 15, text: '正在解析单身DNA...' },
-      { progress: 35, text: '匹配36种人格图谱...' },
+      { progress: 15, text: '正在提取单身基因...' },
+      { progress: 35, text: '匹配36种基因序列...' },
       { progress: 55, text: '校准心动雷达...' },
       { progress: 75, text: '生成你的专属鉴定...' },
       { progress: 100, text: '鉴定就绪' }
     ];
     
-    // 分析步骤
     const analysisSteps = computed(() => [
-      { icon: '🧬', label: '扫描社交基因序列…', bg: 'rgba(255,107,53,.15)' },
-      { icon: '🔍', label: '解码爱情滤镜参数…', bg: 'rgba(253,121,168,.15)' },
-      { icon: '💓', label: '测量心动阈值波动…', bg: 'rgba(225,112,85,.15)' },
-      { icon: '🔋', label: '检测独处电量指数…', bg: 'rgba(0,184,148,.15)' }
+      { icon: '🧬', label: '扫描社交基因序列…', bg: 'rgba(255,107,157,.15)' },
+      { icon: '🔍', label: '解码爱情滤镜参数…', bg: 'rgba(192,132,252,.15)' },
+      { icon: '💓', label: '测量心动阈值波动…', bg: 'rgba(96,165,250,.15)' },
+      { icon: '🔋', label: '检测独处电量指数…', bg: 'rgba(52,211,153,.15)' }
     ]);
     
     // ==================== 生命周期 ====================
     onMounted(() => {
-      // 模拟加载动画
       let step = 0;
       const interval = setInterval(() => {
         if (step < loadingSteps.length) {
@@ -696,7 +1213,6 @@ createApp({
         }
       }, 200);
       
-      // 检查历史记录
       const record = storage.load();
       if (record) {
         hasRecord.value = true;
@@ -705,10 +1221,6 @@ createApp({
     });
     
     // ==================== 方法定义 ====================
-    
-    /**
-     * 开始答题
-     */
     const startQuiz = () => {
       if (soundOn.value) SFX.tap();
       answers.value = new Array(questions.length).fill(null);
@@ -716,9 +1228,6 @@ createApp({
       phase.value = 'quiz';
     };
     
-    /**
-     * 查看上次结果
-     */
     const viewLastResult = () => {
       if (savedRecord.value?.result) {
         result.value = savedRecord.value.result;
@@ -729,9 +1238,6 @@ createApp({
       }
     };
     
-    /**
-     * 返回上一题
-     */
     const goBack = () => {
       if (currentQ.value > 0) {
         if (soundOn.value) SFX.flip();
@@ -739,9 +1245,6 @@ createApp({
       }
     };
     
-    /**
-     * 选择选项
-     */
     const selectOption = (index) => {
       if (isTransitioning.value) return;
       if (soundOn.value) SFX.select();
@@ -755,7 +1258,6 @@ createApp({
           isTransitioning.value = false;
         }, 300);
       } else {
-        // 最后一题，进入分析
         isTransitioning.value = true;
         setTimeout(() => {
           phase.value = 'analysis';
@@ -764,29 +1266,21 @@ createApp({
       }
     };
     
-    /**
-     * 分析结果
-     */
     const analyzeResult = () => {
       setTimeout(() => {
         try {
-          // 调用 data-test.js 中的计算函数
           result.value = calcResult(answers.value, questions);
           
-          // 确保结果有效
           if (!result.value || !result.value.type) {
             result.value = createDefaultResult();
           }
           
-          // 附加视觉信息
           if (result.value.type && typeEmojis[result.value.type]) {
             result.value.visual = typeEmojis[result.value.type];
           }
           
-          // 保存结果
           storage.save(answers.value, result.value);
           
-          // 显示结果页
           phase.value = 'result';
           showConfetti.value = true;
           setTimeout(() => { showConfetti.value = false; }, 4000);
@@ -800,9 +1294,6 @@ createApp({
       }, 2000);
     };
     
-    /**
-     * 创建默认结果（出错时回退）
-     */
     const createDefaultResult = () => ({
       name: '神秘单身者',
       subtitle: '默认结果',
@@ -822,9 +1313,6 @@ createApp({
       }
     });
     
-    /**
-     * 重新测试
-     */
     const retry = () => {
       if (soundOn.value) SFX.tap();
       storage.clear();
@@ -833,17 +1321,11 @@ createApp({
       startQuiz();
     };
     
-    /**
-     * 切换主题
-     */
     const toggleTheme = () => {
       isDark.value = !isDark.value;
       document.documentElement.setAttribute('data-theme', isDark.value ? 'dark' : 'light');
     };
     
-    /**
-     * 切换音效
-     */
     const toggleSound = () => {
       soundOn.value = !soundOn.value;
       localStorage.setItem('sfx_on', soundOn.value ? 'true' : 'false');
@@ -851,7 +1333,6 @@ createApp({
     
     // ==================== 返回暴露 ====================
     return {
-      // 状态
       phase,
       currentQ,
       answers,
@@ -864,15 +1345,9 @@ createApp({
       soundOn,
       showConfetti,
       confettiColors,
-      
-      // 计算属性
       analysisSteps,
-      
-      // 全局数据（来自 data-test.js）
       questions,
       dimNames,
-      
-      // 方法
       startQuiz,
       viewLastResult,
       goBack,
