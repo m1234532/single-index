@@ -876,18 +876,29 @@ createApp({
     const generateQRCode = () => {
       setTimeout(() => {
         if (!qrCanvas.value) return;
+        // 检查 QRCode 库是否可用
+        if (typeof QRCode === 'undefined') {
+          console.warn('QRCode library not loaded');
+          qrCanvas.value.innerHTML = '<div style="padding:20px;color:#999;font-size:12px;">二维码加载失败</div>';
+          return;
+        }
         // 清除旧的二维码
         qrCanvas.value.innerHTML = '';
         // 生成新二维码
-        const url = window.location.href.split('?')[0]; // 去掉参数
-        qrCodeInstance = new QRCode(qrCanvas.value, {
-          text: url,
-          width: 144,
-          height: 144,
-          colorDark: '#2c3e50',
-          colorLight: '#ffffff',
-          correctLevel: QRCode.CorrectLevel.M
-        });
+        try {
+          const url = window.location.href.split('?')[0]; // 去掉参数
+          qrCodeInstance = new QRCode(qrCanvas.value, {
+            text: url,
+            width: 144,
+            height: 144,
+            colorDark: '#2c3e50',
+            colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.M
+          });
+        } catch (e) {
+          console.error('QRCode generation failed:', e);
+          qrCanvas.value.innerHTML = '<div style="padding:20px;color:#999;font-size:12px;">二维码生成失败</div>';
+        }
       }, 100);
     };
 
