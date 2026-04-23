@@ -194,6 +194,27 @@
       margin-top: 12px;
     }
 
+    /* 跨测试链接 */
+    .cross-link {
+      margin-top: 20px;
+      text-align: center;
+    }
+    .cross-link a {
+      color: var(--primary);
+      font-size: 15px;
+      font-weight: 600;
+      text-decoration: none;
+      padding: 12px 20px;
+      border-radius: var(--radius-pill);
+      background: rgba(74, 144, 217, 0.1);
+      border: 1px solid rgba(74, 144, 217, 0.2);
+      display: inline-block;
+      transition: all 0.2s;
+    }
+    .cross-link a:hover {
+      background: rgba(74, 144, 217, 0.2);
+    }
+
     /* ==================== 答题页 ==================== */
     .quiz {
       min-height: 100vh;
@@ -443,6 +464,9 @@
       
       <button class="btn" @click="startQuiz">开始检测 →</button>
       <button class="btn btn-secondary" v-if="hasRecord" @click="viewLastResult">📊 查看上一次结果</button>
+      <div class="cross-link">
+        <a href="../">🧬 测测你的单身基因 →</a>
+      </div>
     </div>
   </transition>
 
@@ -464,7 +488,7 @@
             class="q-option"
             v-for="(opt, idx) in questions[currentQ]?.options"
             :key="idx"
-            :class="{selected: answers[currentQ] === idx}"
+            :class="{selected: selectedOption === idx}"
             @click="selectOption(idx)"
           >{{opt.text}}</button>
         </div>
@@ -537,6 +561,7 @@ createApp({
     const phase = ref('welcome');
     const currentQ = ref(0);
     const answers = ref([]);
+    const selectedOption = ref(null);
     const result = ref(null);
     const hasRecord = ref(false);
     const questions = ref(QUESTION_BANK);
@@ -553,14 +578,17 @@ createApp({
       phase.value = 'quiz';
       currentQ.value = 0;
       answers.value = [];
+      selectedOption.value = null;
       storage.clear('answers');
     };
 
     const selectOption = (idx) => {
+      selectedOption.value = idx;
       answers.value[currentQ.value] = idx;
       storage.save('answers', answers.value);
       
       setTimeout(() => {
+        selectedOption.value = null;
         if (currentQ.value < questions.value.length - 1) {
           currentQ.value++;
         } else {
@@ -570,6 +598,7 @@ createApp({
     };
 
     const goBack = () => {
+      selectedOption.value = null;
       if (currentQ.value > 0) {
         currentQ.value--;
       } else {
@@ -624,6 +653,7 @@ createApp({
       phase,
       currentQ,
       answers,
+      selectedOption,
       result,
       hasRecord,
       questions,

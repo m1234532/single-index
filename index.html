@@ -262,6 +262,27 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 }
 .welcome-footer:active { opacity: .6; }
 
+/* 跨测试链接 */
+.cross-link {
+  margin-top: 20px;
+  text-align: center;
+}
+.cross-link a {
+  color: var(--primary);
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  padding: 12px 20px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 107, 157, 0.1);
+  border: 1px solid rgba(255, 107, 157, 0.2);
+  display: inline-block;
+  transition: all 0.2s;
+}
+.cross-link a:hover {
+  background: rgba(255, 107, 157, 0.2);
+}
+
 /* ==================== 3D玻璃卡片风格 ==================== */
 .welcome-header {
   text-align: center;
@@ -1062,6 +1083,9 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
       
       <button class="btn btn-glass" @click="startQuiz">开始基因测序 →</button>
       <button class="btn btn2" v-if="hasRecord" @click="viewLastResult">📊 查看上一次结果</button>
+      <div class="cross-link">
+        <a href="./worker/">💼 测测你的打工体质 →</a>
+      </div>
       <div class="welcome-footer" @click="showChangelog = true">v3.1 · 更新日志</div>
     </div>
   </transition>
