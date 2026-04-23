@@ -6,7 +6,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>单身人格鉴定 · 81种灵魂等你解锁</title>
+<title>单身人格鉴定 · 36种灵魂等你解锁</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💔</text></svg>">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.4.27/vue.global.prod.min.js"></script>
 <style>
@@ -82,7 +82,7 @@ button{font-family:inherit;cursor:pointer;border:none;outline:none}
 .r-name{font-size:28px;font-weight:800;margin-top:4px}
 .r-sub{font-size:13px;color:var(--gray);margin-top:4px}
 .r-cards{display:flex;gap:16px;justify-content:center;margin-top:20px}
-.r-avatar{width:100px;height:100px;border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:52px;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.15)}
+.r-avatar{width:100px;height:100px;border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:52px;color:#fff;box-shadow:0 8px 24px rgba(0,0,0,.15);flex-shrink:0}
 .r-index{background:var(--card);border-radius:16px;padding:16px 24px;box-shadow:0 2px 8px rgba(0,0,0,.04);display:flex;flex-direction:column;justify-content:center;min-width:120px}
 .r-index .num{font-size:36px;font-weight:800;color:var(--blue)}
 .r-index .label{font-size:12px;color:var(--gray);margin-top:2px}
@@ -109,6 +109,7 @@ button{font-family:inherit;cursor:pointer;border:none;outline:none}
 .retry-btn{width:100%;padding:16px;background:var(--card);color:var(--text);font-size:16px;font-weight:600;border-radius:14px;margin-top:24px;box-shadow:0 2px 8px rgba(0,0,0,.04);transition:transform .2s}
 .retry-btn:active{transform:scale(.97)}
 .credit{font-size:12px;color:var(--gray2);margin-top:16px}
+[v-cloak]{display:none!important}
 .theme-btn{position:fixed;bottom:20px;right:20px;width:48px;height:48px;border-radius:50%;background:var(--card);box-shadow:0 4px 16px rgba(0,0,0,.15);display:flex;align-items:center;justify-content:center;font-size:22px;z-index:9999;transition:transform .2s}
 .theme-btn:active{transform:scale(.9)}
 .sound-btn{position:fixed;bottom:20px;left:20px;width:48px;height:48px;border-radius:50%;background:var(--card);box-shadow:0 4px 16px rgba(0,0,0,.15);display:flex;align-items:center;justify-content:center;font-size:22px;z-index:9999;transition:transform .2s}
@@ -140,12 +141,12 @@ button{font-family:inherit;cursor:pointer;border:none;outline:none}
 </style>
 </head>
 <body>
-<div id="app">
+<div id="app" v-cloak>
 <div class="test-badge">TEST PREVIEW</div>
 <div class="splash-page" v-if="phase==='splash'">
   <div class="splash-emoji">🔮</div>
   <div class="splash-title">单身人格鉴定</div>
-  <div class="splash-sub">81种单身灵魂，你是哪一种？</div>
+  <div class="splash-sub">36种单身灵魂，你是哪一种？</div>
   <div class="splash-loading" v-if="loadingProgress < 100">
     <div class="splash-bar"><div class="splash-fill" :style="{width: loadingProgress + '%'}"></div></div>
     <div class="splash-text">{{loadingText}}</div>
@@ -157,12 +158,12 @@ button{font-family:inherit;cursor:pointer;border:none;outline:none}
 <div class="welcome" v-if="phase==='welcome'">
   <div class="emoji">🔮</div>
   <h1>测测你的单身人格</h1>
-  <p>社交雷达、爱情滤镜、心动阈值、独处电量——四个维度解锁你的专属单身人格，81种灵魂精准匹配。</p>
+  <p>社交雷达、爱情滤镜、心动阈值、独处电量——四个维度解锁你的专属单身人格，36种灵魂精准匹配。</p>
   <div class="divider"></div>
-  <div class="tags"><span class="tag">⏱ 3分钟</span><span class="tag">📊 16题</span><span class="tag">🎭 81种人格</span></div>
+  <div class="tags"><span class="tag">⏱ 3分钟</span><span class="tag">📊 16题</span><span class="tag">🎭 36种人格</span></div>
   <button class="btn" @click="startQuiz">开始鉴定 →</button>
   <button class="btn btn2" v-if="hasRecord" @click="viewLastResult">📊 查看上一次结果</button>
-  <div class="welcome-footer" @click="showChangelog=true">v3.0 · 更新日志</div>
+  <div class="welcome-footer" @click="showChangelog=true">v3.1 · 更新日志</div>
 </div>
 </transition>
 
@@ -175,6 +176,15 @@ button{font-family:inherit;cursor:pointer;border:none;outline:none}
       <span class="changelog-close" @click="showChangelog=false">✕</span>
     </div>
     <div class="changelog-body">
+      <div class="changelog-item">
+        <div class="changelog-ver">v3.1 · 2026.4.23</div>
+        <ul>
+          <li>精简至36种人格（3×3×2×2），每种文案更深入</li>
+          <li>99%单身指数配🧱砖头emoji，文案犀利升级</li>
+          <li>修复结果页emoji和百分比并排显示</li>
+          <li>修复打开时更新日志闪烁问题</li>
+        </ul>
+      </div>
       <div class="changelog-item">
         <div class="changelog-ver">v3.0 · 2026.4.23</div>
         <ul>
@@ -293,11 +303,11 @@ button{font-family:inherit;cursor:pointer;border:none;outline:none}
     <div><div class="title">截图发给朋友猜猜看</div><div class="desc">长按或截图保存，看看TA是什么人格</div></div>
   </div>
   <div class="r-hero">
-    <div class="r-avatar" :style="{background: result.visual?.bg || 'linear-gradient(135deg,#007AFF,#5856D6)'}">{{result.visual?.emoji || '❓'}}</div>
     <div class="r-type-code" v-if="result.type">{{result.type}}</div>
     <div class="r-name">{{result.name}}</div>
     <div class="r-sub" v-if="result.dims && result.dims.length > 2">{{result.dims.join(' · ')}}</div>
     <div class="r-cards">
+      <div class="r-avatar" :style="{background: result.visual?.bg || 'linear-gradient(135deg,#007AFF,#5856D6)'}">{{result.visual?.emoji || '❓'}}</div>
       <div class="r-index">
         <div class="num">{{result.index}}%</div>
         <div class="label">单身指数</div>
@@ -314,7 +324,7 @@ button{font-family:inherit;cursor:pointer;border:none;outline:none}
       <span class="score">{{Math.round(score.a/4*100)}}%</span>
     </div>
   </div>
-    <div class="r-section"><h3>📋 人格鉴定报告</h3><p>{{result.desc}}</p></div>
+    <div class="r-section"><h3>📋 人格鉴定报告</h3><p v-for="(line,i) in (result.desc||'').split('\n')" :key="i" style="margin-top:8px">{{line}}</p></div>
   <div class="r-section" v-if="result.tips && result.tips.length">
     <h3>💡 脱单处方</h3>
     <ul><li v-for="(tip,i) in result.tips" :key="i">{{tip}}</li></ul>
@@ -357,7 +367,7 @@ var SFX=(function(){
   }
 })();
 </script>
-<script src="js/data-test.js?v=3.0"></script>
+<script src="js/data-test.js?v=3.1"></script>
 <script>
 const {createApp,ref,computed,watch,nextTick,onMounted}=Vue;
 const SK='single_index_v2';
@@ -381,7 +391,7 @@ const app=createApp({
     const showConfetti=ref(false);
     const confettiColors=['#FF3B30','#FF9500','#FFCC00','#34C759','#007AFF','#5856D6','#FF2D55','#5AC8FA'];
 
-    const steps=[{p:15,t:'正在解析单身DNA...'},{p:35,t:'匹配81种人格图谱...'},{p:55,t:'校准心动雷达...'},{p:75,t:'生成你的专属鉴定...'},{p:100,t:'鉴定就绪'}];
+    const steps=[{p:15,t:'正在解析单身DNA...'},{p:35,t:'匹配36种人格图谱...'},{p:55,t:'校准心动雷达...'},{p:75,t:'生成你的专属鉴定...'},{p:100,t:'鉴定就绪'}];
 
     onMounted(()=>{
       let s=0;
@@ -419,7 +429,7 @@ const app=createApp({
             try{
               result.value=calcResult(answers.value);
               if(!result.value||!result.value.type){
-                result.value={name:'神秘型单身者',subtitle:'默认结果',index:50,type:'MMMM',desc:'请重新测试。',quote:'再试一次吧。',tips:['重新测试'],avoid:[],tags:[],dimScores:{social:{a:2,b:2},filter:{a:2,b:2},heartbeat:{a:2,b:2},alone:{a:2,b:2}}};
+                result.value={name:'神秘单身者',subtitle:'默认结果',index:50,type:'ROCI',desc:'请重新测试。',quote:'再试一次吧。',tips:['重新测试'],avoid:[],tags:[],dimScores:{social:{a:2,b:2},filter:{a:2,b:2},heartbeat:{a:2,b:2},alone:{a:2,b:2}}};
               }
               // 附加视觉信息
               if(result.value.type && typeEmojis && typeEmojis[result.value.type]){
