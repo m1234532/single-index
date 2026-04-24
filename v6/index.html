@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<title>单身狗基因测序 v6.0 · 视觉重构版</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧬</text></svg>">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.4.27/vue.global.prod.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+
+<!-- 视觉系统 & 渲染器 -->
+<script src="js/visual-system.js"></script>
+<script src="js/result-renderer.js"></script>
+
+<style>
+/* ==================== V6.0 视觉系统 - 基因证书风格 ==================== */
+:root {
+  /* 动态变量（由JS控制） */
+  --v6-bg: linear-gradient(135deg, #FFE4EC 0%, #F3E8FF 50%, #E0F2FE 100%);
+  --v6-card: rgba(255, 255, 255, 0.9);
+  --v6-text: #1F2937;
+  --v6-text-muted: #6B7280;
+  --v6-accent: #FF6B9D;
+  --v6-primary: #FF6B9D;
+  --v6-secondary: #C084FC;
+  
+  /* 固定变量 */
+  --radius-lg: 24px;
+  --radius-md: 16px;
+  --radius-sm: 12px;
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.15);
+  --shadow-md: 0 8px 32px rgba(0,0,0,0.1);
+  --shadow-sm: 0 4px 16px rgba(0,0,0,0.08);
+}
+
+/* ==================== 基础重置 ==================== */
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { 
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+body {
+  background: var(--v6-bg);
+  background-attachment: fixed;
+  color: var(--v6-text);
+  transition: background 0.5s ease, color 0.5s ease;
+}
+[v-cloak] { display: none !important; }
+
+/* ==================== 动画定义 ==================== */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.8; }
+}
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ==================== 页面过渡 ==================== */
+.page-enter-active, .page-leave-active {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.page-enter-from {
+  opacity: 0;
+  transform: translateY(20px);
+}
+.page-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+/* ==================== 闪屏页 ==================== */
+.splash-v6 {
+  position: fixed;
+  inset: 0;
+  background: var(--v6-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fade-in 0.5s ease;
+}
+.splash-v6 .dna-container {
+  position: relative;
+  width: 200px;
+  height: 200px;
+}
+.splash-v6 .dna-ring {
+  position: absolute;
+  inset: 0;
+  border: 3px solid transparent;
+  border-top-color: var(--v6-primary);
+  border-radius: 50%;
+  animation: spin-slow 3s linear infinite;
+}
+.splash-v6 .dna-ring:nth-child(2) {
+  inset: 20px;
+  border-top-color: var(--v6-secondary);
+  animation-duration: 2s;
+  animation-direction: reverse;
+}
+.splash-v6 .dna-ring:nth-child(3) {
+  inset: 40px;
+  border-top-color: var(--v6-accent);
+  animation-duration: 1.5s;
+}
+.splash-v6 .emoji {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 72px;
+  animation: float 3s ease-in-out infinite;
+}
+.splash-v6 .title {
+  font-size: 36px;
+  font-weight: 800;
+  margin-top: 40px;
+  background: linear-gradient(135deg, var(--v6-primary), var(--v6-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  letter-spacing: -1px;
+}
+.splash-v6 .subtitle {
+  font-size: 16px;
+  color: var(--v6-text-muted);
+  margin-top: 12px;
+  font-weight: 500;
+}
+.splash-v6 .loading-bar {
+  width: 200px;
+  height: 6px;
+  background: rgba(0,0,0,0.08);
+  border-radius: 3px;
+  margin-top: 40px;
+  overflow: hidden;
+}
+.splash-v6 .loading-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--v6-primary), var(--v6-secondary));
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+.splash-v6 .loading-text {
+  font-size: 13px;
+  color: var(--v6-text-muted);
+  margin-top: 16px;
+  text-align: center;
+}
+.splash-v6 .start-btn {
+  margin-top: 40px;
+  padding: 18px 48px;
+  background: linear-gradient(135deg, var(--v6-primary), var(--v6-secondary));
+  color: white;
+  font-size: 18px;
+  font-weight: 700;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  box-shadow: 0 8px 24px var(--v6-primary)40;
+  animation: pulse 2s ease-in-out infinite;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.splash-v6 .start-btn:active {
+  transform: scale(0.97);
+  box-shadow: 0 4px 16px var(--v6-primary)30;
+}
+
+/* ==================== 欢迎页 ==================== */
+.welcome-v6 {
+  min-height: 100vh;
+  padding: 60px 24px 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: slide-up 0.6s ease;
+}
+.welcome-v6 .hero-emoji {
+  font-size: 100px;
+  margin-bottom: 24px;
+  animation: float 4s ease-in-out infinite;
+  filter: drop-shadow(0 12px 32px rgba(0,0,0,0.15));
+}
+.welcome-v6 h1 {
+  font-size: 36px;
+  font-weight: 800;
+  text-align: center;
+  line-height: 1.2;
+  background: linear-gradient(135deg, var(--v6-text), var(--v6-primary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.welcome-v6 .subtitle {
+  font-size: 17px;
+  color: var(--v6-text-muted);
+  text-align: center;
+  margin-top: 16px;
+  line-height: 1.6;
+  max-width: 320px;
+}
+.welcome-v6 .feature-card {
+  width: 100%;
+  max-width: 360px;
+  background: var(--v6-card);
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-top: 32px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid rgba(255,255,255,0.5);
+}
+.welcome-v6 .feature-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+}
+.welcome-v6 .tag {
+  background: linear-gradient(135deg, var(--v6-primary)15, var(--v6-secondary)15);
+  color: var(--v6-primary);
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 18px;
+  border-radius: 50px;
+  border: 1px solid var(--v6-primary)20;
+}
+.welcome-v6 .start-btn {
+  width: 100%;
+  max-width: 360px;
+  padding: 20px;
+  background: linear-gradient(135deg, var(--v6-primary), var(--v6-secondary));
+  color: white;
+  font-size: 18px;
+  font-weight: 700;
+  border: none;
+  border-radius: var(--radius-lg);
+  margin-top: 32px;
+  cursor: pointer;
+  box-shadow: var(--shadow-lg);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.welcome-v6 .start-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 48px var(--v6-primary)40;
+}
+.welcome-v6 .start-btn:active {
+  transform: translateY(0);
+}
+
+/* ==================== 题目页 ==================== */
+.quiz-v6 {
+  min-height: 100vh;
+  padding: 60px 20px 40px;
+  animation: slide-up 0.4s ease;
+}
+.quiz-v6 .progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: rgba(0,0,0,0.05);
+  z-index: 100;
+}
+.quiz-v6 .progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--v6-primary), var(--v6-secondary));
+  transition: width 0.3s ease;
+}
+.quiz-v6 .progress-text {
+  position: fixed;
+  top: 12px;
+  right: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--v6-text-muted);
+  background: var(--v6-card);
+  padding: 6px 12px;
+  border-radius: 50px;
+  box-shadow: var(--shadow-sm);
+  z-index: 100;
+}
+.quiz-v6 .question-card {
+  background: var(--v6-card);
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius-lg);
+  padding: 32px 24px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid rgba(255,255,255,0.5);
+  animation: slide-up 0.4s ease;
+}
+.quiz-v6 .q-emoji {
+  font-size: 56px;
+  text-align: center;
+  margin-bottom: 16px;
+}
+.quiz-v6 .q-dim {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--v6-primary);
+  background: var(--v6-primary)15;
+  padding: 6px 14px;
+  border-radius: 50px;
+  margin-bottom: 16px;
+}
+.quiz-v6 .q-text {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--v6-text);
+  line-height: 1.5;
+  text-align: center;
+}
+.quiz-v6 .options {
+  margin-top: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.quiz-v6 .option {
+  background: rgba(255,255,255,0.6);
+  border: 2px solid transparent;
+  border-radius: var(--radius-md);
+  padding: 18px 20px;
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--v6-text);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+.quiz-v6 .option:hover {
+  background: rgba(255,255,255,0.9);
+  border-color: var(--v6-primary)40;
+  transform: translateX(4px);
+}
+.quiz-v6 .option:active {
+  transform: scale(0.98);
+}
+
+/* ==================== 证书式结果页 ==================== */
+.result-certificate-v6 {
+  min-height: 100vh;
+  padding: 20px 16px 40px;
+  animation: slide-up 0.5s ease;
+}
+.cert-header {
+  text-align: center;
+  padding: 32px 24px;
+  position: relative;
+  border: 2px solid var(--v6-accent)40;
+  border-radius: var(--radius-lg);
+  margin-bottom: 20px;
+}
+.cert-label {
+  font-size: 12px;
+  color: var(--v6-text-muted);
+  letter-spacing: 4px;
+  margin-bottom: 12px;
+  text-transform: uppercase;
+}
+.cert-code {
+  font-size: 42px;
+  font-weight: 800;
+  letter-spacing: 8px;
+  background: linear-gradient(135deg, var(--v6-primary), var(--v6-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.cert-seal {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+}
+.cert-main-card {
+  background: var(--v6-card);
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid rgba(255,255,255,0.5);
+}
+.cert-identity {
+  text-align: center;
+  margin-bottom: 24px;
+}
+.cert-emoji {
+  font-size: 72px;
+  margin-bottom: 12px;
+  animation: float 4s ease-in-out infinite;
+}
+.cert-name {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--v6-text);
+  margin-bottom: 6px;
+}
+.cert-dims {
+  font-size: 14px;
+  color: var(--v6-text-muted);
+}
+.cert-stats {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.stat-box {
+  flex: 1;
+  background: var(--v6-primary)10;
+  border-radius: var(--radius-md);
+  padding: 20px;
+  text-align: center;
+  border: 1px solid rgba(255,255,255,0.3);
+}
+.stat-box.primary {
+  background: linear-gradient(135deg, var(--v6-primary)15, var(--v6-secondary)15);
+}
+.stat-num {
+  font-size: 36px;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--v6-primary), var(--v6-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.stat-desc {
+  font-size: 14px;
+  color: var(--v6-text);
+  line-height: 1.4;
+  font-weight: 500;
+}
+.stat-label {
+  font-size: 12px;
+  color: var(--v6-text-muted);
+  margin-top: 6px;
+}
+.cert-radar {
+  background: rgba(0,0,0,0.03);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 20px;
+}
+.radar-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--v6-text);
+  margin-bottom: 16px;
+}
+.cert-quote {
+  padding: 20px;
+  background: var(--v6-accent)08;
+  border-radius: var(--radius-md);
+  border-left: 4px solid var(--v6-accent);
+  font-size: 16px;
+  color: var(--v6-text);
+  line-height: 1.7;
+  font-style: italic;
+  font-weight: 500;
+}
+.cert-section {
+  background: var(--v6-card);
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid rgba(255,255,255,0.3);
+}
+.cert-section h3 {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--v6-text);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.cert-section p, .cert-section li {
+  font-size: 15px;
+  color: var(--v6-text-muted);
+  line-height: 1.8;
+}
+.cert-section ul {
+  margin: 0;
+  padding-left: 20px;
+}
+.cert-section li {
+  margin-bottom: 8px;
+}
+.cert-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.cert-tags .tag {
+  background: var(--v6-primary)12;
+  color: var(--v6-primary);
+  font-size: 13px;
+  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 50px;
+  border: 1px solid var(--v6-primary)25;
+}
+.cert-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.btn-primary, .btn-secondary {
+  width: 100%;
+  padding: 18px;
+  font-size: 17px;
+  font-weight: 700;
+  border: none;
+  border-radius: var(--radius-lg);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--v6-primary), var(--v6-secondary));
+  color: white;
+  box-shadow: 0 8px 24px var(--v6-primary)40;
+}
+.btn-secondary {
+  background: var(--v6-card);
+  color: var(--v6-text);
+  border: 2px solid var(--v6-accent)40;
+}
+.btn-primary:active, .btn-secondary:active {
+  transform: scale(0.98);
+}
+.cert-footer {
+  text-align: center;
+  padding: 24px 0;
+  font-size: 12px;
+  color: var(--v6-text-muted);
+}
+
+/* ==================== 分享卡弹窗 ==================== */
+.share-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 20px;
+  animation: fade-in 0.3s ease;
+}
+.share-modal-content {
+  background: white;
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  max-width: 400px;
+  width: 100%;
+  text-align: center;
+}
+.share-modal h3 {
+  font-size: 20px;
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+.share-modal p {
+  font-size: 14px;
+  color: var(--v6-text-muted);
+  margin-bottom: 20px;
+}
+.share-card-preview {
+  width: 100%;
+  max-width: 300px;
+  margin: 0 auto 20px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+.share-card-preview img {
+  width: 100%;
+  display: block;
+}
+
+/* ==================== 响应式优化 ==================== */
+@media (min-width: 768px) {
+  .welcome-v6, .quiz-v6, .result-certificate-v6 {
+    max-width: 480px;
+    margin: 0 auto;
+  }
+}
+</style>
+</head>
+<body>
+<div id="app" v-cloak>
+  <transition name="page" mode="out-in">
+    
+    <!-- 闪屏页 -->
+    <div v-if="phase === 'splash'" class="splash-v6" key="splash">
+      <div class="dna-container">
+        <div class="dna-ring"></div>
+        <div class="dna-ring"></div>
+        <div class="dna-ring"></div>
+        <div class="emoji">🧬</div>
+      </div>
+      <div class="title">单身狗基因测序</div>
+      <div class="subtitle">解码你的单身DNA</div>
+      <div class="loading-bar">
+        <div class="loading-fill" :style="{width: loadingProgress + '%'}"></div>
+      </div>
+      <div class="loading-text">{{loadingText}}</div>
+      <button v-if="showStartBtn" class="start-btn" @click="enterApp">进入实验室 →</button>
+    </div>
+    
+    <!-- 欢迎页 -->
+    <div v-else-if="phase === 'welcome'" class="welcome-v6" key="welcome">
+      <div class="hero-emoji">🧬</div>
+      <h1>发现你的<br>单身基因密码</h1>
+      <p class="subtitle">通过28道科学题目，分析你的社交模式、择偶标准、情感反应和独处偏好，生成专属的单身基因报告。</p>
+      <div class="feature-card">
+        <div class="feature-tags">
+          <span class="tag">🔬 基因解码</span>
+          <span class="tag">📊 四维分析</span>
+          <span class="tag">🎨 个性主题</span>
+          <span class="tag">📸 分享卡片</span>
+        </div>
+      </div>
+      <button class="start-btn" @click="startQuiz">开始基因测序</button>
+    </div>
+    
+    <!-- 题目页 -->
+    <div v-else-if="phase === 'quiz'" class="quiz-v6" key="quiz">
+      <div class="progress-bar">
+        <div class="progress-fill" :style="{width: ((currentQ + 1) / questions.length * 100) + '%'}"></div>
+      </div>
+      <div class="progress-text">{{currentQ + 1}} / {{questions.length}}</div>
+      
+      <div class="question-card" :key="currentQ">
+        <div class="q-emoji">{{questions[currentQ].emoji}}</div>
+        <span class="q-dim">{{dimNames[questions[currentQ].dim]}}</span>
+        <div class="q-text">{{questions[currentQ].text}}</div>
+        <div class="options">
+          <button 
+            v-for="(opt, i) in questions[currentQ].options" 
+            :key="i"
+            class="option"
+            @click="selectOption(i)"
+          >{{opt}}</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- 结果页 -->
+    <div v-else-if="phase === 'result' && result" class="result-certificate-v6" key="result">
+      <!-- 证书头部 -->
+      <div class="cert-header">
+        <div class="cert-label">Single Dog Gene Lab</div>
+        <div class="cert-code">{{result.type}}</div>
+        <div class="cert-seal" v-html="sealSvg"></div>
+      </div>
+      
+      <!-- 主卡片 -->
+      <div class="cert-main-card">
+        <div class="cert-identity">
+          <div class="cert-emoji">{{result.visual?.emoji || '🔬'}}</div>
+          <div class="cert-name">{{result.name}}</div>
+          <div class="cert-dims">{{result.dims ? result.dims.join(' · ') : ''}}</div>
+        </div>
+        
+        <div class="cert-stats">
+          <div class="stat-box primary">
+            <div class="stat-num">{{result.index}}%</div>
+            <div class="stat-label">单身指数</div>
+          </div>
+          <div class="stat-box secondary">
+            <div class="stat-desc">{{currentTheme.mood}}</div>
+            <div class="stat-label">性格特征</div>
+          </div>
+        </div>
+        
+        <div class="cert-radar">
+          <div class="radar-title">基因四维图谱</div>
+          <div v-html="radarSvg"></div>
+        </div>
+        
+        <div class="cert-quote">"{{result.quote}}"</div>
+      </div>
+      
+      <!-- 详细解析 -->
+      <div v-if="result.desc" class="cert-section">
+        <h3>📋 详细解析</h3>
+        <p v-html="result.desc.replace(/\n/g, '<br>')"></p>
+      </div>
+      
+      <!-- 行动建议 -->
+      <div v-if="result.tips && result.tips.length" class="cert-section">
+        <h3>💡 行动建议</h3>
+        <ul>
+          <li v-for="(tip, i) in result.tips" :key="i">{{tip}}</li>
+        </ul>
+      </div>
+      
+      <!-- 避坑指南 -->
+      <div v-if="result.avoid && result.avoid.length" class="cert-section">
+        <h3>⚠️ 避坑指南</h3>
+        <ul>
+          <li v-for="(item, i) in result.avoid" :key="i">{{item}}</li>
+        </ul>
+      </div>
+      
+      <!-- 标签 -->
+      <div v-if="result.tags && result.tags.length" class="cert-tags">
+        <span v-for="(tag, i) in result.tags" :key="i" class="tag">{{tag}}</span>
+      </div>
+      
+      <!-- 按钮 -->
+      <div class="cert-actions">
+        <button class="btn-primary" @click="generateShareCard">📸 生成分享卡</button>
+        <button class="btn-secondary" @click="retakeTest">🔄 重新测试</button>
+      </div>
+      
+      <div class="cert-footer">Single Dog Gene Lab © 2025</div>
+    </div>
+    
+  </transition>
+  
+  <!-- 分享卡弹窗 -->
+  <div v-if="showShareModal" class="share-modal" @click.self="showShareModal = false">
+    <div class="share-modal-content">
+      <h3>📸 长按保存分享卡</h3>
+      <div class="share-card-preview">
+        <img :src="shareCardUrl" alt="分享卡">
+      </div>
+      <p>保存到相册，分享给朋友看看你们的基因是否匹配！</p>
+      <button class="btn-primary" @click="showShareModal = false">知道了</button>
+    </div>
+  </div>
+</div>
+
+<!-- 数据文件 -->
+<script src="js/data.js"></script>
+
+<script>
+const { createApp, ref, computed, onMounted, nextTick } = Vue;
+
+// 加载动画文本
+const loadingTexts = [
+  '正在提取DNA样本...',
+  '分析社交基因序列...',
+  '解码择偶偏好片段...',
+  '扫描心动反应模式...',
+  '评估独处耐受指数...',
+  '基因测序完成！'
+];
+
+createApp({
+  setup() {
+    // ==================== 状态 ====================
+    const phase = ref('splash');
+    const currentQ = ref(0);
+    const answers = ref([]);
+    const result = ref(null);
+    const loadingProgress = ref(0);
+    const loadingText = ref(loadingTexts[0]);
+    const showStartBtn = ref(false);
+    const showShareModal = ref(false);
+    const shareCardUrl = ref('');
+    const currentTheme = ref(null);
+    
+    // 雷达图和印章SVG
+    const radarSvg = ref('');
+    const sealSvg = ref('');
+    
+    // ==================== 题目数据 ====================
+    const questions = window.QUESTION_BANK || [];
+    const dimNames = {
+      social: '社交模式',
+      filter: '择偶标准', 
+      heart: '心动反应',
+      alone: '独处偏好'
+    };
+    
+    // ==================== 方法 ====================
+    
+    // 闪屏动画
+    const runLoadingAnimation = () => {
+      let step = 0;
+      const interval = setInterval(() => {
+        step++;
+        loadingProgress.value = (step / loadingTexts.length) * 100;
+        if (step < loadingTexts.length) {
+          loadingText.value = loadingTexts[step];
+        }
+        if (step >= loadingTexts.length) {
+          clearInterval(interval);
+          showStartBtn.value = true;
+        }
+      }, 400);
+    };
+    
+    // 进入应用
+    const enterApp = () => {
+      phase.value = 'welcome';
+    };
+    
+    // 开始测试
+    const startQuiz = () => {
+      currentQ.value = 0;
+      answers.value = new Array(questions.length).fill(null);
+      phase.value = 'quiz';
+    };
+    
+    // 选择选项
+    const selectOption = (index) => {
+      answers.value[currentQ.value] = index;
+      if (currentQ.value < questions.length - 1) {
+        currentQ.value++;
+      } else {
+        analyzeResult();
+      }
+    };
+    
+    // 分析结果
+    const analyzeResult = () => {
+      if (typeof calcResult === 'function') {
+        try {
+          result.value = calcResult(answers.value, questions);
+          
+          // 应用主题
+          if (result.value && result.value.type) {
+            currentTheme.value = VISUAL_SYSTEM.getTheme(result.value.type);
+            applyTheme(currentTheme.value);
+            
+            // 生成雷达图和印章
+            if (typeof RadarChart !== 'undefined') {
+              radarSvg.value = RadarChart.generate(result.value.dimScores || {}, currentTheme.value);
+              sealSvg.value = CertificateDecorations.seal(result.value.type, currentTheme.value.colors.accent);
+            }
+          }
+          
+          phase.value = 'result';
+        } catch (e) {
+          console.error('分析失败:', e);
+          alert('分析出错，请重试');
+          phase.value = 'welcome';
+        }
+      }
+    };
+    
+    // 应用主题
+    const applyTheme = (theme) => {
+      const root = document.documentElement;
+      root.style.setProperty('--v6-bg', theme.colors.bg);
+      root.style.setProperty('--v6-card', theme.colors.card);
+      root.style.setProperty('--v6-text', theme.colors.text);
+      root.style.setProperty('--v6-text-muted', theme.colors.textMuted);
+      root.style.setProperty('--v6-accent', theme.colors.accent);
+      root.style.setProperty('--v6-primary', theme.colors.primary[0]);
+      root.style.setProperty('--v6-secondary', theme.colors.secondary[0]);
+    };
+    
+    // 生成分享卡
+    const generateShareCard = async () => {
+      if (!result.value) return;
+      
+      const theme = currentTheme.value || VISUAL_SYSTEM.getTheme(result.value.type);
+      
+      // 创建临时容器
+      const container = document.createElement('div');
+      container.style.cssText = 'position:fixed;top:-9999px;left:-9999px;width:375px;height:667px;z-index:-1;';
+      
+      container.innerHTML = `
+        <div style="width:375px;height:667px;background:${theme.colors.bg};padding:40px 30px;box-sizing:border-box;font-family:-apple-system,BlinkMacSystemFont,sans-serif;position:relative;overflow:hidden;">
+          <div style="position:absolute;top:-80px;right:-80px;width:250px;height:250px;background:${theme.colors.primary[0]}25;border-radius:50%;filter:blur(50px);"></div>
+          <div style="position:absolute;bottom:-60px;left:-60px;width:200px;height:200px;background:${theme.colors.secondary[0]}20;border-radius:50%;filter:blur(40px);"></div>
+          <div style="text-align:center;position:relative;z-index:1;">
+            <div style="font-size:13px;color:${theme.colors.textMuted};letter-spacing:3px;margin-bottom:8px;">GENE LAB</div>
+            <div style="font-size:36px;font-weight:800;background:linear-gradient(135deg,${theme.colors.primary[0]},${theme.colors.secondary[0]});-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">${result.value.type}</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.95);backdrop-filter:blur(20px);border-radius:24px;padding:28px;margin-top:20px;position:relative;z-index:1;box-shadow:0 8px 32px rgba(0,0,0,0.1);">
+            <div style="text-align:center;">
+              <div style="font-size:72px;margin-bottom:8px;">${result.value.visual?.emoji || '🔬'}</div>
+              <div style="font-size:24px;font-weight:700;color:${theme.colors.text};margin-bottom:4px;">${result.value.name}</div>
+              <div style="font-size:13px;color:${theme.colors.textMuted};">${result.value.dims ? result.value.dims.join(' · ') : ''}</div>
+            </div>
+            <div style="display:flex;align-items:center;justify-content:center;gap:12px;margin-top:20px;padding:16px;background:linear-gradient(135deg,${theme.colors.primary[0]}12,${theme.colors.secondary[0]}12);border-radius:16px;">
+              <div style="font-size:40px;font-weight:800;background:linear-gradient(135deg,${theme.colors.primary[0]},${theme.colors.secondary[0]});-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;">${result.value.index}%</div>
+              <div style="font-size:12px;color:${theme.colors.textMuted};">单身指数</div>
+            </div>
+            <div style="margin-top:16px;padding:14px;background:${theme.colors.accent}08;border-radius:12px;border-left:3px solid ${theme.colors.accent};">
+              <div style="font-size:14px;color:${theme.colors.text};line-height:1.6;font-style:italic;">"${result.value.quote}"</div>
+            </div>
+          </div>
+          <div style="position:absolute;bottom:30px;left:30px;right:30px;text-align:center;z-index:1;">
+            <div style="font-size:12px;color:${theme.colors.textMuted};margin-bottom:12px;">扫码测测你的单身基因</div>
+            <div style="width:70px;height:70px;background:white;border-radius:12px;margin:0 auto;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 16px rgba(0,0,0,0.1);font-size:36px;">📱</div>
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(container);
+      
+      try {
+        const canvas = await html2canvas(container.firstElementChild, {
+          scale: 2,
+          useCORS: true,
+          allowTaint: true,
+          backgroundColor: null
+        });
+        
+        shareCardUrl.value = canvas.toDataURL('image/png');
+        showShareModal.value = true;
+      } catch (err) {
+        console.error('生成失败:', err);
+        alert('生成分享卡失败，请直接截图保存');
+      }
+      
+      document.body.removeChild(container);
+    };
+    
+    // 重新测试
+    const retakeTest = () => {
+      result.value = null;
+      currentTheme.value = null;
+      // 重置主题
+      document.documentElement.style.cssText = '';
+      phase.value = 'welcome';
+    };
+    
+    // ==================== 生命周期 ====================
+    onMounted(() => {
+      runLoadingAnimation();
+    });
+    
+    return {
+      phase,
+      currentQ,
+      answers,
+      result,
+      questions,
+      dimNames,
+      loadingProgress,
+      loadingText,
+      showStartBtn,
+      showShareModal,
+      shareCardUrl,
+      currentTheme,
+      radarSvg,
+      sealSvg,
+      enterApp,
+      startQuiz,
+      selectOption,
+      generateShareCard,
+      retakeTest
+    };
+  }
+}).mount('#app');
+</script>
+</body>
+</html>
