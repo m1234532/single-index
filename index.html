@@ -150,10 +150,10 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   transform: translateY(0);
 }
 
-/* ==================== 主题切换按钮 ==================== */
+/* ==================== 主题切换按钮 - 移至右下角避免遮挡题号 ==================== */
 .theme-toggle {
   position: fixed;
-  top: max(16px, env(safe-area-inset-top, 16px));
+  bottom: max(24px, env(safe-area-inset-bottom, 24px));
   right: 16px;
   width: 44px;
   height: 44px;
@@ -168,6 +168,11 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   cursor: pointer;
   transition: all 0.3s;
   box-shadow: var(--shadow-sm);
+  opacity: 0.7;
+}
+.theme-toggle:hover {
+  opacity: 1;
+  transform: scale(1.1);
 }
 .theme-toggle:active { transform: scale(0.9); }
 
@@ -452,17 +457,34 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   background: radial-gradient(ellipse at center, rgba(255,255,255,0.02) 0%, transparent 70%);
 }
 
-/* 环绕emoji闪烁效果 */
-.gene-satellite {
+/* 粒子浮动效果 - 替代emoji环绕 */
+.gene-particle {
   position: absolute;
-  font-size: 36px;
-  filter: grayscale(0.3);
-  animation: satelliteFloat 4s ease-in-out infinite, satelliteTwinkle 3s ease-in-out infinite;
+  width: 6px;
+  height: 6px;
+  background: var(--primary);
+  border-radius: 50%;
+  opacity: 0.6;
+  animation: particleFloat 6s ease-in-out infinite;
 }
 
-@keyframes satelliteTwinkle {
-  0%, 100% { opacity: 0.7; filter: grayscale(0.3); }
-  50% { opacity: 1; filter: grayscale(0.1) drop-shadow(0 0 8px rgba(0,0,0,0.1)); }
+@keyframes particleFloat {
+  0%, 100% { 
+    transform: translate(0, 0) scale(1); 
+    opacity: 0.4;
+  }
+  25% { 
+    transform: translate(10px, -20px) scale(1.2); 
+    opacity: 0.8;
+  }
+  50% { 
+    transform: translate(-5px, -40px) scale(1); 
+    opacity: 0.6;
+  }
+  75% { 
+    transform: translate(-15px, -20px) scale(0.8); 
+    opacity: 0.9;
+  }
 }
 
 /* 巨型基因球容器 */
@@ -489,21 +511,11 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   50% { transform: scale(1.05); filter: grayscale(0.1) drop-shadow(0 20px 50px rgba(0,0,0,0.25)); }
 }
 
-/* 环绕的小基因 */
-.gene-satellite {
-  position: absolute;
-  font-size: 36px;
-  filter: grayscale(0.3);
-  animation: satelliteFloat 4s ease-in-out infinite;
-}
-.gene-satellite:nth-child(1) { top: 0; left: 50%; transform: translateX(-50%); animation-delay: 0s; }
-.gene-satellite:nth-child(2) { top: 50%; right: 0; transform: translateY(-50%); animation-delay: 1s; }
-.gene-satellite:nth-child(3) { bottom: 0; left: 50%; transform: translateX(-50%); animation-delay: 2s; }
-.gene-satellite:nth-child(4) { top: 50%; left: 0; transform: translateY(-50%); animation-delay: 3s; }
-@keyframes satelliteFloat {
-  0%, 100% { transform: translate(var(--tx, 0), var(--ty, 0)) scale(1); }
-  50% { transform: translate(var(--tx, 0), var(--ty, 0)) scale(1.1); }
-}
+/* 基因球周围粒子 - 浮动效果 */
+.gene-particle:nth-child(1) { bottom: 20%; left: 20%; animation-delay: 0s; }
+.gene-particle:nth-child(2) { bottom: 30%; right: 15%; animation-delay: 1.5s; }
+.gene-particle:nth-child(3) { top: 25%; left: 15%; animation-delay: 3s; }
+.gene-particle:nth-child(4) { top: 20%; right: 20%; animation-delay: 4.5s; }
 
 /* 轨道环 */
 .orb-ring {
@@ -857,7 +869,6 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   border-bottom: 4px solid var(--text);
   display: inline-block;
   letter-spacing: -0.02em;
-  text-shadow: 0 2px 0 var(--gray);
 }
 .q-options {
   margin-top: 32px;
@@ -2145,10 +2156,10 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
       <div class="gene-orb-container">
         <div class="orb-ring ring-1"></div>
         <div class="orb-ring ring-2"></div>
-        <div class="gene-satellite" style="--tx:-50%;--ty:-50%">🎯</div>
-        <div class="gene-satellite" style="--tx:50%;--ty:-50%">💝</div>
-        <div class="gene-satellite" style="--tx:-50%;--ty:50%">⚡</div>
-        <div class="gene-satellite" style="--tx:50%;--ty:50%">🌙</div>
+        <div class="gene-particle"></div>
+        <div class="gene-particle"></div>
+        <div class="gene-particle"></div>
+        <div class="gene-particle"></div>
         <div class="gene-orb">🧬</div>
       </div>
       
@@ -2496,8 +2507,8 @@ createApp({
     const isComplete = ref(false);
     const showRipple = ref(false);
     const showGlitch = ref(false);
-    const analysisTitle = ref('DNA SCANNING');
-    const analysisStatus = ref('Initializing sequence...');
+    const analysisTitle = ref('基因测序中');
+    const analysisStatus = ref('正在初始化序列...');
     
     // 结果页印章
     const showStamp = ref(false);
@@ -2729,13 +2740,13 @@ createApp({
       isScanning.value = true;
       isComplete.value = false;
       showRipple.value = false;
-      analysisTitle.value = 'DNA SCANNING';
-      analysisStatus.value = 'Initializing sequence...';
+      analysisTitle.value = '基因测序中';
+      analysisStatus.value = '正在初始化序列...';
       analysisDims.value.forEach(d => { d.active = false; d.syncing = false; });
       
       // 等待一小段时间开始扫描
       await sleep(500);
-      analysisStatus.value = 'Scanning sample...';
+      analysisStatus.value = '正在扫描样本...';
       
       // 随机触发glitch效果
       setTimeout(() => { showGlitch.value = true; setTimeout(() => showGlitch.value = false, 100); }, 800);
@@ -2744,7 +2755,7 @@ createApp({
       // 逐个解锁维度 - 社交基因
       await sleep(600);
       analysisDims.value[0].syncing = true;
-      analysisStatus.value = 'Analyzing social gene...';
+      analysisStatus.value = '正在分析社交基因...';
       await sleep(800);
       analysisDims.value[0].syncing = false;
       analysisDims.value[0].active = true;
@@ -2752,7 +2763,7 @@ createApp({
       // 择偶基因
       await sleep(400);
       analysisDims.value[1].syncing = true;
-      analysisStatus.value = 'Decoding filter params...';
+      analysisStatus.value = '正在解码择偶参数...';
       await sleep(800);
       analysisDims.value[1].syncing = false;
       analysisDims.value[1].active = true;
@@ -2760,7 +2771,7 @@ createApp({
       // 心动基因
       await sleep(400);
       analysisDims.value[2].syncing = true;
-      analysisStatus.value = 'Measuring heart threshold...';
+      analysisStatus.value = '正在测量心动阈值...';
       await sleep(800);
       analysisDims.value[2].syncing = false;
       analysisDims.value[2].active = true;
@@ -2768,15 +2779,15 @@ createApp({
       // 独处基因
       await sleep(400);
       analysisDims.value[3].syncing = true;
-      analysisStatus.value = 'Checking alone power...';
+      analysisStatus.value = '正在检测独处能力...';
       await sleep(800);
       analysisDims.value[3].syncing = false;
       analysisDims.value[3].active = true;
       
       // 完成扫描
       await sleep(400);
-      analysisTitle.value = 'ANALYSIS COMPLETE';
-      analysisStatus.value = 'Generating report...';
+      analysisTitle.value = '测序完成';
+      analysisStatus.value = '正在生成报告...';
       isScanning.value = false;
       isComplete.value = true;
       showRipple.value = true;
