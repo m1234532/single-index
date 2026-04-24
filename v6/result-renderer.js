@@ -12,6 +12,9 @@ const RadarChart = {
     const radius = 100;
     const levels = 5;
     
+    // 安全检查 dimScores
+    const scores = dimScores || {};
+    
     // 维度标签和角度
     const dims = [
       { key: 'social', label: '社交', angle: -Math.PI / 2 },
@@ -22,11 +25,12 @@ const RadarChart = {
     
     // 计算得分点坐标
     const points = dims.map((dim, i) => {
-      const score = dimScores[dim.key] || 50;
-      const r = (score / 100) * radius;
+      const score = typeof scores[dim.key] === 'number' ? scores[dim.key] : 50;
+      const safeScore = Math.max(0, Math.min(100, score)); // 限制在0-100范围内
+      const r = (safeScore / 100) * radius;
       const x = center + r * Math.cos(dim.angle);
       const y = center + r * Math.sin(dim.angle);
-      return { x, y, score, ...dim };
+      return { x: x.toFixed(1), y: y.toFixed(1), score: safeScore, ...dim };
     });
     
     // 生成网格线
