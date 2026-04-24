@@ -772,6 +772,8 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 /* 数据同步环 */
 .dim-sync-ring {
   position: absolute;
+  top: -4px;
+  left: -4px;
   width: 56px;
   height: 56px;
   border: 2px solid transparent;
@@ -842,26 +844,13 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   min-height: 100vh;
 }
 
-/* 分享提示 - 缩小版 */
+/* 分享提示 - 纯文字弱化版 */
 .share-tip {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
+  text-align: center;
   margin-bottom: 12px;
-  padding: 8px 12px;
-  background: var(--card);
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--gray);
   font-size: 12px;
   color: var(--text3);
-}
-.share-tip .icon {
-  font-size: 14px;
-}
-.share-tip .title {
-  font-weight: 600;
-  color: var(--text2);
+  opacity: 0.7;
 }
 .share-tip .desc {
   display: none;
@@ -943,14 +932,14 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   opacity: 0.5;
 }
 
-/* 印章效果 */
+/* 印章效果 - 移至右上角 */
 .report-stamp {
   position: absolute;
-  bottom: 80px;
-  right: 24px;
-  width: 70px;
-  height: 70px;
-  border: 3px solid var(--text);
+  top: 60px;
+  right: 16px;
+  width: 60px;
+  height: 60px;
+  border: 2px solid var(--text);
   border-radius: 50%;
   display: flex;
   flex-direction: column;
@@ -959,14 +948,15 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   transform: rotate(-15deg);
   opacity: 0;
   transition: all 0.6s ease;
+  z-index: 10;
 }
 .report-stamp.stamped {
-  opacity: 0.8;
+  opacity: 0.7;
   animation: stampDrop 0.4s ease-out;
 }
 @keyframes stampDrop {
   0% { transform: rotate(-15deg) scale(1.5); opacity: 0; }
-  100% { transform: rotate(-15deg) scale(1); opacity: 0.8; }
+  100% { transform: rotate(-15deg) scale(1); opacity: 0.7; }
 }
 .report-stamp-text {
   font-size: 10px;
@@ -1810,7 +1800,6 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
         <div class="q-options" :key="currentQ">
           <div class="opt" v-for="(opt, i) in questions[currentQ].options" :key="i" 
                :class="{sel: answers[currentQ] === i}" @click="selectOption(i)">
-            <div class="letter">{{['A','B','C','D'][i]}}</div>
             <div class="text">{{opt}}</div>
           </div>
         </div>
@@ -1880,10 +1869,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   <transition name="page">
     <div class="result" v-if="phase === 'result' && result">
       <!-- 分享提示 -->
-      <div class="share-tip">
-        <span class="icon">📱</span>
-        <span class="title">截图保存你的基因报告</span>
-      </div>
+      <div class="share-tip">📱 截图保存你的基因报告</div>
 
       <!-- 基因报告书 -->
       <div class="report-book">
