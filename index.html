@@ -9,6 +9,7 @@
 <title>单身狗基因测序 · 你的单身密码</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧬</text></svg>">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.4.27/vue.global.prod.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
 <style>
 /* ==================== CSS变量定义 - 高级黑白风格 ==================== */
 :root {
@@ -91,6 +92,21 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 .page-leave-to { opacity: 0; transform: translateY(-20px) }
 .fade-enter-active, .fade-leave-active { transition: opacity .3s }
 .fade-enter-from, .fade-leave-to { opacity: 0 }
+
+/* 文字动画样式 */
+.text-animate-container {
+  overflow: hidden;
+  display: inline-block;
+}
+.text-animate-char {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(100%);
+}
+.text-animate-char.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
 
 /* ==================== 主题切换按钮 ==================== */
 .theme-toggle {
@@ -434,13 +450,14 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   margin-bottom: 8px;
 }
 .q-text { 
-  font-size: 28px; 
-  font-weight: 800;
+  font-size: 30px; 
+  font-weight: 900;
   line-height: 1.4; 
   color: var(--text);
   padding-bottom: 16px;
-  border-bottom: 2px solid var(--text);
+  border-bottom: 3px solid var(--text);
   display: inline-block;
+  letter-spacing: -0.02em;
 }
 .q-options {
   margin-top: 32px;
@@ -448,33 +465,36 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   flex-direction: column;
   gap: 20px;
 }
-.opts { display: flex; flex-direction: column; gap: 20px; }
-.opt {
+.q-options .opts { display: flex; flex-direction: column; gap: 20px; position: relative; z-index: 10; }
+.q-options .opt {
   display: flex;
   align-items: center;
   gap: 16px;
   cursor: pointer;
   transition: all .2s ease;
   padding: 8px 0;
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
 }
-.opt:hover {
+.q-options .opt:hover {
   transform: translateX(4px);
 }
-.opt:hover .letter {
+.q-options .opt:hover .letter {
   border-color: var(--text);
   color: var(--text);
 }
-.opt:active { 
+.q-options .opt:active { 
   opacity: 0.7;
   transform: translateX(2px);
 }
-.opt.sel {
+.q-options .opt.sel {
   transform: translateX(8px);
 }
-.opt.sel .text {
+.q-options .opt.sel .text {
   font-weight: 600;
 }
-.opt .letter { 
+.q-options .opt .letter { 
   width: 40px; 
   height: 40px; 
   border-radius: 50%; 
@@ -488,19 +508,21 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   flex-shrink: 0;
   border: 1.5px solid var(--gray);
   transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
 }
-.opt.sel .letter { 
+.q-options .opt.sel .letter { 
   background: var(--text);
   color: var(--card);
   border-color: var(--text);
   transform: scale(1.1);
 }
-.opt .text { 
+.q-options .opt .text { 
   font-size: 17px; 
   line-height: 1.5;
   color: var(--text);
   font-weight: 400;
   transition: all .2s ease;
+  pointer-events: none;
 }
 
 /* ==================== 分析页 - 黑白风格 ==================== */
@@ -1173,7 +1195,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
         </div>
         <div class="q-meta">{{dimNames[questions[currentQ].dim]}}</div>
         <div class="q-text-container">
-          <div class="q-text">{{questions[currentQ].text}}</div>
+          <div class="q-text" ref="questionText">{{questions[currentQ].text}}</div>
         </div>
         <div class="q-options">
           <div class="opt" v-for="(opt, i) in questions[currentQ].options" :key="i" 
@@ -1451,6 +1473,9 @@ createApp({
       answers.value = new Array(questions.length).fill(null);
       currentQ.value = 0;
       phase.value = 'quiz';
+      Vue.nextTick(() => {
+        setTimeout(animateQuestionText, 100);
+      });
     };
     
     const viewLastResult = () => {
@@ -1480,6 +1505,9 @@ createApp({
         setTimeout(() => {
           currentQ.value++;
           isTransitioning.value = false;
+          Vue.nextTick(() => {
+            animateQuestionText();
+          });
         }, 250);
       } else {
         isTransitioning.value = true;
@@ -1519,6 +1547,35 @@ createApp({
     const triggerEmojiFly = () => {
       showEmojiFly.value = true;
       setTimeout(() => { showEmojiFly.value = false; }, 3000);
+    };
+    
+    // 文字拆分动画
+    const animateQuestionText = () => {
+      if (typeof anime === 'undefined') return;
+      
+      const textEl = document.querySelector('.q-text');
+      if (!textEl) return;
+      
+      const text = textEl.textContent;
+      textEl.innerHTML = '';
+      
+      text.split('').forEach((char, i) => {
+        const span = document.createElement('span');
+        span.textContent = char === ' ' ? '\u00A0' : char;
+        span.style.display = 'inline-block';
+        span.style.opacity = '0';
+        span.style.transform = 'translateY(20px)';
+        textEl.appendChild(span);
+        
+        anime({
+          targets: span,
+          opacity: [0, 1],
+          translateY: [20, 0],
+          easing: 'easeOutExpo',
+          duration: 600,
+          delay: i * 30
+        });
+      });
     };
     
     const createDefaultResult = () => ({
