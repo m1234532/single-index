@@ -199,73 +199,110 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   cursor: pointer;
 }
 
-/* ==================== 欢迎页 - 黑白风格 ==================== */
+/* ==================== 欢迎页 - 方案A：巨型基因球 ==================== */
 .welcome {
-  padding: 80px 24px 40px;
+  padding: 60px 24px 40px;
   text-align: center;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   background: var(--bg);
+  position: relative;
+  overflow: hidden;
 }
+
+/* 巨型基因球容器 */
+.gene-orb-container {
+  position: relative;
+  width: 280px;
+  height: 280px;
+  margin: 20px 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 中心大emoji */
+.gene-orb {
+  font-size: 120px;
+  filter: grayscale(0.2);
+  animation: orbPulse 3s ease-in-out infinite;
+  z-index: 10;
+  position: relative;
+}
+@keyframes orbPulse {
+  0%, 100% { transform: scale(1); filter: grayscale(0.2) drop-shadow(0 10px 30px rgba(0,0,0,0.15)); }
+  50% { transform: scale(1.05); filter: grayscale(0.1) drop-shadow(0 20px 50px rgba(0,0,0,0.25)); }
+}
+
+/* 环绕的小基因 */
+.gene-satellite {
+  position: absolute;
+  font-size: 36px;
+  filter: grayscale(0.3);
+  animation: satelliteFloat 4s ease-in-out infinite;
+}
+.gene-satellite:nth-child(1) { top: 0; left: 50%; transform: translateX(-50%); animation-delay: 0s; }
+.gene-satellite:nth-child(2) { top: 50%; right: 0; transform: translateY(-50%); animation-delay: 1s; }
+.gene-satellite:nth-child(3) { bottom: 0; left: 50%; transform: translateX(-50%); animation-delay: 2s; }
+.gene-satellite:nth-child(4) { top: 50%; left: 0; transform: translateY(-50%); animation-delay: 3s; }
+@keyframes satelliteFloat {
+  0%, 100% { transform: translate(var(--tx, 0), var(--ty, 0)) scale(1); }
+  50% { transform: translate(var(--tx, 0), var(--ty, 0)) scale(1.1); }
+}
+
+/* 轨道环 */
+.orb-ring {
+  position: absolute;
+  border: 2px dashed var(--gray);
+  border-radius: 50%;
+  animation: ringSpin 20s linear infinite;
+}
+.orb-ring.ring-1 { width: 200px; height: 200px; }
+.orb-ring.ring-2 { width: 260px; height: 260px; animation-direction: reverse; animation-duration: 25s; opacity: 0.5; }
+@keyframes ringSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* 标题区 */
 .welcome-header {
   text-align: center;
-  margin-bottom: 32px;
-}
-.welcome-emoji {
-  font-size: 56px;
-  margin-bottom: 16px;
-  animation: float 4s ease-in-out infinite;
-  filter: grayscale(0.2);
+  margin-bottom: 8px;
+  z-index: 10;
 }
 .welcome-header h1 {
-  font-size: 40px;
-  font-weight: 800;
+  font-size: 36px;
+  font-weight: 900;
   letter-spacing: -1px;
   color: var(--text);
+  margin-bottom: 12px;
 }
 .welcome-header p {
   font-size: 16px;
   color: var(--text2);
-  margin-top: 8px;
   font-weight: 400;
+  line-height: 1.5;
 }
 
-/* 玻璃卡片网格 - 黑白版 */
-.glass-cards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  width: 100%;
-  max-width: 360px;
-  margin-bottom: 24px;
+/* 基因标签 - 横向排列 */
+.gene-tags {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  z-index: 10;
 }
-.glass-card {
-  position: relative;
+.gene-tag {
   background: var(--card);
-  border-radius: var(--radius-md);
-  padding: 20px 12px;
-  text-align: center;
   border: 1px solid var(--gray);
-  box-shadow: var(--shadow-sm);
-  transition: transform 0.3s ease;
-}
-.glass-card:active { transform: scale(0.98); }
-.glass-icon {
-  font-size: 32px;
-  margin-bottom: 10px;
-  filter: grayscale(0.3);
-}
-.glass-title {
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text);
-  margin-bottom: 4px;
-}
-.glass-desc {
-  font-size: 12px;
-  color: var(--text3);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text2);
 }
 
 /* 底部信息标签 */
@@ -473,27 +510,50 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   gap: 16px;
   cursor: pointer;
   transition: all .2s ease;
-  padding: 8px 0;
+  padding: 12px 16px;
   position: relative;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
+  background: var(--card);
+  border: 2px solid var(--gray);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  z-index: 1;
+}
+.q-options .opt::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: var(--text);
+  transition: left 0.3s ease;
+  z-index: -1;
+}
+.q-options .opt:hover::before {
+  left: 0;
 }
 .q-options .opt:hover {
-  transform: translateX(4px);
+  border-color: var(--text);
 }
 .q-options .opt:hover .letter {
   border-color: var(--text);
   color: var(--text);
 }
+.q-options .opt:hover .text {
+  color: var(--card);
+}
 .q-options .opt:active { 
-  opacity: 0.7;
-  transform: translateX(2px);
+  transform: scale(0.98);
 }
 .q-options .opt.sel {
-  transform: translateX(8px);
+  background: var(--text);
+  border-color: var(--text);
 }
 .q-options .opt.sel .text {
   font-weight: 600;
+  color: var(--card);
 }
 .q-options .opt .letter { 
   width: 40px; 
@@ -1110,39 +1170,32 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   <transition name="page">
     <div class="welcome" v-if="phase === 'welcome'">
       <div class="welcome-header">
-        <div class="welcome-emoji">🧬</div>
-        <h1>测测你的单身基因</h1>
-        <p>四大基因序列解码你的单身密码</p>
+        <h1 ref="welcomeTitle">单身狗基因测序</h1>
+        <p>36种基因序列 · 解码你的单身密码</p>
       </div>
       
-      <!-- 玻璃卡片网格 -->
-      <div class="glass-cards">
-        <div class="glass-card">
-          <div class="glass-icon">🎯</div>
-          <div class="glass-title">社交基因</div>
-          <div class="glass-desc">雷达扫描中</div>
-        </div>
-        <div class="glass-card">
-          <div class="glass-icon">💝</div>
-          <div class="glass-title">择偶基因</div>
-          <div class="glass-desc">标准分析仪</div>
-        </div>
-        <div class="glass-card">
-          <div class="glass-icon">⚡</div>
-          <div class="glass-title">心动基因</div>
-          <div class="glass-desc">阈值检测器</div>
-        </div>
+      <!-- 巨型基因球 -->
+      <div class="gene-orb-container">
+        <div class="orb-ring ring-1"></div>
+        <div class="orb-ring ring-2"></div>
+        <div class="gene-satellite" style="--tx:-50%;--ty:-50%">🎯</div>
+        <div class="gene-satellite" style="--tx:50%;--ty:-50%">💝</div>
+        <div class="gene-satellite" style="--tx:-50%;--ty:50%">⚡</div>
+        <div class="gene-satellite" style="--tx:50%;--ty:50%">🌙</div>
+        <div class="gene-orb">🧬</div>
       </div>
       
-      <div class="welcome-info">
-        <span class="info-tag">⏱ 3分钟</span>
-        <span class="info-tag">🧬 16题</span>
-        <span class="info-tag">🔬 36种</span>
+      <!-- 基因标签 -->
+      <div class="gene-tags">
+        <span class="gene-tag">🎯 社交基因</span>
+        <span class="gene-tag">💝 择偶基因</span>
+        <span class="gene-tag">⚡ 心动基因</span>
+        <span class="gene-tag">🌙 独处基因</span>
       </div>
       
       <button class="btn" @click="startQuiz">开始基因测序 →</button>
       <button class="btn btn2" v-if="hasRecord" @click="viewLastResult">📊 查看上一次结果</button>
-      <div class="welcome-footer" @click="showChangelog = true">v4.0 · 更新日志</div>
+      <div class="welcome-footer" @click="showChangelog = true">v4.8 · 更新日志</div>
     </div>
   </transition>
 
@@ -1196,7 +1249,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
         <div class="q-text-container">
           <div class="q-text" ref="questionText">{{questions[currentQ].text}}</div>
         </div>
-        <div class="q-options">
+        <div class="q-options" :key="currentQ">
           <div class="opt" v-for="(opt, i) in questions[currentQ].options" :key="i" 
                :class="{sel: answers[currentQ] === i}" @click="selectOption(i)">
             <div class="letter">{{['A','B','C','D'][i]}}</div>
@@ -1449,6 +1502,10 @@ createApp({
           // 加载完成后自动跳转到欢迎页
           setTimeout(() => {
             phase.value = 'welcome';
+            // 首页标题动画
+            Vue.nextTick(() => {
+              setTimeout(animateWelcomeTitle, 300);
+            });
           }, 300);
         }
       }, 200);
@@ -1547,6 +1604,37 @@ createApp({
     const triggerEmojiFly = () => {
       showEmojiFly.value = true;
       setTimeout(() => { showEmojiFly.value = false; }, 3000);
+    };
+    
+    // 首页标题动画
+    const animateWelcomeTitle = () => {
+      if (typeof anime === 'undefined') return;
+      
+      const titleEl = document.querySelector('.welcome-header h1');
+      if (!titleEl) return;
+      
+      const text = titleEl.textContent;
+      titleEl.innerHTML = '';
+      
+      text.split('').forEach((char, i) => {
+        const span = document.createElement('span');
+        span.textContent = char === ' ' ? '\u00A0' : char;
+        span.style.display = 'inline-block';
+        span.style.opacity = '0';
+        span.style.transform = 'translateY(30px) rotateX(-90deg)';
+        span.style.transformOrigin = 'center bottom';
+        titleEl.appendChild(span);
+        
+        anime({
+          targets: span,
+          opacity: [0, 1],
+          translateY: [30, 0],
+          rotateX: [-90, 0],
+          easing: 'easeOutExpo',
+          duration: 800,
+          delay: i * 60
+        });
+      });
     };
     
     // 文字拆分动画
