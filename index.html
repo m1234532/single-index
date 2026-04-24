@@ -7,48 +7,53 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>单身狗基因测序 · 你的单身密码</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💔</text></svg>">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧬</text></svg>">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/vue/3.4.27/vue.global.prod.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
 <style>
-/* ==================== CSS变量定义 - ArtGo风格 ==================== */
+/* ==================== CSS变量定义 - 高级黑白风格 ==================== */
 :root {
-  --bg: #FFF5F7;
+  /* 白天模式 - 高级黑白 */
+  --bg: #F5F5F5;
   --card: #FFFFFF;
-  --primary: #FF6B9D;
-  --primary-light: #FFB8D0;
-  --secondary: #C084FC;
-  --accent: #60A5FA;
-  --text: #1F2937;
-  --text2: #4B5563;
-  --text3: #9CA3AF;
-  --gray: #E5E7EB;
-  --shadow: 0 8px 32px rgba(255, 107, 157, 0.15);
-  --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.08);
-  --radius-lg: 24px;
-  --radius-md: 16px;
-  --radius-sm: 12px;
+  --primary: #1A1A1A;
+  --primary-light: #4A4A4A;
+  --secondary: #6B6B6B;
+  --accent: #8B8B8B;
+  --text: #0D0D0D;
+  --text2: #4A4A4A;
+  --text3: #9A9A9A;
+  --gray: #E8E8E8;
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.12);
+  --radius-lg: 16px;
+  --radius-md: 12px;
+  --radius-sm: 8px;
   --radius-pill: 50px;
 }
 
 [data-theme=dark] {
-  --bg: #1a1a2e;
-  --card: #252542;
-  --primary: #FF8FAB;
-  --primary-light: #FFB8D0;
-  --secondary: #D8B4FE;
-  --accent: #7DD3FC;
-  --text: #F9FAFB;
-  --text2: #E5E7EB;
-  --text3: #9CA3AF;
-  --gray: #374151;
-  --shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  /* 黑夜模式 - 高级黑白 */
+  --bg: #0D0D0D;
+  --card: #1A1A1A;
+  --primary: #FFFFFF;
+  --primary-light: #E0E0E0;
+  --secondary: #A0A0A0;
+  --accent: #6B6B6B;
+  --text: #FFFFFF;
+  --text2: #B0B0B0;
+  --text3: #808080;
+  --gray: #2A2A2A;
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   --shadow-sm: 0 4px 16px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 12px 48px rgba(0, 0, 0, 0.5);
 }
 
 /* ==================== 基础样式 ==================== */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif;
   background: var(--bg);
   color: var(--text);
   transition: background .3s, color .3s;
@@ -58,8 +63,27 @@ body {
 button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 #app { min-height: 100vh; display: flex; flex-direction: column; }
 
-/* Vue挂载前隐藏，防止模板闪烁 */
+/* Vue挂载前隐藏 */
 [v-cloak] { display: none !important; }
+
+/* ==================== 性能优化 ==================== */
+.will-animate {
+  will-change: transform, opacity;
+}
+
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* 减少动效偏好 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
 
 /* ==================== 动画定义 ==================== */
 @keyframes splashIn { from { opacity: 0 } to { opacity: 1 } }
@@ -68,192 +92,572 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 @keyframes float { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-10px) } }
 @keyframes spin { from { transform: rotate(0) } to { transform: rotate(360deg) } }
 @keyframes fadeUp { to { opacity: 1; transform: translateY(0) } }
-@keyframes confettiFall {
-  0% { transform: translateY(0) rotate(0deg); opacity: 1 }
-  100% { transform: translateY(100vh) rotate(720deg); opacity: 0 }
+
+/* Emoji飞出动画 */
+@keyframes emojiFly {
+  0% { 
+    transform: translate(0, 0) scale(0.5) rotate(0deg); 
+    opacity: 1;
+  }
+  100% { 
+    transform: translate(var(--tx), var(--ty)) scale(1.2) rotate(var(--rot)); 
+    opacity: 0;
+  }
 }
 
-/* 页面切换动画 */
-.page-enter-active, .page-leave-active { transition: opacity .3s, transform .3s }
-.page-enter-from { opacity: 0; transform: translateY(20px) }
-.page-leave-to { opacity: 0; transform: translateY(-20px) }
-.fade-enter-active, .fade-leave-active { transition: opacity .3s }
-.fade-enter-from, .fade-leave-to { opacity: 0 }
+/* 页面切换动画 - 高级流畅版本 */
+.page-enter-active, .page-leave-active { 
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+              transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: opacity, transform;
+}
+.page-enter-from { 
+  opacity: 0; 
+  transform: translateY(30px) scale(0.98);
+}
+.page-leave-to { 
+  opacity: 0; 
+  transform: translateY(-20px) scale(0.98);
+}
 
-/* ==================== 测试标记 ==================== */
-.test-badge {
+.fade-enter-active, .fade-leave-active { 
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from, .fade-leave-to { 
+  opacity: 0;
+}
+
+/* 快速淡入 - 用于元素切换 */
+.quick-fade-enter-active, .quick-fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.quick-fade-enter-from, .quick-fade-leave-to {
+  opacity: 0;
+}
+
+/* 文字动画样式 */
+.text-animate-container {
+  overflow: hidden;
+  display: inline-block;
+}
+.text-animate-char {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(100%);
+}
+.text-animate-char.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ==================== 主题切换按钮 ==================== */
+.theme-toggle {
   position: fixed;
-  top: max(12px, env(safe-area-inset-top, 12px));
-  left: 50%;
-  transform: translateX(-50%);
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  color: #fff;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 6px 16px;
-  border-radius: var(--radius-pill);
-  z-index: 10001;
-  letter-spacing: 1px;
+  top: max(16px, env(safe-area-inset-top, 16px));
+  right: 16px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--card);
+  border: 1px solid var(--gray);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  z-index: 10000;
+  cursor: pointer;
+  transition: all 0.3s;
   box-shadow: var(--shadow-sm);
 }
+.theme-toggle:active { transform: scale(0.9); }
 
-/* ==================== 闪屏页 - ArtGo风格 ==================== */
+/* ==================== 闪屏页 - DNA双螺旋实验室风格 ==================== */
 .splash-page {
   position: fixed;
   inset: 0;
-  background: linear-gradient(135deg, #FFE4EC 0%, #F3E8FF 50%, #E0F2FE 100%);
+  background: var(--bg);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   z-index: 9999;
   animation: splashIn .5s ease;
-}
-.splash-emoji { 
-  font-size: 100px; 
-  animation: float 3s ease-in-out infinite;
-  filter: drop-shadow(0 8px 24px rgba(255, 107, 157, 0.3));
-}
-.splash-title { 
-  font-size: 36px; 
-  font-weight: 800; 
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-top: 24px;
-  letter-spacing: -1px;
-}
-.splash-sub { 
-  font-size: 16px; 
-  color: var(--text2); 
-  margin-top: 12px;
-  font-weight: 500;
-}
-.splash-loading { 
-  margin-top: 48px; 
-  width: 200px;
-  background: rgba(255, 255, 255, 0.8);
-  padding: 16px;
-  border-radius: var(--radius-md);
-  box-shadow: var(--shadow-sm);
-}
-.splash-bar { 
-  height: 6px; 
-  background: var(--gray); 
-  border-radius: var(--radius-pill); 
   overflow: hidden;
 }
-.splash-fill { 
-  height: 100%; 
-  background: linear-gradient(90deg, var(--primary), var(--secondary));
+
+/* DNA双螺旋容器 */
+.dna-container {
+  position: relative;
+  width: 120px;
+  height: 200px;
+  perspective: 600px;
+}
+
+/* DNA双螺旋 */
+.dna-helix {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  animation: dnaRotate 3s linear infinite;
+}
+
+.dna-strand {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--text);
+  border-radius: 50%;
+  left: 50%;
+  transform-origin: center;
+}
+
+/* 左链 */
+.dna-strand.left {
+  margin-left: -30px;
+}
+
+/* 右链 */
+.dna-strand.right {
+  margin-left: 22px;
+}
+
+/* 连接横杆 */
+.dna-rung {
+  position: absolute;
+  width: 60px;
+  height: 2px;
+  background: var(--gray);
+  left: 50%;
+  margin-left: -30px;
+  transform-origin: center;
+}
+
+/* 动态生成20个节点 */
+.dna-strand:nth-child(1) { top: 0; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0s; }
+.dna-strand:nth-child(2) { top: 0; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0s; }
+.dna-rung:nth-child(3) { top: 4px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0s; }
+.dna-strand:nth-child(4) { top: 20px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.1s; }
+.dna-strand:nth-child(5) { top: 20px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.1s; }
+.dna-rung:nth-child(6) { top: 24px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.1s; }
+.dna-strand:nth-child(7) { top: 40px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.2s; }
+.dna-strand:nth-child(8) { top: 40px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.2s; }
+.dna-rung:nth-child(9) { top: 44px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.2s; }
+.dna-strand:nth-child(10) { top: 60px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.3s; }
+.dna-strand:nth-child(11) { top: 60px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.3s; }
+.dna-rung:nth-child(12) { top: 64px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.3s; }
+.dna-strand:nth-child(13) { top: 80px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.4s; }
+.dna-strand:nth-child(14) { top: 80px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.4s; }
+.dna-rung:nth-child(15) { top: 84px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.4s; }
+.dna-strand:nth-child(16) { top: 100px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.5s; }
+.dna-strand:nth-child(17) { top: 100px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.5s; }
+.dna-rung:nth-child(18) { top: 104px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.5s; }
+.dna-strand:nth-child(19) { top: 120px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.6s; }
+.dna-strand:nth-child(20) { top: 120px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.6s; }
+.dna-rung:nth-child(21) { top: 124px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.6s; }
+.dna-strand:nth-child(22) { top: 140px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.7s; }
+.dna-strand:nth-child(23) { top: 140px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.7s; }
+.dna-rung:nth-child(24) { top: 144px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.7s; }
+.dna-strand:nth-child(25) { top: 160px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.8s; }
+.dna-strand:nth-child(26) { top: 160px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.8s; }
+.dna-rung:nth-child(27) { top: 164px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.8s; }
+.dna-strand:nth-child(28) { top: 180px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.9s; }
+.dna-strand:nth-child(29) { top: 180px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.9s; }
+.dna-rung:nth-child(30) { top: 184px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.9s; }
+
+@keyframes dnaWave {
+  0%, 100% { transform: translateX(0) scale(1); opacity: 1; }
+  25% { transform: translateX(8px) scale(0.9); opacity: 0.7; }
+  50% { transform: translateX(0) scale(1); opacity: 1; }
+  75% { transform: translateX(-8px) scale(0.9); opacity: 0.7; }
+}
+
+@keyframes dnaRotate {
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(360deg); }
+}
+
+/* 进度条 */
+.splash-loading {
+  margin-top: 48px;
+  width: 240px;
+  background: var(--card);
+  padding: 20px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--gray);
+}
+
+.splash-bar {
+  height: 4px;
+  background: var(--gray);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  position: relative;
+}
+
+.splash-fill {
+  height: 100%;
+  background: var(--text);
   border-radius: var(--radius-pill);
   transition: width .3s;
+  position: relative;
+  overflow: hidden;
 }
-.splash-text { 
-  font-size: 13px; 
-  color: var(--text2); 
-  margin-top: 12px; 
+
+.splash-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* 打字机文字 */
+.splash-typing {
+  margin-top: 32px;
+  font-size: 14px;
+  color: var(--text2);
+  font-family: 'SF Mono', monospace;
+  min-height: 20px;
+  letter-spacing: 0.5px;
+}
+
+.splash-typing::after {
+  content: '|';
+  animation: cursorBlink 1s infinite;
+}
+
+@keyframes cursorBlink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* 随机Tips */
+.splash-tips {
+  margin-top: 16px;
+  font-size: 12px;
+  color: var(--text3);
   text-align: center;
-  font-weight: 500;
+  min-height: 36px;
+  padding: 0 24px;
+  line-height: 1.5;
+  opacity: 0.8;
 }
+
+.splash-tips-text {
+  animation: tipFade 0.5s ease;
+}
+
+@keyframes tipFade {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 开始按钮 */
 .splash-tap {
   margin-top: 48px;
   font-size: 16px;
-  color: #fff;
-  padding: 16px 40px;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: var(--card);
+  padding: 16px 48px;
+  background: var(--text);
   border-radius: var(--radius-pill);
   animation: pulse 1.5s ease-in-out infinite;
-  box-shadow: var(--shadow);
   font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: transform 0.2s, box-shadow 0.2s;
 }
 
-/* ==================== 欢迎页 - ArtGo风格 ==================== */
+.splash-tap:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+}
+
+.splash-tap:active {
+  transform: translateY(0);
+}
+
+/* ==================== 欢迎页 - 方案A：巨型基因球 ==================== */
 .welcome {
-  padding: 80px 24px 40px;
+  padding: 60px 24px 40px;
   text-align: center;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: linear-gradient(180deg, var(--bg) 0%, #FFFFFF 100%);
+  background: var(--bg);
+  position: relative;
+  overflow: hidden;
 }
-.welcome .emoji { 
-  font-size: 100px; 
-  margin-bottom: 32px;
-  animation: float 4s ease-in-out infinite;
-  filter: drop-shadow(0 12px 32px rgba(255, 107, 157, 0.25));
+
+/* 背景粒子 */
+.welcome-particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
 }
-.welcome h1 { 
-  font-size: 36px; 
-  font-weight: 800; 
-  letter-spacing: -1px;
-  line-height: 1.2;
-  background: linear-gradient(135deg, var(--text), var(--primary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+
+.welcome-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: var(--text);
+  border-radius: 50%;
+  opacity: 0.1;
+  animation: particleFloat 20s linear infinite;
 }
-.welcome p { 
-  font-size: 16px; 
-  color: var(--text2); 
-  margin-top: 20px; 
-  line-height: 1.7; 
-  max-width: 320px;
-  font-weight: 500;
+
+@keyframes particleFloat {
+  0% {
+    transform: translateY(100vh) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.15;
+  }
+  90% {
+    opacity: 0.15;
+  }
+  100% {
+    transform: translateY(-100px) rotate(720deg);
+    opacity: 0;
+  }
 }
-.welcome .card {
-  background: var(--card);
-  border-radius: var(--radius-lg);
-  padding: 24px;
-  margin-top: 32px;
-  box-shadow: var(--shadow);
-  width: 100%;
-  max-width: 360px;
+
+/* 底部光晕 */
+.welcome-glow {
+  position: absolute;
+  bottom: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 300px;
+  background: radial-gradient(ellipse at center, rgba(0,0,0,0.03) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
 }
-.welcome .tags { 
-  display: flex; 
-  gap: 10px; 
-  flex-wrap: wrap; 
+
+[data-theme="dark"] .welcome-glow {
+  background: radial-gradient(ellipse at center, rgba(255,255,255,0.02) 0%, transparent 70%);
+}
+
+/* 环绕emoji闪烁效果 */
+.gene-satellite {
+  position: absolute;
+  font-size: 36px;
+  filter: grayscale(0.3);
+  animation: satelliteFloat 4s ease-in-out infinite, satelliteTwinkle 3s ease-in-out infinite;
+}
+
+@keyframes satelliteTwinkle {
+  0%, 100% { opacity: 0.7; filter: grayscale(0.3); }
+  50% { opacity: 1; filter: grayscale(0.1) drop-shadow(0 0 8px rgba(0,0,0,0.1)); }
+}
+
+/* 巨型基因球容器 */
+.gene-orb-container {
+  position: relative;
+  width: 280px;
+  height: 280px;
+  margin: 20px 0 32px;
+  display: flex;
+  align-items: center;
   justify-content: center;
 }
-.tag { 
-  background: linear-gradient(135deg, rgba(255, 107, 157, 0.1), rgba(192, 132, 252, 0.1));
-  color: var(--primary);
+
+/* 中心大emoji */
+.gene-orb {
+  font-size: 120px;
+  filter: grayscale(0.2);
+  animation: orbPulse 3s ease-in-out infinite;
+  z-index: 10;
+  position: relative;
+}
+@keyframes orbPulse {
+  0%, 100% { transform: scale(1); filter: grayscale(0.2) drop-shadow(0 10px 30px rgba(0,0,0,0.15)); }
+  50% { transform: scale(1.05); filter: grayscale(0.1) drop-shadow(0 20px 50px rgba(0,0,0,0.25)); }
+}
+
+/* 环绕的小基因 */
+.gene-satellite {
+  position: absolute;
+  font-size: 36px;
+  filter: grayscale(0.3);
+  animation: satelliteFloat 4s ease-in-out infinite;
+}
+.gene-satellite:nth-child(1) { top: 0; left: 50%; transform: translateX(-50%); animation-delay: 0s; }
+.gene-satellite:nth-child(2) { top: 50%; right: 0; transform: translateY(-50%); animation-delay: 1s; }
+.gene-satellite:nth-child(3) { bottom: 0; left: 50%; transform: translateX(-50%); animation-delay: 2s; }
+.gene-satellite:nth-child(4) { top: 50%; left: 0; transform: translateY(-50%); animation-delay: 3s; }
+@keyframes satelliteFloat {
+  0%, 100% { transform: translate(var(--tx, 0), var(--ty, 0)) scale(1); }
+  50% { transform: translate(var(--tx, 0), var(--ty, 0)) scale(1.1); }
+}
+
+/* 轨道环 */
+.orb-ring {
+  position: absolute;
+  border: 2px dashed var(--gray);
+  border-radius: 50%;
+  animation: ringSpin 20s linear infinite;
+}
+.orb-ring.ring-1 { width: 200px; height: 200px; }
+.orb-ring.ring-2 { width: 260px; height: 260px; animation-direction: reverse; animation-duration: 25s; opacity: 0.5; }
+@keyframes ringSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* 标题区 */
+.welcome-header {
+  text-align: center;
+  margin-bottom: 8px;
+  z-index: 10;
+}
+.welcome-header h1 {
+  font-size: 36px;
+  font-weight: 900;
+  letter-spacing: -1px;
+  color: var(--text);
+  margin-bottom: 12px;
+}
+.welcome-header p {
+  font-size: 16px;
+  color: var(--text2);
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+/* 基因标签 - 横向排列 */
+.gene-tags {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+  z-index: 10;
+}
+.gene-tag {
+  background: var(--card);
+  border: 1px solid var(--gray);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text2);
+}
+
+/* 底部信息标签 */
+.welcome-info {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin-bottom: 32px;
+}
+.info-tag {
+  background: var(--card);
+  color: var(--text2);
   font-size: 14px;
   font-weight: 600;
-  padding: 10px 18px;
-  border-radius: var(--radius-pill);
-  border: 1px solid rgba(255, 107, 157, 0.2);
+  padding: 8px 16px;
+  border-radius: 20px;
+  border: 1px solid var(--gray);
 }
-.welcome .btn {
+
+/* 按钮 - Fill Slide 填充滑入效果 + 涟漪 */
+.btn {
   width: 100%;
-  max-width: 360px;
-  padding: 18px;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  color: #fff;
-  font-size: 18px;
+  max-width: 320px;
+  padding: 16px;
+  background: var(--text);
+  color: var(--card);
+  font-size: 16px;
   font-weight: 700;
   border-radius: var(--radius-pill);
-  margin-top: 32px;
-  transition: transform .2s, box-shadow .2s;
-  box-shadow: var(--shadow);
-}
-.welcome .btn:active { 
-  transform: scale(.97);
-  box-shadow: 0 4px 16px rgba(255, 107, 157, 0.2);
-}
-.welcome .btn2 { 
-  background: var(--card);
-  color: var(--text);
+  transition: all .3s ease;
   box-shadow: var(--shadow-sm);
-  border: 2px solid var(--gray);
-  margin-top: 16px;
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+  cursor: pointer;
+}
+
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--primary-light) 0%, var(--text) 100%);
+  transition: left 0.3s ease;
+  z-index: -1;
+}
+
+.btn:hover::before {
+  left: 0;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+/* 按钮涟漪效果 */
+.btn-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.4);
+  transform: scale(0);
+  animation: rippleEffect 0.6s ease-out;
+  pointer-events: none;
+}
+
+@keyframes rippleEffect {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* 主按钮脉动效果 */
+.btn-primary {
+  animation: btnPulse 2s ease-in-out infinite;
+}
+
+@keyframes btnPulse {
+  0%, 100% { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+  50% { box-shadow: 0 4px 24px rgba(0,0,0,0.15), 0 0 0 4px rgba(0,0,0,0.02); }
+}
+.btn:active { 
+  transform: scale(.97);
+}
+.btn2 { 
+  background: transparent;
+  color: var(--text);
+  border: 2px solid var(--text);
+  margin-top: 12px;
+}
+.btn2::before {
+  background: var(--text);
+}
+.btn2:hover {
+  color: var(--card);
+  border-color: var(--text);
 }
 .welcome-footer {
   margin-top: 24px;
-  font-size: 14px;
+  font-size: 13px;
   color: var(--text3);
   font-weight: 500;
   text-decoration: underline;
@@ -262,153 +666,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 }
 .welcome-footer:active { opacity: .6; }
 
-/* 跨测试链接 */
-.cross-link {
-  margin-top: 20px;
-  text-align: center;
-}
-.cross-link a {
-  color: var(--primary);
-  font-size: 15px;
-  font-weight: 600;
-  text-decoration: none;
-  padding: 12px 20px;
-  border-radius: var(--radius-pill);
-  background: rgba(255, 107, 157, 0.1);
-  border: 1px solid rgba(255, 107, 157, 0.2);
-  display: inline-block;
-  transition: all 0.2s;
-}
-.cross-link a:hover {
-  background: rgba(255, 107, 157, 0.2);
-}
-
-/* ==================== 3D玻璃卡片风格 ==================== */
-.welcome-header {
-  text-align: center;
-  margin-bottom: 32px;
-}
-.welcome-emoji {
-  font-size: 80px;
-  margin-bottom: 16px;
-  animation: float 4s ease-in-out infinite;
-  filter: drop-shadow(0 12px 32px rgba(255, 107, 157, 0.3));
-}
-.welcome-header h1 {
-  font-size: 32px;
-  font-weight: 800;
-  letter-spacing: -1px;
-  background: linear-gradient(135deg, var(--text), var(--primary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-.welcome-header p {
-  font-size: 15px;
-  color: var(--text2);
-  margin-top: 8px;
-  font-weight: 500;
-}
-
-/* 玻璃卡片容器 */
-.glass-cards {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  width: 100%;
-  max-width: 400px;
-  margin-bottom: 24px;
-}
-
-/* 单个玻璃卡片 */
-.glass-card {
-  position: relative;
-  background: rgba(255, 255, 255, 0.6);
-  backdrop-filter: blur(20px);
-  border-radius: 20px;
-  padding: 20px 12px;
-  text-align: center;
-  border: 1px solid rgba(255, 255, 255, 0.8);
-  box-shadow: 
-    0 4px 24px rgba(147, 112, 219, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.8);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
-  overflow: hidden;
-}
-.glass-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 60%;
-  background: linear-gradient(180deg, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 100%);
-  border-radius: 20px 20px 0 0;
-  pointer-events: none;
-}
-/* 玻璃卡片 - 纯展示，无交互 */
-
-/* 卡片渐变背景 */
-.glass-card-1 {
-  background: linear-gradient(135deg, rgba(192, 132, 252, 0.2), rgba(255, 182, 193, 0.2));
-}
-.glass-card-2 {
-  background: linear-gradient(135deg, rgba(255, 107, 157, 0.15), rgba(255, 218, 185, 0.15));
-}
-.glass-card-3 {
-  background: linear-gradient(135deg, rgba(147, 197, 253, 0.2), rgba(192, 132, 252, 0.15));
-}
-
-.glass-icon {
-  font-size: 40px;
-  margin-bottom: 12px;
-  position: relative;
-  z-index: 1;
-  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.1));
-}
-.glass-title {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text);
-  margin-bottom: 4px;
-  position: relative;
-  z-index: 1;
-}
-.glass-desc {
-  font-size: 11px;
-  color: var(--text3);
-  position: relative;
-  z-index: 1;
-}
-
-/* 底部信息标签 */
-.welcome-info {
-  display: flex;
-  gap: 12px;
-  justify-content: center;
-  margin-bottom: 24px;
-}
-.info-tag {
-  background: rgba(255, 107, 157, 0.1);
-  color: var(--primary);
-  font-size: 13px;
-  font-weight: 600;
-  padding: 8px 16px;
-  border-radius: 20px;
-  border: 1px solid rgba(255, 107, 157, 0.2);
-}
-
-/* 玻璃风格按钮 */
-.btn-glass {
-  background: linear-gradient(135deg, rgba(192, 132, 252, 0.9), rgba(255, 107, 157, 0.9)) !important;
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.3) !important;
-  box-shadow: 
-    0 8px 32px rgba(147, 112, 219, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3) !important;
-}
-
-/* ==================== 答题页 - ArtGo风格 ==================== */
+/* ==================== 答题页 - DNA链式进度条 ==================== */
 .quiz { 
   min-height: 100vh; 
   display: flex; 
@@ -421,383 +679,1065 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   z-index: 100;
   padding: 16px 20px;
   padding-top: max(16px, env(safe-area-inset-top, 16px) + 16px);
-  background: rgba(255, 245, 247, 0.95);
-  backdrop-filter: saturate(180%) blur(20px);
+  background: var(--bg);
+  border-bottom: 1px solid var(--gray);
+}
+.q-header-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-bottom: 16px;
 }
 .q-back { 
-  width: 44px; 
-  height: 44px; 
+  width: 36px; 
+  height: 36px; 
   border-radius: 50%; 
-  background: var(--card);
   display: flex; 
   align-items: center; 
   justify-content: center; 
   color: var(--text);
   font-size: 20px;
-  box-shadow: var(--shadow-sm);
   font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
 }
-.q-header h2 { 
-  font-size: 18px; 
-  font-weight: 700;
-  flex: 1; 
-  text-align: center;
+.q-back:hover {
+  background: var(--gray);
+}
+.q-back:active { 
+  opacity: 0.6;
+  transform: scale(0.95);
+}
+.q-header-title {
+  font-size: 17px; 
+  font-weight: 600;
   color: var(--text);
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 }
-.progress { padding: 0 20px; margin-top: 8px; }
-.progress .bar { 
-  height: 8px; 
-  background: var(--gray); 
-  border-radius: var(--radius-pill); 
+.q-progress-num {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text3);
+}
+
+/* DNA链式进度条 */
+.q-progress-dna {
+  display: flex;
+  gap: 4px;
+  height: 6px;
+  align-items: center;
+}
+
+.q-dna-node {
+  flex: 1;
+  height: 6px;
+  background: var(--gray);
+  border-radius: 3px;
+  position: relative;
+  transition: all 0.4s ease;
   overflow: hidden;
 }
-.progress .fill { 
-  height: 100%; 
-  background: linear-gradient(90deg, var(--primary), var(--secondary));
-  border-radius: var(--radius-pill);
-  transition: width .3s;
+
+.q-dna-node::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--text);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s ease;
+  border-radius: 3px;
 }
-.progress .text { 
-  font-size: 13px; 
-  color: var(--text3); 
-  margin-top: 10px; 
-  text-align: right;
-  font-weight: 600;
+
+.q-dna-node.active::before {
+  transform: scaleX(1);
 }
+
+.q-dna-node.current {
+  box-shadow: 0 0 0 2px var(--text);
+}
+
+.q-dna-node.current::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  background: var(--card);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: dnaPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes dnaPulse {
+  0%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.5); }
+}
+
+/* 题目切换动画 */
+.question-transition-enter-active,
+.question-transition-leave-active {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.question-transition-enter-from {
+  opacity: 0;
+  transform: translateX(50px);
+}
+
+.question-transition-leave-to {
+  opacity: 0;
+  transform: translateX(-50px);
+}
+
+/* 选中光效 */
+.q-options .opt.sel {
+  background: var(--text);
+  border-color: var(--text);
+  animation: selectGlow 0.4s ease;
+}
+
+@keyframes selectGlow {
+  0% { box-shadow: 0 0 0 0 rgba(0,0,0,0.2); }
+  50% { box-shadow: 0 0 20px 5px rgba(0,0,0,0.1); }
+  100% { box-shadow: 0 0 0 0 rgba(0,0,0,0); }
+}
+
 .q-body { 
   flex: 1; 
-  padding: 24px 20px; 
+  padding: 32px 24px 40px; 
   display: flex; 
   flex-direction: column;
 }
-.q-emoji { 
-  font-size: 56px; 
-  text-align: center; 
-  margin-bottom: 20px;
-  animation: float 3s ease-in-out infinite;
+.q-emojis { 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+.q-emojis .emoji {
+  font-size: 40px;
+  filter: grayscale(0.2);
+  animation: emojiFloat 3s ease-in-out infinite;
+}
+.q-emojis .emoji:nth-child(2) {
+  animation-delay: 0.5s;
+}
+.q-emojis .emoji:nth-child(3) {
+  animation-delay: 1s;
+}
+.q-emojis .emoji-main {
+  font-size: 56px;
+  animation-delay: 0.25s;
+}
+@keyframes emojiFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
 }
 .q-meta { 
-  font-size: 14px; 
-  color: var(--primary);
-  font-weight: 700;
-  margin-bottom: 12px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  font-size: 13px; 
+  color: var(--text3);
+  font-weight: 500;
+  margin-bottom: 16px;
+  letter-spacing: 0.5px;
+}
+.q-text-container {
+  margin-bottom: 8px;
 }
 .q-text { 
-  font-size: 20px; 
-  font-weight: 700;
-  line-height: 1.5; 
-  margin-bottom: 32px;
+  font-size: 32px; 
+  font-weight: 900;
+  line-height: 1.4; 
   color: var(--text);
+  padding-bottom: 16px;
+  border-bottom: 4px solid var(--text);
+  display: inline-block;
+  letter-spacing: -0.02em;
+  text-shadow: 0 2px 0 var(--gray);
 }
-.opts { display: flex; flex-direction: column; gap: 12px; }
-.opt {
-  padding: 20px;
-  background: var(--card);
-  border-radius: var(--radius-md);
+.q-options {
+  margin-top: 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.q-options .opts { display: flex; flex-direction: column; gap: 20px; position: relative; z-index: 10; }
+.q-options .opt {
   display: flex;
   align-items: center;
   gap: 16px;
-  transition: all .2s;
-  box-shadow: var(--shadow-sm);
-  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all .2s ease;
+  padding: 12px 16px;
+  position: relative;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  background: var(--card);
+  border: 2px solid var(--gray);
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  z-index: 1;
 }
-.opt:active { transform: scale(.98); }
-.opt.sel { 
-  background: linear-gradient(135deg, rgba(255, 107, 157, 0.1), rgba(192, 132, 252, 0.1));
-  border-color: var(--primary);
-  box-shadow: 0 4px 20px rgba(255, 107, 157, 0.15);
+.q-options .opt::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: var(--text);
+  transition: left 0.3s ease;
+  z-index: -1;
 }
-.opt .letter { 
-  width: 36px; 
-  height: 36px; 
+.q-options .opt:hover::before {
+  left: 0;
+}
+.q-options .opt:hover {
+  border-color: var(--text);
+}
+.q-options .opt:hover .letter {
+  border-color: var(--text);
+  color: var(--text);
+}
+.q-options .opt:hover .text {
+  color: var(--card);
+}
+.q-options .opt:active { 
+  transform: scale(0.98);
+}
+.q-options .opt.sel {
+  background: var(--text);
+  border-color: var(--text);
+}
+.q-options .opt.sel .text {
+  font-weight: 600;
+  color: var(--card);
+}
+.q-options .opt .letter { 
+  width: 40px; 
+  height: 40px; 
   border-radius: 50%; 
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  color: #fff;
+  background: transparent;
+  color: var(--text2);
   display: flex; 
   align-items: center; 
   justify-content: center; 
-  font-size: 14px; 
-  font-weight: 700;
+  font-size: 15px; 
+  font-weight: 600;
   flex-shrink: 0;
+  border: 1.5px solid var(--gray);
+  transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
+  pointer-events: none;
 }
-.opt.sel .letter { 
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
+.q-options .opt.sel .letter { 
+  background: var(--text);
+  color: var(--card);
+  border-color: var(--text);
+  transform: scale(1.1);
 }
-.opt .text { 
-  font-size: 16px; 
+.q-options .opt .text { 
+  font-size: 17px; 
   line-height: 1.5;
   color: var(--text);
-  font-weight: 500;
+  font-weight: 400;
+  transition: all .2s ease;
+  pointer-events: none;
 }
 
-/* ==================== 分析页 ==================== */
+/* ==================== 分析页 - 显微镜扫描视角 ==================== */
 .analysis { 
   min-height: 100vh; 
   display: flex; 
   flex-direction: column; 
   align-items: center; 
   justify-content: center; 
-  padding: 40px 28px;
-  background: linear-gradient(180deg, var(--bg) 0%, #FFFFFF 100%);
+  padding: 40px 24px;
+  background: var(--bg);
+  position: relative;
+  overflow: hidden;
 }
-.analysis .orb { 
-  font-size: 80px; 
-  animation: spin 2s linear infinite;
-  filter: drop-shadow(0 8px 24px rgba(255, 107, 157, 0.3));
+
+/* 扫描容器 */
+.scan-container {
+  position: relative;
+  width: 280px;
+  height: 280px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.analysis h2 { 
-  font-size: 26px; 
+
+/* 外圈扫描环 */
+.scan-ring-outer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 2px solid var(--gray);
+  border-radius: 50%;
+  opacity: 0.5;
+}
+
+/* 内圈扫描环 */
+.scan-ring-inner {
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  border: 1px solid var(--gray);
+  border-radius: 50%;
+}
+
+/* 十字瞄准线 */
+.scan-crosshair {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.scan-crosshair::before,
+.scan-crosshair::after {
+  content: '';
+  position: absolute;
+  background: var(--text);
+  opacity: 0.3;
+}
+.scan-crosshair::before {
+  width: 1px;
+  height: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.scan-crosshair::after {
+  width: 100%;
+  height: 1px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* 扫描线 */
+.scan-line {
+  position: absolute;
+  width: 200px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--text), transparent);
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: scanMove 2s ease-in-out infinite;
+  box-shadow: 0 0 10px var(--text);
+  opacity: 0.8;
+}
+@keyframes scanMove {
+  0%, 100% { top: 20px; opacity: 0; }
+  10% { opacity: 0.8; }
+  90% { opacity: 0.8; }
+  50% { top: 260px; }
+}
+
+/* 中心样本 */
+.scan-sample {
+  font-size: 72px;
+  filter: grayscale(0.2);
+  position: relative;
+  z-index: 10;
+  animation: samplePulse 2s ease-in-out infinite;
+}
+@keyframes samplePulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.9; }
+}
+
+/* 角落标记 */
+.scan-corner {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-color: var(--text);
+  border-style: solid;
+  opacity: 0.6;
+}
+.scan-corner.tl { top: 20px; left: 20px; border-width: 2px 0 0 2px; }
+.scan-corner.tr { top: 20px; right: 20px; border-width: 2px 2px 0 0; }
+.scan-corner.bl { bottom: 20px; left: 20px; border-width: 0 0 2px 2px; }
+.scan-corner.br { bottom: 20px; right: 20px; border-width: 0 2px 2px 0; }
+
+/* 分析标题 */
+.analysis-title {
+  font-size: 24px;
   font-weight: 800;
-  margin-top: 32px;
+  margin-top: 40px;
   color: var(--text);
+  letter-spacing: 2px;
+  text-transform: uppercase;
 }
-.analysis p { 
-  font-size: 15px; 
-  color: var(--text2); 
+
+/* 分析状态文字 */
+.analysis-status {
+  font-size: 14px;
+  color: var(--text3);
   margin-top: 12px;
-  font-weight: 500;
+  font-family: monospace;
+  letter-spacing: 1px;
 }
-.analysis .steps { 
-  margin-top: 40px; 
-  display: flex; 
-  flex-direction: column; 
-  gap: 16px; 
+
+/* 四维度数据网格 */
+.analysis-dims {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 48px;
   width: 100%;
   max-width: 360px;
 }
-.analysis .step {
+.analysis-dim {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  opacity: 0.3;
+  transition: all 0.5s ease;
+}
+.analysis-dim.active {
+  opacity: 1;
+}
+.analysis-dim-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--card);
+  border: 2px solid var(--gray);
   display: flex;
   align-items: center;
-  gap: 16px;
-  background: var(--card);
-  padding: 18px 20px;
-  border-radius: var(--radius-md);
-  opacity: 0;
-  transform: translateY(10px);
-  animation: fadeUp .4s ease forwards;
-  box-shadow: var(--shadow-sm);
-}
-.analysis .step:nth-child(1) { animation-delay: .3s }
-.analysis .step:nth-child(2) { animation-delay: .6s }
-.analysis .step:nth-child(3) { animation-delay: .9s }
-.analysis .step:nth-child(4) { animation-delay: 1.2s }
-.analysis .step .icon { 
-  width: 48px; 
-  height: 48px; 
-  border-radius: var(--radius-sm);
-  display: flex; 
-  align-items: center; 
-  justify-content: center; 
+  justify-content: center;
   font-size: 24px;
+  transition: all 0.3s ease;
+}
+.analysis-dim.active .analysis-dim-icon {
+  border-color: var(--text);
+  background: var(--text);
+  transform: scale(1.1);
+}
+.analysis-dim-label {
+  font-size: 11px;
+  color: var(--text3);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.analysis-dim.active .analysis-dim-label {
+  color: var(--text);
+}
+
+/* 数据同步环 */
+.dim-sync-ring {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  width: 56px;
+  height: 56px;
+  border: 2px solid transparent;
+  border-top-color: var(--text);
+  border-radius: 50%;
+  animation: syncSpin 1s linear infinite;
+  opacity: 0;
+}
+.analysis-dim.syncing .dim-sync-ring {
+  opacity: 1;
+}
+@keyframes syncSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* 完成波纹效果 */
+.scan-complete-ripple {
+  position: absolute;
+  width: 280px;
+  height: 280px;
+  border: 2px solid var(--text);
+  border-radius: 50%;
+  opacity: 0;
+  transform: scale(0.8);
+  pointer-events: none;
+}
+.scan-complete-ripple.active {
+  animation: rippleExpand 0.6s ease-out forwards;
+}
+@keyframes rippleExpand {
+  to {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* Glitch 效果 */
+.glitch-effect {
+  animation: glitch 0.1s ease;
+}
+@keyframes glitch {
+  0% { transform: translate(0); }
+  20% { transform: translate(-2px, 2px); }
+  40% { transform: translate(-2px, -2px); }
+  60% { transform: translate(2px, 2px); }
+  80% { transform: translate(2px, -2px); }
+  100% { transform: translate(0); }
+}
+
+/* 旧样式保留兼容 */
+.analysis .orb { display: none; }
+.analysis h2 { display: none; }
+.analysis p { display: none; }
+.analysis .steps { display: none; }
   flex-shrink: 0;
+  background: var(--gray);
 }
 .analysis .step .label { 
-  font-size: 15px; 
+  font-size: 16px; 
   color: var(--text);
   font-weight: 600;
 }
 
-/* ==================== 结果页 - ArtGo风格 ==================== */
+/* ==================== 结果页 - 基因报告书风格 ==================== */
 .result { 
-  padding: 20px 20px 40px;
-  background: linear-gradient(180deg, var(--bg) 0%, #FFFFFF 100%);
-}
-.share-tip {
-  background: var(--card);
-  border-radius: var(--radius-md);
-  padding: 18px;
-  margin-bottom: 24px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  text-align: left;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid rgba(255, 107, 157, 0.1);
-}
-.share-tip .icon { 
-  font-size: 32px; 
-  flex-shrink: 0;
-}
-.share-tip .title { 
-  font-size: 15px; 
-  font-weight: 700;
-  color: var(--text);
-}
-.share-tip .desc { 
-  font-size: 13px; 
-  color: var(--text3); 
-  margin-top: 4px;
-  font-weight: 500;
+  padding: 12px 16px 40px;
+  background: var(--bg);
+  min-height: 100vh;
 }
 
-/* 结果页头部 */
-.r-hero { 
-  text-align: center; 
-  margin-bottom: 28px;
+/* 分享提示 - 纯文字弱化版 */
+.share-tip {
+  text-align: center;
+  margin-bottom: 12px;
+  font-size: 12px;
+  color: var(--text3);
+  opacity: 0.7;
+}
+.share-tip .desc {
+  display: none;
+}
+
+/* 基因报告书 - 证书风格容器 */
+.report-book {
   background: var(--card);
-  border-radius: var(--radius-lg);
-  padding: 32px 24px;
-  box-shadow: var(--shadow);
+  border: 3px solid var(--text);
+  border-radius: 4px;
+  padding: 28px 20px;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
 }
-.r-type-code { 
-  font-size: 24px; 
-  font-weight: 800;
-  letter-spacing: 4px;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+.report-book::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  border: 1px solid var(--gray);
+  pointer-events: none;
 }
-.r-name { 
-  font-size: 32px; 
+
+/* 四角花纹装饰 */
+.report-book::after {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 24px;
+  height: 24px;
+  border-top: 2px solid var(--text);
+  border-left: 2px solid var(--text);
+  opacity: 0.4;
+}
+.report-corner {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-color: var(--text);
+  border-style: solid;
+  opacity: 0.4;
+  pointer-events: none;
+}
+.report-corner.tr {
+  top: 12px;
+  right: 12px;
+  border-width: 2px 2px 0 0;
+}
+.report-corner.bl {
+  bottom: 12px;
+  left: 12px;
+  border-width: 0 0 2px 2px;
+}
+.report-corner.br {
+  bottom: 12px;
+  right: 12px;
+  border-width: 0 2px 2px 0;
+}
+
+/* 水印背景 */
+.report-watermark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 40px,
+      rgba(0,0,0,0.02) 40px,
+      rgba(0,0,0,0.02) 80px
+    );
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* 印章效果 - 移至右上角 */
+.report-stamp {
+  position: absolute;
+  top: 60px;
+  right: 16px;
+  width: 60px;
+  height: 60px;
+  border: 2px solid var(--text);
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(-15deg);
+  opacity: 0;
+  transition: all 0.6s ease;
+  z-index: 10;
+}
+.report-stamp.stamped {
+  opacity: 0.7;
+  animation: stampDrop 0.4s ease-out;
+}
+@keyframes stampDrop {
+  0% { transform: rotate(-15deg) scale(1.5); opacity: 0; }
+  100% { transform: rotate(-15deg) scale(1); opacity: 0.7; }
+}
+.report-stamp-text {
+  font-size: 10px;
   font-weight: 800;
-  margin-top: 8px;
+  letter-spacing: 1px;
   color: var(--text);
+  text-transform: uppercase;
 }
-.r-sub { 
-  font-size: 14px; 
-  color: var(--text3); 
-  margin-top: 8px;
-  font-weight: 500;
+.report-stamp-date {
+  font-size: 8px;
+  color: var(--text3);
+  margin-top: 2px;
+  font-family: monospace;
 }
-.r-cards { 
-  display: flex; 
-  gap: 20px; 
-  justify-content: center; 
-  margin-top: 28px;
+
+/* 报告书头部 */
+.report-header {
+  text-align: center;
+  border-bottom: 2px solid var(--text);
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+  position: relative;
 }
-/* 结果页emoji头像 - 毛玻璃效果 */
-.r-avatar {
-  width: 130px;
-  height: 130px;
-  border-radius: var(--radius-lg);
+.report-header::after {
+  content: '✦';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--card);
+  padding: 0 12px;
+  color: var(--text);
+  font-size: 14px;
+}
+.report-title {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 6px;
+  color: var(--text3);
+  text-transform: uppercase;
+}
+.report-id {
+  font-size: 12px;
+  color: var(--text3);
+  margin-top: 6px;
+  font-family: monospace;
+}
+
+/* 主体内容区 */
+.report-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* 身份区 - 照片+类型 */
+.identity-section {
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
+}
+.identity-photo {
+  width: 120px;
+  height: 140px;
+  background: var(--gray);
+  border: 2px solid var(--text);
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 64px;
   flex-shrink: 0;
   position: relative;
-  background: rgba(192, 132, 252, 0.2);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 
-    0 8px 32px rgba(147, 112, 219, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
-  overflow: hidden;
 }
-.r-avatar::before {
+.identity-photo::before {
   content: '';
   position: absolute;
-  inset: 0;
-  background: var(--avatar-bg);
-  opacity: 0.4;
-  z-index: 0;
+  top: 4px;
+  left: 4px;
+  right: 4px;
+  bottom: 4px;
+  border: 1px dashed var(--text);
+  opacity: 0.3;
 }
-.r-avatar-inner {
-  position: relative;
-  z-index: 1;
-  font-size: 64px;
-  animation: float 4s ease-in-out infinite;
-}
-/* 结果页百分比卡片 - 毛玻璃效果 */
-.r-index { 
-  width: 130px;
-  height: 130px;
-  padding: 0;
-  border-radius: var(--radius-lg);
+.identity-info {
+  flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
-  background: rgba(255, 107, 157, 0.15);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-  box-shadow: 
-    0 8px 32px rgba(255, 107, 157, 0.15),
-    inset 0 1px 0 rgba(255, 255, 255, 0.4);
-  flex-shrink: 0;
+}
+.identity-type {
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: 4px;
+  color: var(--text);
+}
+.identity-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  margin-top: 8px;
+}
+.identity-dims {
+  font-size: 13px;
+  color: var(--text2);
+  margin-top: 6px;
+  line-height: 1.5;
+}
+.identity-index {
+  margin-top: 12px;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+}
+.identity-index .num {
+  font-size: 36px;
+  font-weight: 900;
+  color: var(--text);
+  line-height: 1;
+}
+.identity-index .label {
+  font-size: 13px;
+  color: var(--text3);
+}
+
+/* 分隔线 */
+.report-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gray), transparent);
+  margin: 4px 0;
+  position: relative;
+}
+.report-divider::before {
+  content: '◆';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--card);
+  padding: 0 8px;
+  color: var(--text3);
+  font-size: 8px;
+}
+
+/* 基因图谱区 */
+.gene-map {
+  padding: 16px 0;
+}
+.gene-map-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--text3);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  text-align: center;
+}
+.gene-dims {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.gene-dim {
+  display: flex;
+  flex-direction: column;
   gap: 6px;
 }
-.r-index .num { 
-  font-size: 44px; 
-  font-weight: 800;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  line-height: 1;
+.gene-dim-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
 }
-.r-index .label { 
-  font-size: 14px; 
-  color: var(--text2); 
+.gene-dim-name {
   font-weight: 600;
-  line-height: 1;
+  color: var(--text);
 }
-.r-index .pct { 
-  font-size: 12px; 
-  color: var(--text3); 
-  font-weight: 500;
-  line-height: 1;
+.gene-dim-score {
+  color: var(--text3);
+  font-family: monospace;
 }
-.r-quote { 
-  font-size: 17px; 
-  color: var(--text2);
-  line-height: 1.8; 
-  margin-top: 28px;
+.gene-dim-bar {
+  height: 8px;
+  background: var(--gray);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+.gene-dim-fill {
+  height: 100%;
+  background: var(--text);
+  border-radius: 4px;
+  transition: width 0.8s ease;
+  position: relative;
+}
+.gene-dim-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 20px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3));
+}
+
+/* 报告区块 */
+.report-section {
+  padding: 16px 0;
+}
+.report-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--text3);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.report-section-title::before {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--gray);
+}
+.report-section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--gray);
+}
+.report-quote {
+  font-size: 15px;
+  color: var(--text);
+  line-height: 1.8;
+  text-align: center;
   font-style: italic;
-  padding: 0 12px;
-  font-weight: 500;
+  padding: 12px;
+  border-left: 3px solid var(--text);
+  background: var(--bg);
+  margin: 12px 0;
+}
+.report-desc {
+  font-size: 14px;
+  color: var(--text2);
+  line-height: 1.9;
+}
+.report-desc p {
+  margin-bottom: 8px;
+}
+
+/* 处方列表 */
+.prescription-list {
+  list-style: none;
+  padding: 0;
+}
+.prescription-list li {
+  font-size: 14px;
+  color: var(--text2);
+  line-height: 1.8;
+  padding: 8px 0 8px 24px;
+  position: relative;
+  border-bottom: 1px dashed var(--gray);
+}
+.prescription-list li:last-child {
+  border-bottom: none;
+}
+.prescription-list li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--text);
+  font-weight: 700;
+}
+
+/* CP匹配区 */
+.cp-section {
+  padding: 16px 0;
+}
+.cp-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.cp-card {
+  background: var(--bg);
+  border: 1px solid var(--gray);
+  padding: 16px 12px;
+  text-align: center;
+}
+.cp-card.best {
+  border-color: var(--text);
+  background: var(--text);
+}
+.cp-card.best .cp-emoji,
+.cp-card.best .cp-code,
+.cp-card.best .cp-name {
+  color: var(--card);
+}
+.cp-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--text3);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.cp-emoji {
+  font-size: 32px;
+  margin-bottom: 6px;
+}
+.cp-code {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: var(--text);
+  font-family: monospace;
+}
+.cp-name {
+  font-size: 12px;
+  color: var(--text2);
+  margin-top: 4px;
+}
+
+/* 标签 */
+.report-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 8px;
+}
+.report-tag {
+  background: transparent;
+  border: 1px solid var(--gray);
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text2);
+  letter-spacing: 1px;
+}
+
+/* 分享按钮区 */
+.report-actions {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 2px solid var(--text);
+  text-align: center;
+}
+.report-share-btn {
+  width: 100%;
+  padding: 16px;
+  background: var(--text);
+  color: var(--card);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+}
+.report-share-btn:hover {
+  opacity: 0.9;
+}
+.report-share-btn:active {
+  transform: scale(0.98);
+}
+.report-copied {
+  font-size: 13px;
+  color: var(--text2);
+  margin-top: 12px;
 }
 
 /* 雷达图 */
 .r-radar { 
   background: var(--card);
   border-radius: var(--radius-lg);
-  padding: 24px;
-  margin-top: 20px;
+  padding: 20px;
+  margin-top: 16px;
   text-align: left;
   box-shadow: var(--shadow-sm);
+  border: 1px solid var(--gray);
 }
 .r-radar h3 { 
   font-size: 18px; 
   font-weight: 700;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
   color: var(--text);
 }
 .r-radar .dim { 
   display: flex; 
   align-items: center; 
   gap: 12px; 
-  margin-bottom: 14px;
+  margin-bottom: 12px;
 }
 .r-radar .dim .name { 
   font-size: 14px; 
   color: var(--text2);
-  width: 80px;
+  width: 70px;
   flex-shrink: 0;
   font-weight: 600;
 }
 .r-radar .dim .bar { 
   flex: 1; 
-  height: 10px; 
+  height: 6px; 
   background: var(--gray);
   border-radius: var(--radius-pill);
   overflow: hidden;
 }
 .r-radar .dim .bar .fill { 
   height: 100%; 
-  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  background: var(--text);
   border-radius: var(--radius-pill);
   transition: width .6s;
 }
 .r-radar .dim .score { 
-  font-size: 13px; 
+  font-size: 14px; 
   color: var(--text3);
-  width: 40px;
+  width: 36px;
   text-align: right;
   font-weight: 700;
 }
@@ -806,119 +1746,228 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 .r-section { 
   background: var(--card);
   border-radius: var(--radius-lg);
-  padding: 24px;
+  padding: 20px;
   margin-top: 16px;
   text-align: left;
   box-shadow: var(--shadow-sm);
-}
-/* 人格鉴定报告高亮 */
-.r-section-highlight {
-  background: linear-gradient(135deg, rgba(255, 107, 157, 0.12), rgba(192, 132, 252, 0.12));
-  border: 2px solid rgba(255, 107, 157, 0.3);
+  border: 1px solid var(--gray);
 }
 .r-section h3 { 
   font-size: 18px; 
   font-weight: 700;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
   color: var(--text);
 }
 .r-section p { 
   font-size: 15px; 
   color: var(--text2);
   line-height: 1.8;
-  font-weight: 500;
+  font-weight: 400;
 }
 .r-section ul { list-style: none; padding: 0 }
 .r-section li { 
   font-size: 15px; 
   color: var(--text2);
   line-height: 1.8;
-  padding-left: 24px;
+  padding-left: 20px;
   position: relative;
-  margin-bottom: 10px;
-  font-weight: 500;
+  margin-bottom: 8px;
+  font-weight: 400;
 }
 .r-section li::before {
   content: "";
   position: absolute;
   left: 0;
   top: 10px;
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  background: var(--text);
+}
+
+/* 匹配卡片 */
+.match-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.match-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  border-radius: var(--radius-md);
+  background: var(--card);
+  border: 1px solid var(--gray);
+}
+.match-rank {
+  font-size: 18px;
+  width: 32px;
+  text-align: center;
+  flex-shrink: 0;
+}
+.match-emoji {
+  font-size: 28px;
+  width: 44px;
+  text-align: center;
+  flex-shrink: 0;
+  filter: grayscale(0.2);
+}
+.match-info {
+  flex: 1;
+}
+.match-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 2px;
+}
+.match-subtitle {
+  font-size: 13px;
+  color: var(--text3);
+}
+.match-tag {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  background: var(--gray);
+  padding: 4px 10px;
+  border-radius: 20px;
+  white-space: nowrap;
+}
+
+/* 分享区域 */
+.r-share {
+  margin-top: 16px;
+  padding: 16px;
+  background: var(--card);
+  border: 2px dashed var(--gray);
+  border-radius: var(--radius-md);
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.r-share:active { 
+  background: var(--bg);
+  border-color: var(--text);
+}
+.r-share-title {
+  font-size: 14px;
+  color: var(--text2);
+  margin-bottom: 8px;
+  font-weight: 400;
+}
+.r-share-text {
+  font-size: 14px;
+  color: var(--text);
+  font-weight: 600;
+  word-break: break-all;
+  line-height: 1.6;
+}
+.r-share-hint {
+  font-size: 12px;
+  color: var(--text3);
+  margin-top: 8px;
+}
+.r-share-copied {
+  font-size: 14px;
+  color: var(--text);
+  font-weight: 600;
+  margin-top: 8px;
 }
 
 /* 标签 */
 .r-tags { 
   display: flex; 
-  gap: 10px; 
+  gap: 8px; 
   flex-wrap: wrap; 
   justify-content: center; 
-  margin-top: 20px;
+  margin-top: 16px;
 }
 .r-tag { 
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  color: #fff;
+  background: var(--card);
+  color: var(--text);
   font-size: 13px;
   font-weight: 600;
-  padding: 8px 16px;
+  padding: 6px 14px;
   border-radius: var(--radius-pill);
+  border: 1px solid var(--gray);
 }
 
 /* 免责声明 */
 .disclaimer { 
-  margin-top: 28px;
-  padding: 24px;
+  margin-top: 16px;
+  padding: 20px;
   background: var(--card);
   border-radius: var(--radius-lg);
   text-align: left;
   box-shadow: var(--shadow-sm);
+  border: 1px solid var(--gray);
 }
 .disclaimer h3 { 
-  font-size: 15px; 
+  font-size: 16px; 
   font-weight: 700;
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   color: var(--text);
 }
 .disclaimer p { 
-  font-size: 13px; 
+  font-size: 14px; 
   color: var(--text3);
   line-height: 1.7;
-  margin-bottom: 8px;
-  font-weight: 500;
+  margin-bottom: 6px;
+  font-weight: 400;
 }
 
-/* 重试按钮 */
+/* 重试按钮 - Fill Slide 效果 */
 .retry-btn { 
   width: 100%;
-  padding: 18px;
+  padding: 16px;
   background: var(--card);
   color: var(--text);
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 700;
   border-radius: var(--radius-pill);
-  margin-top: 28px;
+  margin-top: 24px;
   box-shadow: var(--shadow-sm);
-  transition: all .2s;
+  transition: all .3s ease;
   border: 2px solid var(--gray);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+.retry-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: var(--text);
+  transition: left 0.3s ease;
+  z-index: -1;
+}
+.retry-btn:hover::before {
+  left: 0;
+}
+.retry-btn:hover {
+  color: var(--card);
+  border-color: var(--text);
 }
 .retry-btn:active { 
   transform: scale(.97);
-  background: var(--bg);
 }
 .credit { 
   font-size: 13px; 
   color: var(--text3); 
-  margin-top: 20px;
-  font-weight: 500;
+  margin-top: 16px;
+  font-weight: 400;
 }
 
-/* ==================== 更新日志弹窗 ==================== */
+/* ==================== 更新日志弹窗 - 黑白风格 ==================== */
 .changelog-overlay { 
   position: fixed; 
   inset: 0; 
-  background: rgba(0, 0, 0, .5);
+  background: rgba(0, 0, 0, .6);
   display: flex; 
   align-items: center; 
   justify-content: center; 
@@ -929,26 +1978,27 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 .changelog-card { 
   background: var(--card); 
   border-radius: var(--radius-lg); 
-  padding: 32px 28px; 
-  max-width: 400px; 
+  padding: 28px 24px; 
+  max-width: 380px; 
   width: 100%; 
   max-height: 80vh; 
   overflow-y: auto; 
-  box-shadow: 0 24px 80px rgba(0, 0, 0, .3);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--gray);
 }
 .changelog-header { 
   display: flex; 
   justify-content: space-between; 
   align-items: center; 
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 .changelog-title { 
-  font-size: 20px; 
+  font-size: 18px; 
   font-weight: 800;
   color: var(--text);
 }
 .changelog-close { 
-  font-size: 24px; 
+  font-size: 22px; 
   color: var(--text3);
   cursor: pointer; 
   padding: 4px 8px; 
@@ -959,62 +2009,39 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 .changelog-body { 
   display: flex; 
   flex-direction: column; 
-  gap: 24px;
+  gap: 20px;
 }
 .changelog-item { 
-  padding-bottom: 20px; 
+  padding-bottom: 16px; 
   border-bottom: 1px solid var(--gray);
 }
 .changelog-item:last-child { border-bottom: none; padding-bottom: 0 }
 .changelog-ver { 
-  font-size: 16px; 
+  font-size: 15px; 
   font-weight: 800;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 12px;
+  color: var(--text);
+  margin-bottom: 10px;
 }
 .changelog-item ul { list-style: none; padding: 0; margin: 0 }
 .changelog-item li { 
-  font-size: 15px; 
+  font-size: 14px; 
   color: var(--text2);
-  line-height: 1.8;
-  padding-left: 20px;
+  line-height: 1.7;
+  padding-left: 16px;
   position: relative;
   font-weight: 500;
+  margin-bottom: 6px;
 }
 .changelog-item li::before { 
   content: '•'; 
   position: absolute; 
   left: 0; 
-  color: var(--primary);
+  color: var(--text);
   font-weight: 700;
 }
 
-/* ==================== 悬浮按钮 ==================== */
-.theme-btn, .sound-btn {
-  position: fixed;
-  bottom: 24px;
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  background: var(--card);
-  box-shadow: var(--shadow);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  z-index: 9999;
-  transition: transform .2s;
-}
-.theme-btn { right: 24px }
-.sound-btn { left: 24px }
-.theme-btn:active, .sound-btn:active { transform: scale(.9) }
-.sound-btn.muted { opacity: .5 }
-
-/* ==================== 彩带动画 ==================== */
-.confetti-container { 
+/* ==================== Emoji飞出动画容器 ==================== */
+.emoji-fly-container { 
   position: fixed; 
   top: 0; 
   left: 0; 
@@ -1024,69 +2051,100 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   z-index: 99999; 
   overflow: hidden;
 }
-.confetti-piece { 
+.emoji-fly-piece { 
   position: absolute; 
-  top: -20px; 
-  animation: confettiFall linear forwards;
+  font-size: 48px;
+  animation: emojiFly ease-out forwards;
+  filter: grayscale(0.2);
 }
 </style>
 </head>
 <body>
 <div id="app" v-cloak>
-  <!-- 正式版 -->
+  
+  <!-- 主题切换按钮 -->
+  <button class="theme-toggle" @click="toggleTheme">{{isDark ? '☀️' : '🌙'}}</button>
 
-  <!-- ==================== 闪屏页 ==================== -->
+  <!-- ==================== 闪屏页 - DNA双螺旋 ==================== -->
   <div class="splash-page" v-if="phase === 'splash'">
-    <div class="splash-emoji">🧬</div>
-    <div class="splash-title">单身狗基因测序</div>
-    <div class="splash-sub">36种单身基因，解码你的单身密码</div>
+    <!-- DNA双螺旋 -->
+    <div class="dna-container" v-if="loadingProgress < 100">
+      <div class="dna-helix">
+        <div class="dna-strand left"></div><div class="dna-strand right"></div><div class="dna-rung"></div>
+        <div class="dna-strand left"></div><div class="dna-strand right"></div><div class="dna-rung"></div>
+        <div class="dna-strand left"></div><div class="dna-strand right"></div><div class="dna-rung"></div>
+        <div class="dna-strand left"></div><div class="dna-strand right"></div><div class="dna-rung"></div>
+        <div class="dna-strand left"></div><div class="dna-strand right"></div><div class="dna-rung"></div>
+        <div class="dna-strand left"></div><div class="dna-strand right"></div><div class="dna-rung"></div>
+        <div class="dna-strand left"></div><div class="dna-strand right"></div><div class="dna-rung"></div>
+        <div class="dna-strand left"></div><div class="dna-strand right"></div><div class="dna-rung"></div>
+        <div class="dna-strand left"></div><div class="dna-strand right"></div><div class="dna-rung"></div>
+        <div class="dna-strand left"></div><div class="dna-strand right"></div><div class="dna-rung"></div>
+      </div>
+    </div>
+    
+    <!-- 完成图标 -->
+    <div class="splash-emoji" v-else style="animation: bounce 0.6s ease;">🧬</div>
+    
+    <!-- 打字机文字 -->
+    <div class="splash-typing">{{typingText}}</div>
+    
+    <!-- 加载进度 -->
     <div class="splash-loading" v-if="loadingProgress < 100">
       <div class="splash-bar"><div class="splash-fill" :style="{width: loadingProgress + '%'}"></div></div>
-      <div class="splash-text">{{loadingText}}</div>
     </div>
-    <div class="splash-tap" v-else @click="phase = 'welcome'">点击开始 →</div>
+    
+    <!-- 随机Tips -->
+    <div class="splash-tips" v-if="loadingProgress < 100">
+      <div class="splash-tips-text" :key="currentTipIndex">💡 {{currentTip}}</div>
+    </div>
+    
+    <!-- 开始按钮 -->
+    <button class="splash-tap" v-if="loadingProgress >= 100" @click="enterWelcome">开始基因测序</button>
   </div>
 
   <!-- ==================== 欢迎页 ==================== -->
   <transition name="page">
     <div class="welcome" v-if="phase === 'welcome'">
+      <!-- 背景粒子 -->
+      <div class="welcome-particles">
+        <div class="welcome-particle" v-for="i in 20" :key="i" :style="{
+          left: (Math.random() * 100) + '%',
+          animationDelay: (Math.random() * 20) + 's',
+          animationDuration: (15 + Math.random() * 10) + 's'
+        }"></div>
+      </div>
+      
+      <!-- 底部光晕 -->
+      <div class="welcome-glow"></div>
+      
       <div class="welcome-header">
-        <div class="welcome-emoji">🧬</div>
-        <h1>测测你的单身基因</h1>
-        <p>四大基因序列解码你的单身密码</p>
+        <h1 ref="welcomeTitle">单身狗基因测序</h1>
+        <p>36种基因序列 · 解码你的单身密码</p>
       </div>
       
-      <!-- 3D玻璃卡片网格 - 纯展示 -->
-      <div class="glass-cards">
-        <div class="glass-card glass-card-1">
-          <div class="glass-icon">🎯</div>
-          <div class="glass-title">社交基因</div>
-          <div class="glass-desc">雷达扫描中</div>
-        </div>
-        <div class="glass-card glass-card-2">
-          <div class="glass-icon">💝</div>
-          <div class="glass-title">择偶基因</div>
-          <div class="glass-desc">标准分析仪</div>
-        </div>
-        <div class="glass-card glass-card-3">
-          <div class="glass-icon">⚡</div>
-          <div class="glass-title">心动基因</div>
-          <div class="glass-desc">阈值检测器</div>
-        </div>
+      <!-- 巨型基因球 -->
+      <div class="gene-orb-container">
+        <div class="orb-ring ring-1"></div>
+        <div class="orb-ring ring-2"></div>
+        <div class="gene-satellite" style="--tx:-50%;--ty:-50%">🎯</div>
+        <div class="gene-satellite" style="--tx:50%;--ty:-50%">💝</div>
+        <div class="gene-satellite" style="--tx:-50%;--ty:50%">⚡</div>
+        <div class="gene-satellite" style="--tx:50%;--ty:50%">🌙</div>
+        <div class="gene-orb">🧬</div>
       </div>
       
-      <div class="welcome-info">
-        <span class="info-tag">⏱ 3分钟</span>
-        <span class="info-tag">🧬 16题</span>
-        <span class="info-tag">🔬 36种基因</span>
+      <!-- 基因标签 -->
+      <div class="gene-tags">
+        <span class="gene-tag">🎯 社交基因</span>
+        <span class="gene-tag">💝 择偶基因</span>
+        <span class="gene-tag">⚡ 心动基因</span>
+        <span class="gene-tag">🌙 独处基因</span>
       </div>
       
-      <button class="btn btn-glass" @click="startQuiz">开始基因测序 →</button>
-      <button class="btn btn2" v-if="hasRecord" @click="viewLastResult">📊 查看上一次结果</button>
-      <div class="cross-link">
-        <a href="./worker/">💼 测测你的打工体质 →</a>
-      </div>
-      <div class="welcome-footer" @click="showChangelog = true">v3.1 · 更新日志</div>
+      <button class="btn btn-primary" @click="startQuiz" @mousedown="createRipple">开始基因测序 →</button>
+      <button class="btn btn2" v-if="hasRecord" @click="viewLastResult" @mousedown="createRipple">📊 查看上一次结果</button>
+      <div class="welcome-footer" @click="showChangelog = true">v5.4 · 更新日志</div>
     </div>
   </transition>
 
@@ -1100,19 +2158,23 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
         </div>
         <div class="changelog-body">
           <div class="changelog-item">
-            <div class="changelog-ver">v3.1 · 2026.4.23</div>
+            <div class="changelog-ver">v5.4 · 2026.4.24</div>
             <ul>
-              <li>精简至36种人格（3×3×2×2），每种文案更深入</li>
-              <li>99%单身指数配🧱砖头emoji，文案犀利升级</li>
-              <li>代码重构，模块化结构更易维护</li>
+              <li>闪屏页：全新DNA双螺旋加载动画</li>
+              <li>闪屏页：打字机效果+随机Tips轮换</li>
+              <li>首页：背景粒子浮动+底部光晕氛围</li>
+              <li>首页：按钮涟漪反馈+脉动动画</li>
+              <li>题目页：DNA链式进度条</li>
+              <li>题目页：题目切换滑动动画</li>
+              <li>全局：更流畅的页面转场效果</li>
             </ul>
           </div>
           <div class="changelog-item">
-            <div class="changelog-ver">v3.0 · 2026.4.23</div>
+            <div class="changelog-ver">v5.0 · 2026.4.24</div>
             <ul>
-              <li>全新字母人格系统：A/V/R·P/F/O·S/C·I/D</li>
-              <li>36种人格全部独立文案和emoji</li>
-              <li>结果页全新布局</li>
+              <li>分析页全新设计：显微镜扫描视角</li>
+              <li>结果页证书风格：四角花纹+印章</li>
+              <li>四维度解锁动画+Glitch干扰效果</li>
             </ul>
           </div>
         </div>
@@ -1124,217 +2186,238 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   <transition name="page">
     <div class="quiz" v-if="phase === 'quiz'">
       <div class="q-header">
-        <div class="q-back" @click="goBack">&lt;</div>
-        <h2>单身狗基因测序</h2>
-        <div style="width:44px"></div>
-      </div>
-      <div class="progress">
-        <div class="bar"><div class="fill" :style="{width: (currentQ + 1) / questions.length * 100 + '%'}"></div></div>
-        <div class="text">{{currentQ + 1}} / {{questions.length}}</div>
+        <div class="q-header-top">
+          <div class="q-back" @click="goBack">←</div>
+          <div class="q-header-title">单身狗基因测序</div>
+          <div class="q-progress-num">{{currentQ + 1}} / {{questions.length}}</div>
+        </div>
+        <!-- DNA链式进度条 -->
+        <div class="q-progress-dna">
+          <div class="q-dna-node" 
+               v-for="i in questions.length" 
+               :key="i"
+               :class="{
+                 'active': i <= currentQ + 1,
+                 'current': i === currentQ + 1
+               }"></div>
+        </div>
       </div>
       <div class="q-body">
-        <div class="q-emoji" v-if="questions[currentQ].emoji">{{questions[currentQ].emoji}}</div>
-        <div class="q-meta">{{dimNames[questions[currentQ].dim]}}</div>
-        <div class="q-text">{{questions[currentQ].text}}</div>
-        <div class="opts">
-          <div class="opt" v-for="(opt, i) in questions[currentQ].options" :key="i" 
-               :class="{sel: answers[currentQ] === i}" @click="selectOption(i)">
-            <div class="letter">{{['A','B','C','D'][i]}}</div>
-            <div class="text">{{opt}}</div>
+        <transition name="question-transition" mode="out-in">
+          <div class="question-content" :key="currentQ">
+            <div class="q-emojis" v-if="questions[currentQ].emoji">
+              <span class="emoji emoji-main">{{questions[currentQ].emoji}}</span>
+            </div>
+            <div class="q-meta">{{dimNames[questions[currentQ].dim]}}</div>
+            <div class="q-text-container">
+              <div class="q-text" ref="questionText">{{questions[currentQ].text}}</div>
+            </div>
+            <div class="q-options">
+              <div class="opt" v-for="(opt, i) in questions[currentQ].options" :key="i" 
+                   :class="{sel: answers[currentQ] === i}" @click="selectOption(i)">
+                <div class="text">{{opt}}</div>
+              </div>
+            </div>
           </div>
-        </div>
+        </transition>
       </div>
     </div>
   </transition>
 
-  <!-- ==================== 分析页 ==================== -->
+  <!-- ==================== 分析页 - 显微镜扫描 ==================== -->
   <transition name="page">
-    <div class="analysis" v-if="phase === 'analysis'">
-      <div class="orb">🌀</div>
-      <h2>正在分析你的单身DNA…</h2>
-      <p>这可能需要几秒钟</p>
-      <div class="steps">
-        <div class="step" v-for="step in analysisSteps" :key="step.label">
-          <div class="icon" :style="{background: step.bg}">{{step.icon}}</div>
-          <div class="label">{{step.label}}</div>
+    <div class="analysis" v-if="phase === 'analysis'" :class="{'glitch-effect': showGlitch}">
+      <!-- 扫描容器 -->
+      <div class="scan-container" :class="{'scanning': isScanning, 'complete': isComplete}">
+        <!-- 外圈 -->
+        <div class="scan-ring-outer"></div>
+        <!-- 内圈 -->
+        <div class="scan-ring-inner"></div>
+        <!-- 十字线 -->
+        <div class="scan-crosshair"></div>
+        <!-- 扫描线 -->
+        <div class="scan-line" v-if="isScanning"></div>
+        <!-- 角落标记 -->
+        <div class="scan-corner tl"></div>
+        <div class="scan-corner tr"></div>
+        <div class="scan-corner bl"></div>
+        <div class="scan-corner br"></div>
+        <!-- 完成波纹 -->
+        <div class="scan-complete-ripple" :class="{'active': showRipple}"></div>
+        <!-- 中心样本 -->
+        <div class="scan-sample">🧬</div>
+      </div>
+      
+      <!-- 标题 -->
+      <div class="analysis-title">{{analysisTitle}}</div>
+      <div class="analysis-status">{{analysisStatus}}</div>
+      
+      <!-- 四维度数据 -->
+      <div class="analysis-dims">
+        <div class="analysis-dim" 
+             v-for="(dim, i) in analysisDims" 
+             :key="dim.key"
+             :class="{'active': dim.active, 'syncing': dim.syncing}">
+          <div style="position: relative;">
+            <div class="analysis-dim-icon">{{dim.icon}}</div>
+            <div class="dim-sync-ring"></div>
+          </div>
+          <div class="analysis-dim-label">{{dim.label}}</div>
         </div>
       </div>
     </div>
   </transition>
 
-  <!-- ==================== 彩带动画 ==================== -->
-  <div class="confetti-container" v-if="showConfetti">
-    <div class="confetti-piece" v-for="i in 40" :key="i" 
+  <!-- ==================== Emoji飞出动画 ==================== -->
+  <div class="emoji-fly-container" v-if="showEmojiFly">
+    <div class="emoji-fly-piece" v-for="i in 50" :key="i" 
          :style="{
-           left: Math.random() * 100 + '%',
-           backgroundColor: confettiColors[i % confettiColors.length],
-           animationDelay: Math.random() * 2 + 's',
-           animationDuration: (2 + Math.random() * 2) + 's',
-           width: (6 + Math.random() * 8) + 'px',
-           height: (6 + Math.random() * 8) + 'px',
-           borderRadius: Math.random() > .5 ? '50%' : '2px'
-         }"></div>
+           left: '50%',
+           top: '50%',
+           '--tx': ((Math.random() - 0.5) * windowWidth) + 'px',
+           '--ty': ((Math.random() - 0.5) * windowHeight) + 'px',
+           '--rot': (Math.random() * 720 - 360) + 'deg',
+           animationDelay: (Math.random() * 0.5) + 's',
+           animationDuration: (1.5 + Math.random() * 1) + 's'
+         }">{{result?.visual?.emoji || '🧬'}}</div>
   </div>
 
-  <!-- ==================== 结果页 ==================== -->
+  <!-- ==================== 结果页 - 基因报告书 ==================== -->
   <transition name="page">
     <div class="result" v-if="phase === 'result' && result">
       <!-- 分享提示 -->
-      <div class="share-tip">
-        <div class="icon">📱</div>
-        <div>
-          <div class="title">截图发给朋友猜猜看</div>
-          <div class="desc">长按或截图保存，看看TA是什么人格</div>
-        </div>
-      </div>
+      <div class="share-tip">📱 截图保存你的基因报告</div>
 
-      <!-- 结果头部 -->
-      <div class="r-hero">
-        <div class="r-type-code" v-if="result.type">{{result.type}}</div>
-        <div class="r-name">{{result.name}}</div>
-        <div class="r-sub" v-if="result.dims">{{result.dims.join(' · ')}}</div>
-        <div class="r-cards">
-          <div class="r-avatar" :style="{'--avatar-bg': result.visual?.bg || 'linear-gradient(135deg,#FF6B9D,#C084FC)'}">
-            <div class="r-avatar-inner">{{result.visual?.emoji || '❓'}}</div>
+      <!-- 基因报告书 -->
+      <div class="report-book">
+        <!-- 四角花纹 -->
+        <div class="report-corner tr"></div>
+        <div class="report-corner bl"></div>
+        <div class="report-corner br"></div>
+        <!-- 水印 -->
+        <div class="report-watermark"></div>
+        <!-- 印章 -->
+        <div class="report-stamp" :class="{'stamped': showStamp}">
+          <div class="report-stamp-text">VERIFIED</div>
+          <div class="report-stamp-date">{{stampDate}}</div>
+        </div>
+        
+        <!-- 报告头部 -->
+        <div class="report-header">
+          <div class="report-title">单身狗基因测序报告</div>
+          <div class="report-id" v-if="result.type">NO. {{result.type}}-{{result.index}}</div>
+        </div>
+
+        <!-- 报告主体 -->
+        <div class="report-body">
+          <!-- 身份信息区 -->
+          <div class="identity-section">
+            <div class="identity-photo">{{result.visual?.emoji || '🧬'}}</div>
+            <div class="identity-info">
+              <div class="identity-type" v-if="result.type">{{result.type}}</div>
+              <div class="identity-name">{{result.name}}</div>
+              <div class="identity-dims" v-if="result.dims">{{result.dims.join(' · ')}}</div>
+              <div class="identity-index">
+                <span class="num">{{result.index}}%</span>
+                <span class="label">单身指数</span>
+              </div>
+            </div>
           </div>
-          <div class="r-index">
-            <div class="num">{{result.index}}%</div>
-            <div class="label">单身指数</div>
-            <div class="pct">基于{{questions.length}}题测试</div>
+
+          <!-- 分隔线 -->
+          <div class="report-divider"></div>
+
+          <!-- 基因图谱 -->
+          <div class="gene-map" v-if="result.dimScores">
+            <div class="gene-map-title">基因图谱分析</div>
+            <div class="gene-dims">
+              <div class="gene-dim" v-for="(score, key) in result.dimScores" :key="key">
+                <div class="gene-dim-header">
+                  <span class="gene-dim-name">{{dimNames[key]}}</span>
+                  <span class="gene-dim-score">{{Math.round(score.a / 4 * 100)}}%</span>
+                </div>
+                <div class="gene-dim-bar">
+                  <div class="gene-dim-fill" :style="{width: (score.a / 4 * 100) + '%'}"></div>
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-        <div class="r-quote">"{{result.quote}}"</div>
-      </div>
 
-      <!-- 四维雷达图 -->
-      <div class="r-radar" v-if="result.dimScores">
-        <h3>📊 四维人格画像</h3>
-        <div class="dim" v-for="(score, key) in result.dimScores" :key="key">
-          <span class="name">{{dimNames[key]}}</span>
-          <div class="bar"><div class="fill" :style="{width: (score.a / 4 * 100) + '%'}"></div></div>
-          <span class="score">{{Math.round(score.a / 4 * 100)}}%</span>
-        </div>
-      </div>
+          <!-- 分隔线 -->
+          <div class="report-divider"></div>
 
-      <!-- 基因测序报告 -->
-      <div class="r-section r-section-highlight">
-        <h3>🧬 基因测序报告</h3>
-        <p v-for="(line, i) in (result.desc || '').split('\n')" :key="i" style="margin-top:8px">{{line}}</p>
-      </div>
+          <!-- 人格描述 -->
+          <div class="report-section" v-if="result.desc || result.quote">
+            <div class="report-section-title">人格特征</div>
+            <div class="report-quote" v-if="result.quote">"{{result.quote}}"</div>
+            <div class="report-desc" v-if="result.desc">
+              <p v-for="(line, i) in (result.desc || '').split('\n').filter(l => l.trim())" :key="i">{{line}}</p>
+            </div>
+          </div>
 
-      <!-- 脱单处方 -->
-      <div class="r-section" v-if="result.tips && result.tips.length">
-        <h3>💡 脱单处方</h3>
-        <ul>
-          <li v-for="(tip, i) in result.tips" :key="i">{{tip}}</li>
-        </ul>
-      </div>
+          <!-- 脱单处方 -->
+          <div class="report-section" v-if="result.tips && result.tips.length">
+            <div class="report-section-title">专家建议</div>
+            <ul class="prescription-list">
+              <li v-for="(tip, i) in result.tips" :key="i">{{tip}}</li>
+            </ul>
+          </div>
 
-      <!-- 避雷类型 -->
-      <div class="r-section" v-if="result.avoid && result.avoid.length">
-        <h3>⚠️ 你的天雷类型</h3>
-        <ul>
-          <li v-for="(item, i) in result.avoid" :key="i">{{item}}</li>
-        </ul>
-      </div>
+          <!-- 分隔线 -->
+          <div class="report-divider"></div>
 
-      <!-- 维度标签 -->
-      <div class="r-tags">
-        <span class="r-tag" v-for="tag in result.tags" :key="tag">{{tag}}</span>
-      </div>
+          <!-- CP匹配 -->
+          <div class="cp-section" v-if="bestMatches.length > 0">
+            <div class="report-section-title">匹配推荐</div>
+            <div class="cp-grid">
+              <div class="cp-card best" v-if="bestMatches[0]">
+                <div class="cp-label">最佳匹配</div>
+                <div class="cp-emoji">{{bestMatches[0].emoji}}</div>
+                <div class="cp-code">{{bestMatches[0].code}}</div>
+                <div class="cp-name">{{bestMatches[0].name}}</div>
+              </div>
+              <div class="cp-card" v-if="bestMatches[1]">
+                <div class="cp-label">次优选择</div>
+                <div class="cp-emoji">{{bestMatches[1].emoji}}</div>
+                <div class="cp-code">{{bestMatches[1].code}}</div>
+                <div class="cp-name">{{bestMatches[1].name}}</div>
+              </div>
+            </div>
+          </div>
 
-      <!-- 免责声明 -->
-      <div class="disclaimer">
-        <h3>📌 小声说</h3>
-        <p>本测试仅供娱乐，请勿当真（但也别不信）。</p>
-        <p>无论单身还是恋爱，你值得被爱 💕</p>
-      </div>
+          <!-- 标签 -->
+          <div class="report-tags" v-if="result.tags && result.tags.length">
+            <span class="report-tag" v-for="tag in result.tags" :key="tag">{{tag}}</span>
+          </div>
 
-      <!-- 重试按钮 -->
-      <button class="retry-btn" @click="retry">🔄 再鉴定一次</button>
-      <div class="credit">by Poliwhirl</div>
+          <!-- 底部操作区 -->
+          <div class="report-actions">
+            <button class="report-share-btn" @click="copyShareText">
+              {{copied ? '✓ 已复制' : '复制报告分享'}}
+            </button>
+            <div class="report-copied" v-if="copied">分享文案已复制到剪贴板</div>
+          </div>
+        </div><!-- /report-body -->
+      </div><!-- /report-book -->
+
+      <!-- 底部按钮区 -->
+      <div style="margin-top: 24px; text-align: center;">
+        <button class="retry-btn" @click="retry">🔄 再鉴定一次</button>
+        <div class="credit">by Poliwhirl · 仅供娱乐</div>
+      </div>
     </div>
   </transition>
 
-  <!-- ==================== 悬浮按钮 ==================== -->
-  <button class="sound-btn" :class="{muted: !soundOn}" @click="toggleSound">{{soundOn ? '🔊' : '🔇'}}</button>
-  <button class="theme-btn" @click="toggleTheme">{{isDark ? '☀️' : '🌙'}}</button>
 </div>
 
-<!-- ==================== 音效引擎 ==================== -->
-<script>
-/**
- * 音效引擎 - Web Audio API
- * 提供点击、选择、完成等交互音效
- */
-const SFX = (function() {
-  let ctx = null;
-  
-  function getCtx() {
-    if (!ctx) {
-      try {
-        ctx = new (window.AudioContext || window.webkitAudioContext)();
-      } catch (e) {
-        console.warn('Web Audio API not supported');
-      }
-    }
-    return ctx;
-  }
-  
-  function play(freq, type, dur, vol, ramp) {
-    const c = getCtx();
-    if (!c) return;
-    if (c.state === 'suspended') c.resume();
-    
-    const osc = c.createOscillator();
-    const gain = c.createGain();
-    
-    osc.type = type || 'sine';
-    osc.frequency.value = freq;
-    gain.gain.value = vol || 0.15;
-    
-    if (ramp) {
-      gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + (dur || 0.15));
-    }
-    
-    osc.connect(gain);
-    gain.connect(c.destination);
-    osc.start();
-    osc.stop(c.currentTime + (dur || 0.15));
-  }
-  
-  return {
-    tap: () => play(800, 'sine', 0.08, 0.12, true),
-    select: () => {
-      play(660, 'sine', 0.1, 0.15, true);
-      setTimeout(() => play(880, 'sine', 0.12, 0.12, true), 80);
-    },
-    flip: () => {
-      play(440, 'sine', 0.06, 0.1, true);
-      setTimeout(() => play(550, 'sine', 0.06, 0.08, true), 50);
-    },
-    complete: () => {
-      play(523, 'sine', 0.15, 0.15, true);
-      setTimeout(() => play(659, 'sine', 0.15, 0.15, true), 120);
-      setTimeout(() => play(784, 'sine', 0.25, 0.18, true), 240);
-    },
-    reveal: () => {
-      play(440, 'sine', 0.2, 0.1, true);
-      setTimeout(() => play(554, 'sine', 0.2, 0.12, true), 150);
-      setTimeout(() => play(659, 'sine', 0.2, 0.14, true), 300);
-      setTimeout(() => play(880, 'sine', 0.4, 0.16, true), 450);
-    }
-  };
-})();
-</script>
-
 <!-- ==================== 数据与逻辑模块 ==================== -->
-<script src="js/data.js?v=3.1"></script>
+<script src="js/data.js?v=4.0"></script>
 
 <!-- ==================== Vue 应用 ==================== -->
 <script>
-const { createApp, ref, computed, onMounted } = Vue;
-const STORAGE_KEY = 'single_index_v3';
+const { createApp, ref, computed, onMounted, watch } = Vue;
+const STORAGE_KEY = 'single_index_v4';
+const THEME_KEY = 'single_index_theme';
 
 // 本地存储工具
 const storage = {
@@ -1353,7 +2436,9 @@ const storage = {
       return null;
     }
   },
-  clear: () => localStorage.removeItem(STORAGE_KEY)
+  clear: () => localStorage.removeItem(STORAGE_KEY),
+  saveTheme: (isDark) => localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light'),
+  loadTheme: () => localStorage.getItem(THEME_KEY) || 'light'
 };
 
 createApp({
@@ -1370,13 +2455,46 @@ createApp({
     const savedRecord = ref(null);
     const isTransitioning = ref(false);
     const showChangelog = ref(false);
-    const soundOn = ref(localStorage.getItem('sfx_on') !== 'false');
-    const showConfetti = ref(false);
+    const showEmojiFly = ref(false);
+    const copied = ref(false);
     
-    const confettiColors = [
-      '#FF6B9D', '#C084FC', '#60A5FA', '#34D399',
-      '#FBBF24', '#F87171', '#A78BFA', '#22D3EE'
+    // 闪屏页状态
+    const typingText = ref('');
+    const currentTipIndex = ref(0);
+    const tips = [
+      '全球有超过50种被确认的单身基因变体',
+      '单身不是你的错，是基因的「选择」',
+      '每一种单身类型都有独特的进化优势',
+      '研究发现：单身人士的大脑更擅长独立思考',
+      '你的单身指数会在不同人生阶段波动',
+      '有些人天生携带「晚熟」基因，花期比别人晚',
+      '单身基因在创造力测试中往往得分更高',
+      '了解自己的单身类型，是改变的第一步'
     ];
+    const currentTip = computed(() => tips[currentTipIndex.value % tips.length]);
+    
+    // 分析页状态
+    const isScanning = ref(true);
+    const isComplete = ref(false);
+    const showRipple = ref(false);
+    const showGlitch = ref(false);
+    const analysisTitle = ref('DNA SCANNING');
+    const analysisStatus = ref('Initializing sequence...');
+    
+    // 结果页印章
+    const showStamp = ref(false);
+    const stampDate = computed(() => {
+      const now = new Date();
+      return `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')}`;
+    });
+    
+    // 四维度数据
+    const analysisDims = ref([
+      { key: 'social', icon: '🎯', label: '社交', active: false, syncing: false },
+      { key: 'filter', icon: '💝', label: '择偶', active: false, syncing: false },
+      { key: 'heart', icon: '⚡', label: '心动', active: false, syncing: false },
+      { key: 'alone', icon: '🌙', label: '独处', active: false, syncing: false }
+    ]);
     
     const loadingSteps = [
       { progress: 15, text: '正在提取单身基因...' },
@@ -1386,16 +2504,105 @@ createApp({
       { progress: 100, text: '鉴定就绪' }
     ];
     
+    // 分析步骤（旧版兼容）
     const analysisSteps = computed(() => [
-      { icon: '🧬', label: '扫描社交基因序列…', bg: 'rgba(255,107,157,.15)' },
-      { icon: '🔍', label: '解码爱情滤镜参数…', bg: 'rgba(192,132,252,.15)' },
-      { icon: '💓', label: '测量心动阈值波动…', bg: 'rgba(96,165,250,.15)' },
-      { icon: '🔋', label: '检测独处电量指数…', bg: 'rgba(52,211,153,.15)' }
+      { icon: '🧬', label: '扫描社交基因序列…' },
+      { icon: '🔍', label: '解码爱情滤镜参数…' },
+      { icon: '💓', label: '测量心动阈值波动…' },
+      { icon: '🔋', label: '检测独处电量指数…' }
     ]);
+    
+    // 最佳CP匹配
+    const bestMatches = computed(() => {
+      if (!result.value || !result.value.type) return [];
+      const matches = TYPE_MATCHES[result.value.type];
+      if (!matches) return [];
+      return matches.slice(0, 3).map(code => {
+        const persona = PERSONALITY_DATA[code];
+        return {
+          code,
+          emoji: persona ? persona.emoji : '❓',
+          name: persona ? persona.name : '神秘类型',
+          subtitle: getTypeSubtitle(code)
+        };
+      });
+    });
+    
+    // 生成分享文案
+    const shareText = computed(() => {
+      if (!result.value) return '';
+      const url = typeof window !== 'undefined' ? window.location.href.split('?')[0] : '';
+      const matches = bestMatches.value.map((m, i) => `${i+1}. ${m.emoji} ${m.name}`).join('\n');
+      return `【单身狗基因测序结果】\n\n我是「${result.value.name}」${result.value.visual?.emoji || ''}\n${result.value.dims ? result.value.dims.join(' · ') : ''}\n\n📊 单身指数：${result.value.index}%\n\n💬 ${result.value.quote}\n\n💕 最适合我的CP类型：\n${matches}\n\n👉 测测你的单身基因：${url}`;
+    });
+    
+    // 获取类型副标题
+    function getTypeSubtitle(code) {
+      const dims = code.split('').map(letter => {
+        const info = letterInfo[letter];
+        return info ? info.label : letter;
+      });
+      return dims.join(' · ');
+    }
+    
+    // ==================== 监听 ====================
+    // 监听页面变化，触发相应动画
+    watch(phase, (newPhase) => {
+      if (newPhase === 'result') {
+        // 进入结果页时，延迟显示印章动画
+        showStamp.value = false;
+        setTimeout(() => {
+          showStamp.value = true;
+        }, 600);
+      }
+    });
     
     // ==================== 生命周期 ====================
     onMounted(() => {
+      // 加载主题
+      const savedTheme = storage.loadTheme();
+      isDark.value = savedTheme === 'dark';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      
+      // 闪屏加载动画
       let step = 0;
+      const typingMessages = [
+        '正在连接基因数据库...',
+        '正在提取DNA样本...',
+        '正在分析单身序列...',
+        '正在校准匹配算法...',
+        '系统就绪'
+      ];
+      let typingIndex = 0;
+      let charIndex = 0;
+      
+      // 打字机效果
+      const typeWriter = () => {
+        if (typingIndex < typingMessages.length) {
+          const msg = typingMessages[typingIndex];
+          if (charIndex < msg.length) {
+            typingText.value = msg.slice(0, charIndex + 1);
+            charIndex++;
+            setTimeout(typeWriter, 30 + Math.random() * 50);
+          } else {
+            setTimeout(() => {
+              typingIndex++;
+              charIndex = 0;
+              if (typingIndex < typingMessages.length) {
+                typeWriter();
+              }
+            }, 800);
+          }
+        }
+      };
+      typeWriter();
+      
+      // Tips轮换
+      const tipInterval = setInterval(() => {
+        currentTipIndex.value++;
+      }, 3000);
+      
+      // 进度条动画
       const interval = setInterval(() => {
         if (step < loadingSteps.length) {
           loadingProgress.value = loadingSteps[step].progress;
@@ -1403,9 +2610,12 @@ createApp({
           step++;
         } else {
           clearInterval(interval);
+          clearInterval(tipInterval);
+          // 加载完成后不自动跳转，等待用户点击
         }
-      }, 200);
+      }, 400);
       
+      // 检查是否有记录
       const record = storage.load();
       if (record) {
         hasRecord.value = true;
@@ -1414,40 +2624,67 @@ createApp({
     });
     
     // ==================== 方法定义 ====================
+    const toggleTheme = () => {
+      isDark.value = !isDark.value;
+      document.documentElement.setAttribute('data-theme', isDark.value ? 'dark' : 'light');
+      storage.saveTheme(isDark.value);
+    };
+    
+    // 进入欢迎页
+    const enterWelcome = () => {
+      phase.value = 'welcome';
+      Vue.nextTick(() => {
+        setTimeout(animateWelcomeTitle, 300);
+      });
+    };
+    
+    // 按钮涟漪效果
+    const createRipple = (e) => {
+      const btn = e.currentTarget;
+      const rect = btn.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      const x = e.clientX - rect.left - size / 2;
+      const y = e.clientY - rect.top - size / 2;
+      
+      const ripple = document.createElement('span');
+      ripple.className = 'btn-ripple';
+      ripple.style.width = ripple.style.height = size + 'px';
+      ripple.style.left = x + 'px';
+      ripple.style.top = y + 'px';
+      
+      btn.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 600);
+    };
+    
     const startQuiz = () => {
-      if (soundOn.value) SFX.tap();
       answers.value = new Array(questions.length).fill(null);
       currentQ.value = 0;
+      isTransitioning.value = false;
       phase.value = 'quiz';
+      Vue.nextTick(() => {
+        setTimeout(animateQuestionText, 100);
+      });
     };
     
     const viewLastResult = () => {
       if (savedRecord.value?.result) {
         result.value = savedRecord.value.result;
         phase.value = 'result';
-        showConfetti.value = true;
-        setTimeout(() => { showConfetti.value = false; }, 4000);
-        if (soundOn.value) SFX.reveal();
+        triggerEmojiFly();
       }
     };
     
     const goBack = () => {
       if (currentQ.value > 0) {
-        // 返回上一题
-        if (soundOn.value) SFX.flip();
         currentQ.value--;
       } else {
-        // 第一题时返回首页
-        if (soundOn.value) SFX.click();
         phase.value = 'welcome';
-        // 清空当前答题进度
         answers.value = [];
       }
     };
     
     const selectOption = (index) => {
       if (isTransitioning.value) return;
-      if (soundOn.value) SFX.select();
       
       answers.value[currentQ.value] = index;
       
@@ -1456,7 +2693,10 @@ createApp({
         setTimeout(() => {
           currentQ.value++;
           isTransitioning.value = false;
-        }, 300);
+          Vue.nextTick(() => {
+            animateQuestionText();
+          });
+        }, 250);
       } else {
         isTransitioning.value = true;
         setTimeout(() => {
@@ -1466,32 +2706,155 @@ createApp({
       }
     };
     
-    const analyzeResult = () => {
-      setTimeout(() => {
-        try {
-          result.value = calcResult(answers.value, questions);
-          
-          if (!result.value || !result.value.type) {
-            result.value = createDefaultResult();
-          }
-          
-          if (result.value.type && typeEmojis[result.value.type]) {
-            result.value.visual = typeEmojis[result.value.type];
-          }
-          
-          storage.save(answers.value, result.value);
-          
-          phase.value = 'result';
-          showConfetti.value = true;
-          setTimeout(() => { showConfetti.value = false; }, 4000);
-          if (soundOn.value) SFX.reveal();
-          
-        } catch (e) {
-          console.error('Result calculation error:', e);
+    const analyzeResult = async () => {
+      // 重置状态
+      isScanning.value = true;
+      isComplete.value = false;
+      showRipple.value = false;
+      analysisTitle.value = 'DNA SCANNING';
+      analysisStatus.value = 'Initializing sequence...';
+      analysisDims.value.forEach(d => { d.active = false; d.syncing = false; });
+      
+      // 等待一小段时间开始扫描
+      await sleep(500);
+      analysisStatus.value = 'Scanning sample...';
+      
+      // 随机触发glitch效果
+      setTimeout(() => { showGlitch.value = true; setTimeout(() => showGlitch.value = false, 100); }, 800);
+      setTimeout(() => { showGlitch.value = true; setTimeout(() => showGlitch.value = false, 100); }, 2500);
+      
+      // 逐个解锁维度 - 社交基因
+      await sleep(600);
+      analysisDims.value[0].syncing = true;
+      analysisStatus.value = 'Analyzing social gene...';
+      await sleep(800);
+      analysisDims.value[0].syncing = false;
+      analysisDims.value[0].active = true;
+      
+      // 择偶基因
+      await sleep(400);
+      analysisDims.value[1].syncing = true;
+      analysisStatus.value = 'Decoding filter params...';
+      await sleep(800);
+      analysisDims.value[1].syncing = false;
+      analysisDims.value[1].active = true;
+      
+      // 心动基因
+      await sleep(400);
+      analysisDims.value[2].syncing = true;
+      analysisStatus.value = 'Measuring heart threshold...';
+      await sleep(800);
+      analysisDims.value[2].syncing = false;
+      analysisDims.value[2].active = true;
+      
+      // 独处基因
+      await sleep(400);
+      analysisDims.value[3].syncing = true;
+      analysisStatus.value = 'Checking alone power...';
+      await sleep(800);
+      analysisDims.value[3].syncing = false;
+      analysisDims.value[3].active = true;
+      
+      // 完成扫描
+      await sleep(400);
+      analysisTitle.value = 'ANALYSIS COMPLETE';
+      analysisStatus.value = 'Generating report...';
+      isScanning.value = false;
+      isComplete.value = true;
+      showRipple.value = true;
+      
+      // 计算结果
+      try {
+        result.value = calcResult(answers.value, questions);
+        
+        if (!result.value || !result.value.type) {
           result.value = createDefaultResult();
-          phase.value = 'result';
         }
-      }, 2000);
+        
+        if (result.value.type && typeEmojis[result.value.type]) {
+          result.value.visual = typeEmojis[result.value.type];
+        }
+        
+        storage.save(answers.value, result.value);
+        
+        // 延迟后进入结果页
+        await sleep(800);
+        phase.value = 'result';
+        triggerEmojiFly();
+        
+      } catch (e) {
+        console.error('Result calculation error:', e);
+        result.value = createDefaultResult();
+        phase.value = 'result';
+      }
+    };
+    
+    // 辅助函数
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+    
+    const triggerEmojiFly = () => {
+      showEmojiFly.value = true;
+      setTimeout(() => { showEmojiFly.value = false; }, 3000);
+    };
+    
+    // 首页标题动画
+    const animateWelcomeTitle = () => {
+      if (typeof anime === 'undefined') return;
+      
+      const titleEl = document.querySelector('.welcome-header h1');
+      if (!titleEl) return;
+      
+      const text = titleEl.textContent;
+      titleEl.innerHTML = '';
+      
+      text.split('').forEach((char, i) => {
+        const span = document.createElement('span');
+        span.textContent = char === ' ' ? '\u00A0' : char;
+        span.style.display = 'inline-block';
+        span.style.opacity = '0';
+        span.style.transform = 'translateY(30px) rotateX(-90deg)';
+        span.style.transformOrigin = 'center bottom';
+        titleEl.appendChild(span);
+        
+        anime({
+          targets: span,
+          opacity: [0, 1],
+          translateY: [30, 0],
+          rotateX: [-90, 0],
+          easing: 'easeOutExpo',
+          duration: 800,
+          delay: i * 60
+        });
+      });
+    };
+    
+    // 文字拆分动画
+    const animateQuestionText = () => {
+      if (typeof anime === 'undefined') return;
+      
+      const textEl = document.querySelector('.q-text');
+      if (!textEl) return;
+      
+      const text = textEl.textContent;
+      textEl.innerHTML = '';
+      
+      text.split('').forEach((char, i) => {
+        const span = document.createElement('span');
+        span.textContent = char === ' ' ? '\u00A0' : char;
+        span.style.display = 'inline-block';
+        span.style.opacity = '0';
+        span.style.transform = 'translateY(20px)';
+        textEl.appendChild(span);
+        
+        anime({
+          targets: span,
+          opacity: [0, 1],
+          translateY: [20, 0],
+          easing: 'easeOutExpo',
+          duration: 600,
+          delay: i * 30
+        });
+      });
     };
     
     const createDefaultResult = () => ({
@@ -1502,7 +2865,6 @@ createApp({
       desc: '请重新测试。',
       quote: '再试一次吧。',
       tips: ['重新测试'],
-      avoid: [],
       tags: [],
       dims: [],
       dimScores: {
@@ -1510,25 +2872,33 @@ createApp({
         filter: { a: 2, b: 2 },
         heartbeat: { a: 2, b: 2 },
         alone: { a: 2, b: 2 }
-      }
+      },
+      visual: { emoji: '❓', bg: 'linear-gradient(135deg,#1a1a1a,#4a4a4a)' }
     });
     
+    const copyShareText = async () => {
+      try {
+        await navigator.clipboard.writeText(shareText.value);
+        copied.value = true;
+        setTimeout(() => copied.value = false, 2000);
+      } catch (e) {
+        const input = document.createElement('input');
+        input.value = shareText.value;
+        document.body.appendChild(input);
+        input.select();
+        document.execCommand('copy');
+        document.body.removeChild(input);
+        copied.value = true;
+        setTimeout(() => copied.value = false, 2000);
+      }
+    };
+    
     const retry = () => {
-      if (soundOn.value) SFX.tap();
-      storage.clear();
-      hasRecord.value = false;
-      savedRecord.value = null;
-      startQuiz();
-    };
-    
-    const toggleTheme = () => {
-      isDark.value = !isDark.value;
-      document.documentElement.setAttribute('data-theme', isDark.value ? 'dark' : 'light');
-    };
-    
-    const toggleSound = () => {
-      soundOn.value = !soundOn.value;
-      localStorage.setItem('sfx_on', soundOn.value ? 'true' : 'false');
+      // 不清除记录，保留上次结果
+      answers.value = new Array(questions.length).fill(null);
+      currentQ.value = 0;
+      isTransitioning.value = false;
+      phase.value = 'welcome';
     };
     
     // ==================== 返回暴露 ====================
@@ -1542,9 +2912,10 @@ createApp({
       loadingText,
       hasRecord,
       showChangelog,
-      soundOn,
-      showConfetti,
-      confettiColors,
+      showEmojiFly,
+      copied,
+      shareText,
+      bestMatches,
       analysisSteps,
       questions,
       dimNames,
@@ -1554,7 +2925,26 @@ createApp({
       selectOption,
       retry,
       toggleTheme,
-      toggleSound
+      copyShareText,
+      enterWelcome,
+      createRipple,
+      windowWidth: window.innerWidth,
+      windowHeight: window.innerHeight,
+      // 闪屏页状态
+      typingText,
+      currentTipIndex,
+      currentTip,
+      // 分析页状态
+      isScanning,
+      isComplete,
+      showRipple,
+      showGlitch,
+      analysisTitle,
+      analysisStatus,
+      analysisDims,
+      // 结果页印章
+      showStamp,
+      stampDate
     };
   }
 }).mount('#app');

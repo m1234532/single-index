@@ -611,6 +611,52 @@ const typeEmojis = {};
   });
 });
 
+// ==================== CP匹配数据 ====================
+// 基于互补原则：A配R，P配O，S配C，I配D
+const TYPE_MATCHES = {
+  // A组：活跃社交（12种）
+  APSI: ['ROCD', 'RFCI', 'VOSD'],  // 完美敏感独立 配 开放依赖/灵活冷静/佛系依赖
+  APSD: ['ROCI', 'RFCD', 'VOSI'],  // 完美敏感依赖 配 开放独立/灵活冷静/佛系独立
+  APCI: ['ROSD', 'RFCI', 'VOSD'],  // 完美冷静独立 配 开放依赖/灵活冷静/佛系依赖
+  APCD: ['ROSI', 'RFCD', 'VOSI'],  // 完美冷静依赖 配 开放独立/灵活依赖/佛系独立
+  AFSI: ['RPCD', 'ROCI', 'VPSD'],  // 灵活敏感独立 配 完美依赖/开放独立/多面依赖
+  AFSD: ['RPCI', 'ROCD', 'VPSI'],  // 灵活敏感依赖 配 完美独立/开放依赖/多面独立
+  AFCI: ['RPCD', 'ROSD', 'VPSD'],  // 灵活冷静独立 配 完美依赖/开放依赖/多面依赖
+  AFCD: ['RPCI', 'ROSI', 'VPSI'],  // 灵活冷静依赖 配 完美独立/开放独立/多面独立
+  AOSI: ['RPSD', 'RPSI', 'VPCI'],  // 开放敏感独立 配 完美依赖/完美独立/多面独立
+  AOSD: ['RPSI', 'RPSD', 'VPCD'],  // 开放敏感依赖 配 完美独立/完美依赖/多面依赖
+  AOCI: ['RPSD', 'RFSD', 'VPCI'],  // 开放冷静独立 配 完美依赖/灵活依赖/多面独立
+  AOCD: ['RPSI', 'RFSI', 'VPCD'],  // 开放冷静依赖 配 完美独立/灵活独立/多面依赖
+
+  // V组：多面社交（12种）
+  VPSI: ['AFSD', 'AOCD', 'ROSI'],  // 多面完美敏感独立
+  VPSD: ['AFSI', 'AOCI', 'ROCD'],  // 多面完美敏感依赖
+  VPCI: ['AFCD', 'AOSD', 'ROSI'],  // 多面完美冷静独立
+  VPCD: ['AFCI', 'AOSI', 'ROCD'],  // 多面完美冷静依赖
+  VFSI: ['APSD', 'AOCD', 'RPCD'],  // 多面灵活敏感独立
+  VFSD: ['APSI', 'AOCI', 'RPCI'],  // 多面灵活敏感依赖
+  VFCI: ['APCD', 'AOSD', 'RPCD'],  // 多面灵活冷静独立
+  VFCD: ['APCI', 'AOSI', 'RPCI'],  // 多面灵活冷静依赖
+  VOSI: ['APSD', 'AFCD', 'RPSD'],  // 多面开放敏感独立
+  VOSD: ['APSI', 'AFCI', 'RPSI'],  // 多面开放敏感依赖
+  VOCI: ['APCD', 'AFSD', 'RPSD'],  // 多面开放冷静独立
+  VOCD: ['APCI', 'AFSI', 'RPSI'],  // 多面开放冷静依赖
+
+  // R组：内敛社交（12种）
+  RPSI: ['AOSD', 'AFSD', 'VOSD'],  // 内敛完美敏感独立
+  RPSD: ['AOSI', 'AFSI', 'VOSI'],  // 内敛完美敏感依赖
+  RPCI: ['AOCD', 'AFCD', 'VOCD'],  // 内敛完美冷静独立
+  RPCD: ['AOCI', 'AFCI', 'VOCI'],  // 内敛完美冷静依赖
+  RFSI: ['AOSD', 'APSD', 'VOSD'],  // 内敛灵活敏感独立
+  RFSD: ['AOSI', 'APSI', 'VOSI'],  // 内敛灵活敏感依赖
+  RFCI: ['AOCD', 'APCD', 'VOCD'],  // 内敛灵活冷静独立
+  RFCD: ['AOCI', 'APCI', 'VOCI'],  // 内敛灵活冷静依赖
+  ROSI: ['APCD', 'AFCD', 'VPCD'],  // 内敛开放敏感独立
+  ROSD: ['APCI', 'AFCI', 'VOCI'],  // 内敛开放敏感依赖
+  ROCI: ['APSD', 'AFSD', 'VPSD'],  // 内敛开放冷静独立
+  ROCD: ['APSI', 'AFSI', 'VPSI']   // 内敛开放冷静依赖
+};
+
 // 导出（兼容 Node.js 测试环境）
 if (typeof window !== 'undefined') {
   window.typeEmojis = typeEmojis;
@@ -618,6 +664,8 @@ if (typeof window !== 'undefined') {
   window.questions = questions;
   window.dimNames = dimNames;
   window.PERSONALITY_DATA = PERSONALITY_DATA;
+  window.TYPE_MATCHES = TYPE_MATCHES;
+  window.letterInfo = letterInfo;
 }
 
 if (typeof module !== 'undefined' && module.exports) {
@@ -627,9 +675,11 @@ if (typeof module !== 'undefined' && module.exports) {
     typeEmojis,
     calcResult,
     PERSONALITY_DATA,
+    TYPE_MATCHES,
     CONFIG,
     generateQuestions,
     calculateIndex,
-    generateTips
+    generateTips,
+    letterInfo
   };
 }
