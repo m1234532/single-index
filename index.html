@@ -2380,14 +2380,6 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
         <div class="gene-orb">🧬</div>
       </div>
       
-      <!-- 基因标签 -->
-      <div class="gene-tags">
-        <span class="gene-tag">🎯 社交基因</span>
-        <span class="gene-tag">💝 择偶基因</span>
-        <span class="gene-tag">⚡ 心动基因</span>
-        <span class="gene-tag">🌙 独处基因</span>
-      </div>
-      
       <button class="btn btn-primary" @click="startQuiz" @mousedown="createRipple">开始基因测序 →</button>
       <button class="btn btn2" v-if="hasRecord" @click="viewLastResult" @mousedown="createRipple">📊 查看上一次结果</button>
       <div class="welcome-footer" @click="showChangelog = true">v5.4 · 更新日志</div>
