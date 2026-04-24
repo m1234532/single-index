@@ -1058,7 +1058,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   font-family: 'HarmonyOS Sans', sans-serif;
 }
 
-/* ==================== 分析页 - 显微镜扫描视角 ==================== */
+/* ==================== 分析页 - Emoji扫描轨道 ==================== */
 .analysis { 
   min-height: 100vh; 
   display: flex; 
@@ -1069,6 +1069,45 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   background: var(--bg);
   position: relative;
   overflow: hidden;
+}
+
+/* Emoji扫描轨道 */
+.emoji-scan-track {
+  width: 100%;
+  height: 120px;
+  overflow: hidden;
+  position: relative;
+  margin-top: 60px;
+  mask-image: linear-gradient(90deg, transparent, black 20%, black 80%, transparent);
+  -webkit-mask-image: linear-gradient(90deg, transparent, black 20%, black 80%, transparent);
+}
+
+.emoji-scan-list {
+  display: flex;
+  gap: 40px;
+  padding: 20px 0;
+  animation: emojiScanScroll 8s linear infinite;
+  width: max-content;
+}
+
+.emoji-scan-item {
+  font-size: 48px;
+  opacity: 0.3;
+  filter: grayscale(0.5);
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.emoji-scan-item.highlight {
+  font-size: 64px;
+  opacity: 1;
+  filter: grayscale(0);
+  transform: scale(1.2);
+}
+
+@keyframes emojiScanScroll {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }
 
 /* 扫描容器 */
@@ -1553,7 +1592,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   font-family: 'HarmonyOS Sans', sans-serif;
 }
 .identity-name {
-  font-size: 20px;
+  font-size: 26px;
   font-weight: 700;
   color: var(--result-text);
   margin-top: 8px;
@@ -1600,7 +1639,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 .report-divider {
   height: 1px;
   background: linear-gradient(90deg, transparent, var(--result-border), transparent);
-  margin: 8px 0;
+  margin: 4px 0;
   position: relative;
 }
 .report-divider::before {
@@ -1617,7 +1656,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 
 /* 基因图谱区 - 汉化标题 */
 .gene-map {
-  padding: 20px 0;
+  padding: 12px 0;
 }
 .gene-map-title {
   font-size: 13px;
@@ -2184,33 +2223,42 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   font-weight: 700;
 }
 
-/* ==================== Emoji飞出动画容器 ==================== */
-.emoji-fly-container { 
-  position: fixed; 
-  top: 0; 
-  left: 0; 
-  width: 100%; 
-  height: 100%; 
-  pointer-events: none; 
-  z-index: 99999; 
-  overflow: hidden;
+/* ==================== Emoji剪影转场动画 ==================== */
+.emoji-silhouette-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 99999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg);
 }
-.emoji-fly-piece { 
-  position: absolute; 
-  font-size: 48px;
-  animation: emojiFly ease-out forwards;
-  filter: grayscale(0.2);
-  opacity: 0;
+.emoji-silhouette {
+  font-size: 200px;
+  filter: grayscale(1) blur(2px);
+  opacity: 0.8;
+  animation: silhouetteExpand 1.2s ease-out forwards;
 }
 
-@keyframes emojiFly {
+@keyframes silhouetteExpand {
   0% {
-    opacity: 1;
-    transform: translate(0, 0) rotate(0deg) scale(0.5);
+    transform: scale(0.3);
+    opacity: 0;
+    filter: grayscale(1) blur(10px);
+  }
+  30% {
+    transform: scale(1);
+    opacity: 0.8;
+    filter: grayscale(1) blur(2px);
   }
   100% {
+    transform: scale(3);
     opacity: 0;
-    transform: translate(var(--tx, 0), var(--ty, 0)) rotate(var(--rot, 0deg)) scale(1.2);
+    filter: grayscale(1) blur(0px);
   }
 }
 </style>
@@ -2386,28 +2434,19 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
     </div>
   </transition>
 
-  <!-- ==================== 分析页 - 显微镜扫描 ==================== -->
+  <!-- ==================== 分析页 - Emoji扫描轨道 ==================== -->
   <transition name="page">
     <div class="analysis" v-if="phase === 'analysis'" :class="{'glitch-effect': showGlitch}">
-      <!-- 扫描容器 -->
-      <div class="scan-container" :class="{'scanning': isScanning, 'complete': isComplete}">
-        <!-- 外圈 -->
-        <div class="scan-ring-outer"></div>
-        <!-- 内圈 -->
-        <div class="scan-ring-inner"></div>
-        <!-- 十字线 -->
-        <div class="scan-crosshair"></div>
-        <!-- 扫描线 -->
-        <div class="scan-line" v-if="isScanning"></div>
-        <!-- 角落标记 -->
-        <div class="scan-corner tl"></div>
-        <div class="scan-corner tr"></div>
-        <div class="scan-corner bl"></div>
-        <div class="scan-corner br"></div>
-        <!-- 完成波纹 -->
-        <div class="scan-complete-ripple" :class="{'active': showRipple}"></div>
-        <!-- 中心样本 -->
-        <div class="scan-sample">🧬</div>
+      <!-- Emoji扫描轨道 -->
+      <div class="emoji-scan-track">
+        <div class="emoji-scan-list" :style="{ animationPlayState: isScanning ? 'running' : 'paused' }">
+          <div class="emoji-scan-item" 
+               v-for="(emoji, i) in allResultEmojis" 
+               :key="i"
+               :class="{'highlight': currentScanIndex === i}">
+            {{emoji}}
+          </div>
+        </div>
       </div>
       
       <!-- 标题 -->
@@ -2430,18 +2469,9 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
     </div>
   </transition>
 
-  <!-- ==================== Emoji飞出动画 ==================== -->
-  <div class="emoji-fly-container" v-if="showEmojiFly">
-    <div class="emoji-fly-piece" v-for="i in 50" :key="i" 
-         :style="{
-           left: '50%',
-           top: '50%',
-           '--tx': ((Math.random() - 0.5) * windowWidth) + 'px',
-           '--ty': ((Math.random() - 0.5) * windowHeight) + 'px',
-           '--rot': (Math.random() * 720 - 360) + 'deg',
-           animationDelay: (Math.random() * 0.5) + 's',
-           animationDuration: (1.5 + Math.random() * 1) + 's'
-         }">{{result?.visual?.emoji || '🧬'}}</div>
+  <!-- ==================== Emoji剪影转场 ==================== -->
+  <div class="emoji-silhouette-container" v-if="showEmojiFly">
+    <div class="emoji-silhouette">{{result?.visual?.emoji || '🧬'}}</div>
   </div>
 
   <!-- ==================== 结果页 - 基因报告书 ==================== -->
@@ -2478,7 +2508,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
             <div class="identity-info">
               <div class="identity-type" v-if="result.type">{{result.type}}</div>
               <div class="identity-name">{{result.name}}</div>
-              <div class="identity-dims" v-if="result.dims">{{result.dims.join(' · ')}}</div>
+
               <div class="identity-index">
                 <span class="num">{{result.index}}%</span>
                 <div class="label-box">
@@ -2660,6 +2690,14 @@ createApp({
       { key: 'heart', icon: '⚡', label: '心动', active: false, syncing: false },
       { key: 'alone', icon: '🌙', label: '独处', active: false, syncing: false }
     ]);
+    
+    // 所有结果的emoji列表（用于扫描动画）
+    const allResultEmojis = ref([
+      '🌺','🐧','🦉','🦋','🌵','🐱','🦊','🐺','🦁','🐯','🐻','🐨',
+      '🐼','🐸','🐙','🦄','🦓','🦒','🐫','🦏','🦛','🐘','🦍','🐒',
+      '🐕','🐈','🐇','🦔','🦝','🦡','🐁','🐀','🐿️','🦇','🐦','🦅'
+    ]);
+    const currentScanIndex = ref(0);
     
     
     const loadingSteps = [
@@ -2879,9 +2917,15 @@ createApp({
       isScanning.value = true;
       isComplete.value = false;
       showRipple.value = false;
+      currentScanIndex.value = 0;
       analysisTitle.value = '基因测序中';
       analysisStatus.value = '正在初始化序列...';
       analysisDims.value.forEach(d => { d.active = false; d.syncing = false; });
+      
+      // 启动扫描索引更新
+      const scanInterval = setInterval(() => {
+        currentScanIndex.value = (currentScanIndex.value + 1) % allResultEmojis.value.length;
+      }, 200);
       
       // 等待一小段时间开始扫描
       await sleep(500);
@@ -2925,6 +2969,7 @@ createApp({
       
       // 完成扫描
       await sleep(400);
+      clearInterval(scanInterval);
       analysisTitle.value = '测序完成';
       analysisStatus.value = '正在生成报告...';
       isScanning.value = false;
@@ -3081,6 +3126,9 @@ createApp({
       analysisTitle,
       analysisStatus,
       analysisDims,
+      // Emoji扫描
+      allResultEmojis,
+      currentScanIndex,
       // 结果页印章
       showStamp,
       stampDate
