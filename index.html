@@ -450,14 +450,15 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   margin-bottom: 8px;
 }
 .q-text { 
-  font-size: 30px; 
+  font-size: 32px; 
   font-weight: 900;
   line-height: 1.4; 
   color: var(--text);
   padding-bottom: 16px;
-  border-bottom: 3px solid var(--text);
+  border-bottom: 4px solid var(--text);
   display: inline-block;
   letter-spacing: -0.02em;
+  text-shadow: 0 2px 0 var(--gray);
 }
 .q-options {
   margin-top: 32px;
@@ -1082,7 +1083,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 }
 .emoji-fly-piece { 
   position: absolute; 
-  font-size: 28px;
+  font-size: 48px;
   animation: emojiFly ease-out forwards;
   filter: grayscale(0.2);
 }
@@ -1189,9 +1190,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
       </div>
       <div class="q-body">
         <div class="q-emojis" v-if="questions[currentQ].emoji">
-          <span class="emoji">🔍</span>
           <span class="emoji emoji-main">{{questions[currentQ].emoji}}</span>
-          <span class="emoji">💕</span>
         </div>
         <div class="q-meta">{{dimNames[questions[currentQ].dim]}}</div>
         <div class="q-text-container">
@@ -1225,12 +1224,12 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 
   <!-- ==================== Emoji飞出动画 ==================== -->
   <div class="emoji-fly-container" v-if="showEmojiFly">
-    <div class="emoji-fly-piece" v-for="i in 30" :key="i" 
+    <div class="emoji-fly-piece" v-for="i in 50" :key="i" 
          :style="{
            left: '50%',
-           top: '40%',
-           '--tx': ((Math.random() - 0.5) * 300) + 'px',
-           '--ty': ((Math.random() - 0.5) * 400 - 100) + 'px',
+           top: '50%',
+           '--tx': ((Math.random() - 0.5) * windowWidth) + 'px',
+           '--ty': ((Math.random() - 0.5) * windowHeight) + 'px',
            '--rot': (Math.random() * 720 - 360) + 'deg',
            animationDelay: (Math.random() * 0.5) + 's',
            animationDuration: (1.5 + Math.random() * 1) + 's'
@@ -1472,6 +1471,7 @@ createApp({
     const startQuiz = () => {
       answers.value = new Array(questions.length).fill(null);
       currentQ.value = 0;
+      isTransitioning.value = false;
       phase.value = 'quiz';
       Vue.nextTick(() => {
         setTimeout(animateQuestionText, 100);
@@ -1615,11 +1615,10 @@ createApp({
     };
     
     const retry = () => {
-      storage.clear();
-      hasRecord.value = false;
-      savedRecord.value = null;
+      // 不清除记录，保留上次结果
       answers.value = new Array(questions.length).fill(null);
       currentQ.value = 0;
+      isTransitioning.value = false;
       phase.value = 'welcome';
     };
     
@@ -1647,7 +1646,9 @@ createApp({
       selectOption,
       retry,
       toggleTheme,
-      copyShareText
+      copyShareText,
+      windowWidth: window.innerWidth,
+      windowHeight: window.innerHeight
     };
   }
 }).mount('#app');
