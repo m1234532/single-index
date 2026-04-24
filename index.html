@@ -66,6 +66,25 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 /* Vue挂载前隐藏 */
 [v-cloak] { display: none !important; }
 
+/* ==================== 性能优化 ==================== */
+.will-animate {
+  will-change: transform, opacity;
+}
+
+.gpu-accelerated {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* 减少动效偏好 */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
 /* ==================== 动画定义 ==================== */
 @keyframes splashIn { from { opacity: 0 } to { opacity: 1 } }
 @keyframes bounce { 0% { transform: scale(0) } 60% { transform: scale(1.15) } 100% { transform: scale(1) } }
@@ -86,12 +105,35 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   }
 }
 
-/* 页面切换动画 */
-.page-enter-active, .page-leave-active { transition: opacity .3s, transform .3s }
-.page-enter-from { opacity: 0; transform: translateY(20px) }
-.page-leave-to { opacity: 0; transform: translateY(-20px) }
-.fade-enter-active, .fade-leave-active { transition: opacity .3s }
-.fade-enter-from, .fade-leave-to { opacity: 0 }
+/* 页面切换动画 - 高级流畅版本 */
+.page-enter-active, .page-leave-active { 
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1), 
+              transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: opacity, transform;
+}
+.page-enter-from { 
+  opacity: 0; 
+  transform: translateY(30px) scale(0.98);
+}
+.page-leave-to { 
+  opacity: 0; 
+  transform: translateY(-20px) scale(0.98);
+}
+
+.fade-enter-active, .fade-leave-active { 
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from, .fade-leave-to { 
+  opacity: 0;
+}
+
+/* 快速淡入 - 用于元素切换 */
+.quick-fade-enter-active, .quick-fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.quick-fade-enter-from, .quick-fade-leave-to {
+  opacity: 0;
+}
 
 /* 文字动画样式 */
 .text-animate-container {
@@ -129,7 +171,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 }
 .theme-toggle:active { transform: scale(0.9); }
 
-/* ==================== 闪屏页 - 黑白风格 ==================== */
+/* ==================== 闪屏页 - DNA双螺旋实验室风格 ==================== */
 .splash-page {
   position: fixed;
   inset: 0;
@@ -140,63 +182,208 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   justify-content: center;
   z-index: 9999;
   animation: splashIn .5s ease;
+  overflow: hidden;
 }
-.splash-emoji { 
-  font-size: 64px; 
-  animation: float 3s ease-in-out infinite;
-  filter: grayscale(0.3);
+
+/* DNA双螺旋容器 */
+.dna-container {
+  position: relative;
+  width: 120px;
+  height: 200px;
+  perspective: 600px;
 }
-.splash-title { 
-  font-size: 40px; 
-  font-weight: 800; 
-  color: var(--text);
-  margin-top: 24px;
-  letter-spacing: -1px;
+
+/* DNA双螺旋 */
+.dna-helix {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+  animation: dnaRotate 3s linear infinite;
 }
-.splash-sub { 
-  font-size: 16px; 
-  color: var(--text2); 
-  margin-top: 12px;
-  font-weight: 400;
+
+.dna-strand {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: var(--text);
+  border-radius: 50%;
+  left: 50%;
+  transform-origin: center;
 }
-.splash-loading { 
-  margin-top: 48px; 
-  width: 200px;
+
+/* 左链 */
+.dna-strand.left {
+  margin-left: -30px;
+}
+
+/* 右链 */
+.dna-strand.right {
+  margin-left: 22px;
+}
+
+/* 连接横杆 */
+.dna-rung {
+  position: absolute;
+  width: 60px;
+  height: 2px;
+  background: var(--gray);
+  left: 50%;
+  margin-left: -30px;
+  transform-origin: center;
+}
+
+/* 动态生成20个节点 */
+.dna-strand:nth-child(1) { top: 0; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0s; }
+.dna-strand:nth-child(2) { top: 0; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0s; }
+.dna-rung:nth-child(3) { top: 4px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0s; }
+.dna-strand:nth-child(4) { top: 20px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.1s; }
+.dna-strand:nth-child(5) { top: 20px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.1s; }
+.dna-rung:nth-child(6) { top: 24px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.1s; }
+.dna-strand:nth-child(7) { top: 40px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.2s; }
+.dna-strand:nth-child(8) { top: 40px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.2s; }
+.dna-rung:nth-child(9) { top: 44px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.2s; }
+.dna-strand:nth-child(10) { top: 60px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.3s; }
+.dna-strand:nth-child(11) { top: 60px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.3s; }
+.dna-rung:nth-child(12) { top: 64px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.3s; }
+.dna-strand:nth-child(13) { top: 80px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.4s; }
+.dna-strand:nth-child(14) { top: 80px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.4s; }
+.dna-rung:nth-child(15) { top: 84px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.4s; }
+.dna-strand:nth-child(16) { top: 100px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.5s; }
+.dna-strand:nth-child(17) { top: 100px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.5s; }
+.dna-rung:nth-child(18) { top: 104px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.5s; }
+.dna-strand:nth-child(19) { top: 120px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.6s; }
+.dna-strand:nth-child(20) { top: 120px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.6s; }
+.dna-rung:nth-child(21) { top: 124px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.6s; }
+.dna-strand:nth-child(22) { top: 140px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.7s; }
+.dna-strand:nth-child(23) { top: 140px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.7s; }
+.dna-rung:nth-child(24) { top: 144px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.7s; }
+.dna-strand:nth-child(25) { top: 160px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.8s; }
+.dna-strand:nth-child(26) { top: 160px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.8s; }
+.dna-rung:nth-child(27) { top: 164px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.8s; }
+.dna-strand:nth-child(28) { top: 180px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.9s; }
+.dna-strand:nth-child(29) { top: 180px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.9s; }
+.dna-rung:nth-child(30) { top: 184px; animation: dnaWave 2s ease-in-out infinite; animation-delay: 0.9s; }
+
+@keyframes dnaWave {
+  0%, 100% { transform: translateX(0) scale(1); opacity: 1; }
+  25% { transform: translateX(8px) scale(0.9); opacity: 0.7; }
+  50% { transform: translateX(0) scale(1); opacity: 1; }
+  75% { transform: translateX(-8px) scale(0.9); opacity: 0.7; }
+}
+
+@keyframes dnaRotate {
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(360deg); }
+}
+
+/* 进度条 */
+.splash-loading {
+  margin-top: 48px;
+  width: 240px;
   background: var(--card);
-  padding: 16px;
+  padding: 20px;
   border-radius: var(--radius-md);
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--gray);
 }
-.splash-bar { 
-  height: 4px; 
-  background: var(--gray); 
-  border-radius: var(--radius-pill); 
+
+.splash-bar {
+  height: 4px;
+  background: var(--gray);
+  border-radius: var(--radius-pill);
   overflow: hidden;
+  position: relative;
 }
-.splash-fill { 
-  height: 100%; 
+
+.splash-fill {
+  height: 100%;
   background: var(--text);
   border-radius: var(--radius-pill);
   transition: width .3s;
+  position: relative;
+  overflow: hidden;
 }
-.splash-text { 
-  font-size: 14px; 
-  color: var(--text2); 
-  margin-top: 12px; 
+
+.splash-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+  animation: shimmer 1.5s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* 打字机文字 */
+.splash-typing {
+  margin-top: 32px;
+  font-size: 14px;
+  color: var(--text2);
+  font-family: 'SF Mono', monospace;
+  min-height: 20px;
+  letter-spacing: 0.5px;
+}
+
+.splash-typing::after {
+  content: '|';
+  animation: cursorBlink 1s infinite;
+}
+
+@keyframes cursorBlink {
+  0%, 50% { opacity: 1; }
+  51%, 100% { opacity: 0; }
+}
+
+/* 随机Tips */
+.splash-tips {
+  margin-top: 16px;
+  font-size: 12px;
+  color: var(--text3);
   text-align: center;
-  font-weight: 400;
+  min-height: 36px;
+  padding: 0 24px;
+  line-height: 1.5;
+  opacity: 0.8;
 }
+
+.splash-tips-text {
+  animation: tipFade 0.5s ease;
+}
+
+@keyframes tipFade {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* 开始按钮 */
 .splash-tap {
   margin-top: 48px;
   font-size: 16px;
   color: var(--card);
-  padding: 16px 40px;
+  padding: 16px 48px;
   background: var(--text);
   border-radius: var(--radius-pill);
   animation: pulse 1.5s ease-in-out infinite;
   font-weight: 600;
   cursor: pointer;
+  border: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.splash-tap:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+}
+
+.splash-tap:active {
+  transform: translateY(0);
 }
 
 /* ==================== 欢迎页 - 方案A：巨型基因球 ==================== */
@@ -210,6 +397,72 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   background: var(--bg);
   position: relative;
   overflow: hidden;
+}
+
+/* 背景粒子 */
+.welcome-particles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  overflow: hidden;
+}
+
+.welcome-particle {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: var(--text);
+  border-radius: 50%;
+  opacity: 0.1;
+  animation: particleFloat 20s linear infinite;
+}
+
+@keyframes particleFloat {
+  0% {
+    transform: translateY(100vh) rotate(0deg);
+    opacity: 0;
+  }
+  10% {
+    opacity: 0.15;
+  }
+  90% {
+    opacity: 0.15;
+  }
+  100% {
+    transform: translateY(-100px) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+/* 底部光晕 */
+.welcome-glow {
+  position: absolute;
+  bottom: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 300px;
+  background: radial-gradient(ellipse at center, rgba(0,0,0,0.03) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+[data-theme="dark"] .welcome-glow {
+  background: radial-gradient(ellipse at center, rgba(255,255,255,0.02) 0%, transparent 70%);
+}
+
+/* 环绕emoji闪烁效果 */
+.gene-satellite {
+  position: absolute;
+  font-size: 36px;
+  filter: grayscale(0.3);
+  animation: satelliteFloat 4s ease-in-out infinite, satelliteTwinkle 3s ease-in-out infinite;
+}
+
+@keyframes satelliteTwinkle {
+  0%, 100% { opacity: 0.7; filter: grayscale(0.3); }
+  50% { opacity: 1; filter: grayscale(0.1) drop-shadow(0 0 8px rgba(0,0,0,0.1)); }
 }
 
 /* 巨型基因球容器 */
@@ -322,7 +575,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   border: 1px solid var(--gray);
 }
 
-/* 按钮 - Fill Slide 填充滑入效果 */
+/* 按钮 - Fill Slide 填充滑入效果 + 涟漪 */
 .btn {
   width: 100%;
   max-width: 320px;
@@ -337,7 +590,9 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   position: relative;
   overflow: hidden;
   z-index: 1;
+  cursor: pointer;
 }
+
 .btn::before {
   content: '';
   position: absolute;
@@ -349,8 +604,40 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   transition: left 0.3s ease;
   z-index: -1;
 }
+
 .btn:hover::before {
   left: 0;
+}
+
+.btn:active {
+  transform: scale(0.98);
+}
+
+/* 按钮涟漪效果 */
+.btn-ripple {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.4);
+  transform: scale(0);
+  animation: rippleEffect 0.6s ease-out;
+  pointer-events: none;
+}
+
+@keyframes rippleEffect {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+/* 主按钮脉动效果 */
+.btn-primary {
+  animation: btnPulse 2s ease-in-out infinite;
+}
+
+@keyframes btnPulse {
+  0%, 100% { box-shadow: 0 4px 16px rgba(0,0,0,0.08); }
+  50% { box-shadow: 0 4px 24px rgba(0,0,0,0.15), 0 0 0 4px rgba(0,0,0,0.02); }
 }
 .btn:active { 
   transform: scale(.97);
@@ -379,7 +666,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 }
 .welcome-footer:active { opacity: .6; }
 
-/* ==================== 答题页 - 新构图 ==================== */
+/* ==================== 答题页 - DNA链式进度条 ==================== */
 .quiz { 
   min-height: 100vh; 
   display: flex; 
@@ -399,7 +686,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 .q-back { 
   width: 36px; 
@@ -411,9 +698,15 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   color: var(--text);
   font-size: 20px;
   font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.q-back:hover {
+  background: var(--gray);
 }
 .q-back:active { 
   opacity: 0.6;
+  transform: scale(0.95);
 }
 .q-header-title {
   font-size: 17px; 
@@ -428,20 +721,89 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   font-weight: 600;
   color: var(--text3);
 }
-.q-progress-bar {
-  height: 2px;
-  background: var(--gray);
-  position: relative;
+
+/* DNA链式进度条 */
+.q-progress-dna {
+  display: flex;
+  gap: 4px;
+  height: 6px;
+  align-items: center;
 }
-.q-progress-bar::after {
+
+.q-dna-node {
+  flex: 1;
+  height: 6px;
+  background: var(--gray);
+  border-radius: 3px;
+  position: relative;
+  transition: all 0.4s ease;
+  overflow: hidden;
+}
+
+.q-dna-node::before {
   content: '';
   position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
+  inset: 0;
   background: var(--text);
-  width: var(--progress, 0%);
-  transition: width 0.3s ease;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.4s ease;
+  border-radius: 3px;
+}
+
+.q-dna-node.active::before {
+  transform: scaleX(1);
+}
+
+.q-dna-node.current {
+  box-shadow: 0 0 0 2px var(--text);
+}
+
+.q-dna-node.current::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 4px;
+  height: 4px;
+  background: var(--card);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  animation: dnaPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes dnaPulse {
+  0%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+  50% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.5); }
+}
+
+/* 题目切换动画 */
+.question-transition-enter-active,
+.question-transition-leave-active {
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.question-transition-enter-from {
+  opacity: 0;
+  transform: translateX(50px);
+}
+
+.question-transition-leave-to {
+  opacity: 0;
+  transform: translateX(-50px);
+}
+
+/* 选中光效 */
+.q-options .opt.sel {
+  background: var(--text);
+  border-color: var(--text);
+  animation: selectGlow 0.4s ease;
+}
+
+@keyframes selectGlow {
+  0% { box-shadow: 0 0 0 0 rgba(0,0,0,0.2); }
+  50% { box-shadow: 0 0 20px 5px rgba(0,0,0,0.1); }
+  100% { box-shadow: 0 0 0 0 rgba(0,0,0,0); }
 }
 
 .q-body { 
@@ -1703,20 +2065,59 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   <!-- 主题切换按钮 -->
   <button class="theme-toggle" @click="toggleTheme">{{isDark ? '☀️' : '🌙'}}</button>
 
-  <!-- ==================== 闪屏页 ==================== -->
+  <!-- ==================== 闪屏页 - DNA双螺旋 ==================== -->
   <div class="splash-page" v-if="phase === 'splash'">
-    <div class="splash-emoji">🧬</div>
-    <div class="splash-title">单身狗基因测序</div>
-    <div class="splash-sub">36种单身基因，解码你的单身密码</div>
+    <!-- DNA双螺旋 -->
+    <div class="dna-container" v-if="loadingProgress < 100">
+      <div class="dna-helix">
+        <div class="dna-strand left"></div><div class="dna-strand right"></div><div class="dna-rung"></div>
+        <div class="dna-strand left"></div><div class="dna-strand right"></div><div class="dna-rung"></div>
+        <div class="dna-strand left"></div><div class="dna-strand right"></div><div class="dna-rung"></div>
+        <div class="dna-strand left"></div><div class="dna-strand right"></div><div class="dna-rung"></div>
+        <div class="dna-strand left"></div><div class="dna-strand right"></div><div class="dna-rung"></div>
+        <div class="dna-strand left"></div><div class="dna-strand right"></div><div class="dna-rung"></div>
+        <div class="dna-strand left"></div><div class="dna-strand right"></div><div class="dna-rung"></div>
+        <div class="dna-strand left"></div><div class="dna-strand right"></div><div class="dna-rung"></div>
+        <div class="dna-strand left"></div><div class="dna-strand right"></div><div class="dna-rung"></div>
+        <div class="dna-strand left"></div><div class="dna-strand right"></div><div class="dna-rung"></div>
+      </div>
+    </div>
+    
+    <!-- 完成图标 -->
+    <div class="splash-emoji" v-else style="animation: bounce 0.6s ease;">🧬</div>
+    
+    <!-- 打字机文字 -->
+    <div class="splash-typing">{{typingText}}</div>
+    
+    <!-- 加载进度 -->
     <div class="splash-loading" v-if="loadingProgress < 100">
       <div class="splash-bar"><div class="splash-fill" :style="{width: loadingProgress + '%'}"></div></div>
-      <div class="splash-text">{{loadingText}}</div>
     </div>
+    
+    <!-- 随机Tips -->
+    <div class="splash-tips" v-if="loadingProgress < 100">
+      <div class="splash-tips-text" :key="currentTipIndex">💡 {{currentTip}}</div>
+    </div>
+    
+    <!-- 开始按钮 -->
+    <button class="splash-tap" v-if="loadingProgress >= 100" @click="enterWelcome">开始基因测序</button>
   </div>
 
   <!-- ==================== 欢迎页 ==================== -->
   <transition name="page">
     <div class="welcome" v-if="phase === 'welcome'">
+      <!-- 背景粒子 -->
+      <div class="welcome-particles">
+        <div class="welcome-particle" v-for="i in 20" :key="i" :style="{
+          left: (Math.random() * 100) + '%',
+          animationDelay: (Math.random() * 20) + 's',
+          animationDuration: (15 + Math.random() * 10) + 's'
+        }"></div>
+      </div>
+      
+      <!-- 底部光晕 -->
+      <div class="welcome-glow"></div>
+      
       <div class="welcome-header">
         <h1 ref="welcomeTitle">单身狗基因测序</h1>
         <p>36种基因序列 · 解码你的单身密码</p>
@@ -1741,9 +2142,9 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
         <span class="gene-tag">🌙 独处基因</span>
       </div>
       
-      <button class="btn" @click="startQuiz">开始基因测序 →</button>
-      <button class="btn btn2" v-if="hasRecord" @click="viewLastResult">📊 查看上一次结果</button>
-      <div class="welcome-footer" @click="showChangelog = true">v4.8 · 更新日志</div>
+      <button class="btn btn-primary" @click="startQuiz" @mousedown="createRipple">开始基因测序 →</button>
+      <button class="btn btn2" v-if="hasRecord" @click="viewLastResult" @mousedown="createRipple">📊 查看上一次结果</button>
+      <div class="welcome-footer" @click="showChangelog = true">v5.4 · 更新日志</div>
     </div>
   </transition>
 
@@ -1757,20 +2158,23 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
         </div>
         <div class="changelog-body">
           <div class="changelog-item">
-            <div class="changelog-ver">v4.0 · 2026.4.24</div>
+            <div class="changelog-ver">v5.4 · 2026.4.24</div>
             <ul>
-              <li>全新高级黑白风格设计</li>
-              <li>新增黑夜模式切换</li>
-              <li>新增「最佳CP匹配」功能</li>
-              <li>新增一键复制分享文案</li>
-              <li>emoji飞出动画替代彩带</li>
+              <li>闪屏页：全新DNA双螺旋加载动画</li>
+              <li>闪屏页：打字机效果+随机Tips轮换</li>
+              <li>首页：背景粒子浮动+底部光晕氛围</li>
+              <li>首页：按钮涟漪反馈+脉动动画</li>
+              <li>题目页：DNA链式进度条</li>
+              <li>题目页：题目切换滑动动画</li>
+              <li>全局：更流畅的页面转场效果</li>
             </ul>
           </div>
           <div class="changelog-item">
-            <div class="changelog-ver">v3.1 · 2026.4.23</div>
+            <div class="changelog-ver">v5.0 · 2026.4.24</div>
             <ul>
-              <li>精简至36种人格，每种文案更深入</li>
-              <li>代码重构，模块化结构更易维护</li>
+              <li>分析页全新设计：显微镜扫描视角</li>
+              <li>结果页证书风格：四角花纹+印章</li>
+              <li>四维度解锁动画+Glitch干扰效果</li>
             </ul>
           </div>
         </div>
@@ -1787,22 +2191,35 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
           <div class="q-header-title">单身狗基因测序</div>
           <div class="q-progress-num">{{currentQ + 1}} / {{questions.length}}</div>
         </div>
-        <div class="q-progress-bar" :style="{'--progress': ((currentQ + 1) / questions.length * 100) + '%'}"></div>
+        <!-- DNA链式进度条 -->
+        <div class="q-progress-dna">
+          <div class="q-dna-node" 
+               v-for="i in questions.length" 
+               :key="i"
+               :class="{
+                 'active': i <= currentQ + 1,
+                 'current': i === currentQ + 1
+               }"></div>
+        </div>
       </div>
       <div class="q-body">
-        <div class="q-emojis" v-if="questions[currentQ].emoji">
-          <span class="emoji emoji-main">{{questions[currentQ].emoji}}</span>
-        </div>
-        <div class="q-meta">{{dimNames[questions[currentQ].dim]}}</div>
-        <div class="q-text-container">
-          <div class="q-text" ref="questionText">{{questions[currentQ].text}}</div>
-        </div>
-        <div class="q-options" :key="currentQ">
-          <div class="opt" v-for="(opt, i) in questions[currentQ].options" :key="i" 
-               :class="{sel: answers[currentQ] === i}" @click="selectOption(i)">
-            <div class="text">{{opt}}</div>
+        <transition name="question-transition" mode="out-in">
+          <div class="question-content" :key="currentQ">
+            <div class="q-emojis" v-if="questions[currentQ].emoji">
+              <span class="emoji emoji-main">{{questions[currentQ].emoji}}</span>
+            </div>
+            <div class="q-meta">{{dimNames[questions[currentQ].dim]}}</div>
+            <div class="q-text-container">
+              <div class="q-text" ref="questionText">{{questions[currentQ].text}}</div>
+            </div>
+            <div class="q-options">
+              <div class="opt" v-for="(opt, i) in questions[currentQ].options" :key="i" 
+                   :class="{sel: answers[currentQ] === i}" @click="selectOption(i)">
+                <div class="text">{{opt}}</div>
+              </div>
+            </div>
           </div>
-        </div>
+        </transition>
       </div>
     </div>
   </transition>
@@ -2041,6 +2458,21 @@ createApp({
     const showEmojiFly = ref(false);
     const copied = ref(false);
     
+    // 闪屏页状态
+    const typingText = ref('');
+    const currentTipIndex = ref(0);
+    const tips = [
+      '全球有超过50种被确认的单身基因变体',
+      '单身不是你的错，是基因的「选择」',
+      '每一种单身类型都有独特的进化优势',
+      '研究发现：单身人士的大脑更擅长独立思考',
+      '你的单身指数会在不同人生阶段波动',
+      '有些人天生携带「晚熟」基因，花期比别人晚',
+      '单身基因在创造力测试中往往得分更高',
+      '了解自己的单身类型，是改变的第一步'
+    ];
+    const currentTip = computed(() => tips[currentTipIndex.value % tips.length]);
+    
     // 分析页状态
     const isScanning = ref(true);
     const isComplete = ref(false);
@@ -2134,6 +2566,43 @@ createApp({
       
       // 闪屏加载动画
       let step = 0;
+      const typingMessages = [
+        '正在连接基因数据库...',
+        '正在提取DNA样本...',
+        '正在分析单身序列...',
+        '正在校准匹配算法...',
+        '系统就绪'
+      ];
+      let typingIndex = 0;
+      let charIndex = 0;
+      
+      // 打字机效果
+      const typeWriter = () => {
+        if (typingIndex < typingMessages.length) {
+          const msg = typingMessages[typingIndex];
+          if (charIndex < msg.length) {
+            typingText.value = msg.slice(0, charIndex + 1);
+            charIndex++;
+            setTimeout(typeWriter, 30 + Math.random() * 50);
+          } else {
+            setTimeout(() => {
+              typingIndex++;
+              charIndex = 0;
+              if (typingIndex < typingMessages.length) {
+                typeWriter();
+              }
+            }, 800);
+          }
+        }
+      };
+      typeWriter();
+      
+      // Tips轮换
+      const tipInterval = setInterval(() => {
+        currentTipIndex.value++;
+      }, 3000);
+      
+      // 进度条动画
       const interval = setInterval(() => {
         if (step < loadingSteps.length) {
           loadingProgress.value = loadingSteps[step].progress;
@@ -2141,16 +2610,10 @@ createApp({
           step++;
         } else {
           clearInterval(interval);
-          // 加载完成后自动跳转到欢迎页
-          setTimeout(() => {
-            phase.value = 'welcome';
-            // 首页标题动画
-            Vue.nextTick(() => {
-              setTimeout(animateWelcomeTitle, 300);
-            });
-          }, 300);
+          clearInterval(tipInterval);
+          // 加载完成后不自动跳转，等待用户点击
         }
-      }, 200);
+      }, 400);
       
       // 检查是否有记录
       const record = storage.load();
@@ -2165,6 +2628,32 @@ createApp({
       isDark.value = !isDark.value;
       document.documentElement.setAttribute('data-theme', isDark.value ? 'dark' : 'light');
       storage.saveTheme(isDark.value);
+    };
+    
+    // 进入欢迎页
+    const enterWelcome = () => {
+      phase.value = 'welcome';
+      Vue.nextTick(() => {
+        setTimeout(animateWelcomeTitle, 300);
+      });
+    };
+    
+    // 按钮涟漪效果
+    const createRipple = (e) => {
+      const btn = e.currentTarget;
+      const rect = btn.getBoundingClientRect();
+      const size = Math.max(rect.width, rect.height);
+      const x = e.clientX - rect.left - size / 2;
+      const y = e.clientY - rect.top - size / 2;
+      
+      const ripple = document.createElement('span');
+      ripple.className = 'btn-ripple';
+      ripple.style.width = ripple.style.height = size + 'px';
+      ripple.style.left = x + 'px';
+      ripple.style.top = y + 'px';
+      
+      btn.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 600);
     };
     
     const startQuiz = () => {
@@ -2437,8 +2926,14 @@ createApp({
       retry,
       toggleTheme,
       copyShareText,
+      enterWelcome,
+      createRipple,
       windowWidth: window.innerWidth,
       windowHeight: window.innerHeight,
+      // 闪屏页状态
+      typingText,
+      currentTipIndex,
+      currentTip,
       // 分析页状态
       isScanning,
       isComplete,
