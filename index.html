@@ -586,66 +586,246 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   pointer-events: none;
 }
 
-/* ==================== 分析页 - 黑白风格 ==================== */
+/* ==================== 分析页 - 显微镜扫描视角 ==================== */
 .analysis { 
   min-height: 100vh; 
   display: flex; 
   flex-direction: column; 
   align-items: center; 
   justify-content: center; 
-  padding: 40px 28px;
+  padding: 40px 24px;
   background: var(--bg);
+  position: relative;
+  overflow: hidden;
 }
-.analysis .orb { 
-  font-size: 64px; 
-  animation: spin 2s linear infinite;
-  filter: grayscale(0.3);
-}
-.analysis h2 { 
-  font-size: 32px; 
-  font-weight: 800;
-  margin-top: 32px;
-  color: var(--text);
-}
-.analysis p { 
-  font-size: 16px; 
-  color: var(--text2); 
-  margin-top: 12px;
-  font-weight: 400;
-}
-.analysis .steps { 
-  margin-top: 40px; 
-  display: flex; 
-  flex-direction: column; 
-  gap: 12px; 
-  width: 100%;
-  max-width: 320px;
-}
-.analysis .step {
+
+/* 扫描容器 */
+.scan-container {
+  position: relative;
+  width: 280px;
+  height: 280px;
   display: flex;
   align-items: center;
-  gap: 16px;
-  background: var(--card);
-  padding: 16px 20px;
-  border-radius: var(--radius-md);
-  opacity: 0;
-  transform: translateY(10px);
-  animation: fadeUp .4s ease forwards;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--gray);
+  justify-content: center;
 }
-.analysis .step:nth-child(1) { animation-delay: .3s }
-.analysis .step:nth-child(2) { animation-delay: .6s }
-.analysis .step:nth-child(3) { animation-delay: .9s }
-.analysis .step:nth-child(4) { animation-delay: 1.2s }
-.analysis .step .icon { 
-  width: 44px; 
-  height: 44px; 
-  border-radius: var(--radius-sm);
-  display: flex; 
-  align-items: center; 
-  justify-content: center; 
+
+/* 外圈扫描环 */
+.scan-ring-outer {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 2px solid var(--gray);
+  border-radius: 50%;
+  opacity: 0.5;
+}
+
+/* 内圈扫描环 */
+.scan-ring-inner {
+  position: absolute;
+  width: 220px;
+  height: 220px;
+  border: 1px solid var(--gray);
+  border-radius: 50%;
+}
+
+/* 十字瞄准线 */
+.scan-crosshair {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.scan-crosshair::before,
+.scan-crosshair::after {
+  content: '';
+  position: absolute;
+  background: var(--text);
+  opacity: 0.3;
+}
+.scan-crosshair::before {
+  width: 1px;
+  height: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.scan-crosshair::after {
+  width: 100%;
+  height: 1px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* 扫描线 */
+.scan-line {
+  position: absolute;
+  width: 200px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--text), transparent);
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: scanMove 2s ease-in-out infinite;
+  box-shadow: 0 0 10px var(--text);
+  opacity: 0.8;
+}
+@keyframes scanMove {
+  0%, 100% { top: 20px; opacity: 0; }
+  10% { opacity: 0.8; }
+  90% { opacity: 0.8; }
+  50% { top: 260px; }
+}
+
+/* 中心样本 */
+.scan-sample {
+  font-size: 72px;
+  filter: grayscale(0.2);
+  position: relative;
+  z-index: 10;
+  animation: samplePulse 2s ease-in-out infinite;
+}
+@keyframes samplePulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.05); opacity: 0.9; }
+}
+
+/* 角落标记 */
+.scan-corner {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-color: var(--text);
+  border-style: solid;
+  opacity: 0.6;
+}
+.scan-corner.tl { top: 20px; left: 20px; border-width: 2px 0 0 2px; }
+.scan-corner.tr { top: 20px; right: 20px; border-width: 2px 2px 0 0; }
+.scan-corner.bl { bottom: 20px; left: 20px; border-width: 0 0 2px 2px; }
+.scan-corner.br { bottom: 20px; right: 20px; border-width: 0 2px 2px 0; }
+
+/* 分析标题 */
+.analysis-title {
   font-size: 24px;
+  font-weight: 800;
+  margin-top: 40px;
+  color: var(--text);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* 分析状态文字 */
+.analysis-status {
+  font-size: 14px;
+  color: var(--text3);
+  margin-top: 12px;
+  font-family: monospace;
+  letter-spacing: 1px;
+}
+
+/* 四维度数据网格 */
+.analysis-dims {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-top: 48px;
+  width: 100%;
+  max-width: 360px;
+}
+.analysis-dim {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  opacity: 0.3;
+  transition: all 0.5s ease;
+}
+.analysis-dim.active {
+  opacity: 1;
+}
+.analysis-dim-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--card);
+  border: 2px solid var(--gray);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  transition: all 0.3s ease;
+}
+.analysis-dim.active .analysis-dim-icon {
+  border-color: var(--text);
+  background: var(--text);
+  transform: scale(1.1);
+}
+.analysis-dim-label {
+  font-size: 11px;
+  color: var(--text3);
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.analysis-dim.active .analysis-dim-label {
+  color: var(--text);
+}
+
+/* 数据同步环 */
+.dim-sync-ring {
+  position: absolute;
+  width: 56px;
+  height: 56px;
+  border: 2px solid transparent;
+  border-top-color: var(--text);
+  border-radius: 50%;
+  animation: syncSpin 1s linear infinite;
+  opacity: 0;
+}
+.analysis-dim.syncing .dim-sync-ring {
+  opacity: 1;
+}
+@keyframes syncSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* 完成波纹效果 */
+.scan-complete-ripple {
+  position: absolute;
+  width: 280px;
+  height: 280px;
+  border: 2px solid var(--text);
+  border-radius: 50%;
+  opacity: 0;
+  transform: scale(0.8);
+  pointer-events: none;
+}
+.scan-complete-ripple.active {
+  animation: rippleExpand 0.6s ease-out forwards;
+}
+@keyframes rippleExpand {
+  to {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* Glitch 效果 */
+.glitch-effect {
+  animation: glitch 0.1s ease;
+}
+@keyframes glitch {
+  0% { transform: translate(0); }
+  20% { transform: translate(-2px, 2px); }
+  40% { transform: translate(-2px, -2px); }
+  60% { transform: translate(2px, 2px); }
+  80% { transform: translate(2px, -2px); }
+  100% { transform: translate(0); }
+}
+
+/* 旧样式保留兼容 */
+.analysis .orb { display: none; }
+.analysis h2 { display: none; }
+.analysis p { display: none; }
+.analysis .steps { display: none; }
   flex-shrink: 0;
   background: var(--gray);
 }
@@ -1518,16 +1698,45 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
     </div>
   </transition>
 
-  <!-- ==================== 分析页 ==================== -->
+  <!-- ==================== 分析页 - 显微镜扫描 ==================== -->
   <transition name="page">
-    <div class="analysis" v-if="phase === 'analysis'">
-      <div class="orb">🌀</div>
-      <h2>正在分析你的单身DNA…</h2>
-      <p>这可能需要几秒钟</p>
-      <div class="steps">
-        <div class="step" v-for="step in analysisSteps" :key="step.label">
-          <div class="icon">{{step.icon}}</div>
-          <div class="label">{{step.label}}</div>
+    <div class="analysis" v-if="phase === 'analysis'" :class="{'glitch-effect': showGlitch}">
+      <!-- 扫描容器 -->
+      <div class="scan-container" :class="{'scanning': isScanning, 'complete': isComplete}">
+        <!-- 外圈 -->
+        <div class="scan-ring-outer"></div>
+        <!-- 内圈 -->
+        <div class="scan-ring-inner"></div>
+        <!-- 十字线 -->
+        <div class="scan-crosshair"></div>
+        <!-- 扫描线 -->
+        <div class="scan-line" v-if="isScanning"></div>
+        <!-- 角落标记 -->
+        <div class="scan-corner tl"></div>
+        <div class="scan-corner tr"></div>
+        <div class="scan-corner bl"></div>
+        <div class="scan-corner br"></div>
+        <!-- 完成波纹 -->
+        <div class="scan-complete-ripple" :class="{'active': showRipple}"></div>
+        <!-- 中心样本 -->
+        <div class="scan-sample">🧬</div>
+      </div>
+      
+      <!-- 标题 -->
+      <div class="analysis-title">{{analysisTitle}}</div>
+      <div class="analysis-status">{{analysisStatus}}</div>
+      
+      <!-- 四维度数据 -->
+      <div class="analysis-dims">
+        <div class="analysis-dim" 
+             v-for="(dim, i) in analysisDims" 
+             :key="dim.key"
+             :class="{'active': dim.active, 'syncing': dim.syncing}">
+          <div style="position: relative;">
+            <div class="analysis-dim-icon">{{dim.icon}}</div>
+            <div class="dim-sync-ring"></div>
+          </div>
+          <div class="analysis-dim-label">{{dim.label}}</div>
         </div>
       </div>
     </div>
@@ -1717,6 +1926,22 @@ createApp({
     const showEmojiFly = ref(false);
     const copied = ref(false);
     
+    // 分析页状态
+    const isScanning = ref(true);
+    const isComplete = ref(false);
+    const showRipple = ref(false);
+    const showGlitch = ref(false);
+    const analysisTitle = ref('DNA SCANNING');
+    const analysisStatus = ref('Initializing sequence...');
+    
+    // 四维度数据
+    const analysisDims = ref([
+      { key: 'social', icon: '🎯', label: '社交', active: false, syncing: false },
+      { key: 'filter', icon: '💝', label: '择偶', active: false, syncing: false },
+      { key: 'heart', icon: '⚡', label: '心动', active: false, syncing: false },
+      { key: 'alone', icon: '🌙', label: '独处', active: false, syncing: false }
+    ]);
+    
     const loadingSteps = [
       { progress: 15, text: '正在提取单身基因...' },
       { progress: 35, text: '匹配36种基因序列...' },
@@ -1725,6 +1950,7 @@ createApp({
       { progress: 100, text: '鉴定就绪' }
     ];
     
+    // 分析步骤（旧版兼容）
     const analysisSteps = computed(() => [
       { icon: '🧬', label: '扫描社交基因序列…' },
       { icon: '🔍', label: '解码爱情滤镜参数…' },
@@ -1857,31 +2083,91 @@ createApp({
       }
     };
     
-    const analyzeResult = () => {
-      setTimeout(() => {
-        try {
-          result.value = calcResult(answers.value, questions);
-          
-          if (!result.value || !result.value.type) {
-            result.value = createDefaultResult();
-          }
-          
-          if (result.value.type && typeEmojis[result.value.type]) {
-            result.value.visual = typeEmojis[result.value.type];
-          }
-          
-          storage.save(answers.value, result.value);
-          
-          phase.value = 'result';
-          triggerEmojiFly();
-          
-        } catch (e) {
-          console.error('Result calculation error:', e);
+    const analyzeResult = async () => {
+      // 重置状态
+      isScanning.value = true;
+      isComplete.value = false;
+      showRipple.value = false;
+      analysisTitle.value = 'DNA SCANNING';
+      analysisStatus.value = 'Initializing sequence...';
+      analysisDims.value.forEach(d => { d.active = false; d.syncing = false; });
+      
+      // 等待一小段时间开始扫描
+      await sleep(500);
+      analysisStatus.value = 'Scanning sample...';
+      
+      // 随机触发glitch效果
+      setTimeout(() => { showGlitch.value = true; setTimeout(() => showGlitch.value = false, 100); }, 800);
+      setTimeout(() => { showGlitch.value = true; setTimeout(() => showGlitch.value = false, 100); }, 2500);
+      
+      // 逐个解锁维度 - 社交基因
+      await sleep(600);
+      analysisDims.value[0].syncing = true;
+      analysisStatus.value = 'Analyzing social gene...';
+      await sleep(800);
+      analysisDims.value[0].syncing = false;
+      analysisDims.value[0].active = true;
+      
+      // 择偶基因
+      await sleep(400);
+      analysisDims.value[1].syncing = true;
+      analysisStatus.value = 'Decoding filter params...';
+      await sleep(800);
+      analysisDims.value[1].syncing = false;
+      analysisDims.value[1].active = true;
+      
+      // 心动基因
+      await sleep(400);
+      analysisDims.value[2].syncing = true;
+      analysisStatus.value = 'Measuring heart threshold...';
+      await sleep(800);
+      analysisDims.value[2].syncing = false;
+      analysisDims.value[2].active = true;
+      
+      // 独处基因
+      await sleep(400);
+      analysisDims.value[3].syncing = true;
+      analysisStatus.value = 'Checking alone power...';
+      await sleep(800);
+      analysisDims.value[3].syncing = false;
+      analysisDims.value[3].active = true;
+      
+      // 完成扫描
+      await sleep(400);
+      analysisTitle.value = 'ANALYSIS COMPLETE';
+      analysisStatus.value = 'Generating report...';
+      isScanning.value = false;
+      isComplete.value = true;
+      showRipple.value = true;
+      
+      // 计算结果
+      try {
+        result.value = calcResult(answers.value, questions);
+        
+        if (!result.value || !result.value.type) {
           result.value = createDefaultResult();
-          phase.value = 'result';
         }
-      }, 2000);
+        
+        if (result.value.type && typeEmojis[result.value.type]) {
+          result.value.visual = typeEmojis[result.value.type];
+        }
+        
+        storage.save(answers.value, result.value);
+        
+        // 延迟后进入结果页
+        await sleep(800);
+        phase.value = 'result';
+        triggerEmojiFly();
+        
+      } catch (e) {
+        console.error('Result calculation error:', e);
+        result.value = createDefaultResult();
+        phase.value = 'result';
+      }
     };
+    
+    // 辅助函数
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
     
     const triggerEmojiFly = () => {
       showEmojiFly.value = true;
@@ -2018,7 +2304,15 @@ createApp({
       toggleTheme,
       copyShareText,
       windowWidth: window.innerWidth,
-      windowHeight: window.innerHeight
+      windowHeight: window.innerHeight,
+      // 分析页状态
+      isScanning,
+      isComplete,
+      showRipple,
+      showGlitch,
+      analysisTitle,
+      analysisStatus,
+      analysisDims
     };
   }
 }).mount('#app');
