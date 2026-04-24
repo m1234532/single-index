@@ -303,16 +303,17 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   transform: scale(.97);
 }
 .btn2 { 
-  background: var(--card);
+  background: transparent;
   color: var(--text);
-  border: 2px solid var(--gray);
+  border: 2px solid var(--text);
   margin-top: 12px;
 }
 .btn2::before {
-  background: var(--gray);
+  background: var(--text);
 }
 .btn2:hover {
-  border-color: transparent;
+  color: var(--card);
+  border-color: var(--text);
 }
 .welcome-footer {
   margin-top: 24px;
