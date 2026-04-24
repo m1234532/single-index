@@ -2309,8 +2309,8 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 <body>
 <div id="app" v-cloak>
   
-  <!-- 主题切换按钮 -->
-  <button class="theme-toggle" @click="toggleTheme">{{isDark ? '☀️' : '🌙'}}</button>
+  <!-- 主题切换按钮（结果页不显示，避免与证书风格冲突） -->
+  <button class="theme-toggle" @click="toggleTheme" v-if="phase !== 'result'">{{isDark ? '☀️' : '🌙'}}</button>
 
   <!-- ==================== 闪屏页 - DNA双螺旋 ==================== -->
   <div class="splash-page" v-if="phase === 'splash'">
