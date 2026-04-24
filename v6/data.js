@@ -616,6 +616,7 @@ if (typeof window !== 'undefined') {
   window.typeEmojis = typeEmojis;
   window.calcResult = calcResult;
   window.questions = questions;
+  window.QUESTION_BANK = QUESTION_BANK;
   window.dimNames = dimNames;
   window.PERSONALITY_DATA = PERSONALITY_DATA;
 }
