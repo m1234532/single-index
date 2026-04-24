@@ -1631,7 +1631,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 }
 .identity-photo {
   width: 120px;
-  height: 140px;
+  height: 160px;
   background: var(--result-gray);
   border: 2px solid var(--result-border);
   border-radius: 8px;
@@ -1656,10 +1656,11 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 }
 .identity-info {
   flex: 1;
-  height: 140px; /* 和emoji框等高 */
+  height: 160px; /* 和emoji框等高 */
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* 内容分布在两端 */
+  justify-content: flex-start; /* 内容从顶部开始 */
+  gap: 4px;
 }
 /* 对比：人格类型码14px + 名字20px，拉开层级差距 */
 .identity-type {
@@ -1673,11 +1674,12 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   margin-bottom: 4px;
 }
 .identity-name {
-  font-size: 28px;
+  font-size: 36px;
   font-weight: 800;
   letter-spacing: 0.05em;
   color: var(--result-text);
-  margin-top: 8px;
+  margin-top: 4px;
+  margin-bottom: 8px;
   animation: textReveal 0.8s ease-out 0.5s both;
 }
 .identity-dims {
@@ -1692,6 +1694,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   display: flex;
   align-items: center;
   gap: 12px;
+  margin-top: auto; /* 推到底部 */
   animation: textReveal 0.8s ease-out 0.9s both;
 }
 .identity-index .num {
