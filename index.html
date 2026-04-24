@@ -1673,8 +1673,9 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   margin-bottom: 4px;
 }
 .identity-name {
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
   color: var(--result-text);
   margin-top: 8px;
   animation: textReveal 0.8s ease-out 0.5s both;
@@ -2384,7 +2385,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
       
       <button class="btn btn-primary" @click="startQuiz" @mousedown="createRipple">开始基因测序 →</button>
       <button class="btn btn2" v-if="hasRecord" @click="viewLastResult" @mousedown="createRipple">📊 查看上一次结果</button>
-      <div class="welcome-footer" @click="showChangelog = true">v5.4 · 更新日志</div>
+      <div class="welcome-footer" @click="showChangelog = true">v7.1 · 更新日志</div>
     </div>
   </transition>
 
@@ -2398,7 +2399,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
         </div>
         <div class="changelog-body">
           <div class="changelog-item">
-            <div class="changelog-ver">v5.4 · 2026.4.24</div>
+            <div class="changelog-ver">v7.1 · 2026.4.24</div>
             <ul>
               <li>闪屏页：全新DNA双螺旋加载动画</li>
               <li>闪屏页：打字机效果+随机Tips轮换</li>
