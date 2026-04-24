@@ -655,131 +655,389 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   font-weight: 600;
 }
 
-/* ==================== 结果页 - 黑白风格 ==================== */
+/* ==================== 结果页 - 基因报告书风格 ==================== */
 .result { 
-  padding: 16px 16px 40px;
+  padding: 20px 16px 40px;
   background: var(--bg);
+  min-height: 100vh;
 }
 
-/* 分享提示 */
-.share-tip {
+/* 基因报告书 - 证书风格容器 */
+.report-book {
   background: var(--card);
-  border-radius: var(--radius-md);
-  padding: 16px;
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  text-align: left;
-  box-shadow: var(--shadow-sm);
+  border: 3px solid var(--text);
+  border-radius: 4px;
+  padding: 24px 20px;
+  position: relative;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+}
+.report-book::before {
+  content: '';
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
   border: 1px solid var(--gray);
+  pointer-events: none;
 }
-.share-tip .icon { 
-  font-size: 24px; 
-  flex-shrink: 0;
+
+/* 报告书头部 */
+.report-header {
+  text-align: center;
+  border-bottom: 2px solid var(--text);
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+  position: relative;
 }
-.share-tip .title { 
-  font-size: 16px; 
+.report-header::after {
+  content: '✦';
+  position: absolute;
+  bottom: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--card);
+  padding: 0 12px;
+  color: var(--text);
+  font-size: 14px;
+}
+.report-title {
+  font-size: 14px;
   font-weight: 700;
-  color: var(--text);
+  letter-spacing: 6px;
+  color: var(--text3);
+  text-transform: uppercase;
 }
-.share-tip .desc { 
-  font-size: 14px; 
-  color: var(--text3); 
-  margin-top: 4px;
-  font-weight: 400;
+.report-id {
+  font-size: 12px;
+  color: var(--text3);
+  margin-top: 6px;
+  font-family: monospace;
 }
 
-/* 结果页头部 */
-.r-hero { 
-  text-align: center; 
-  margin-bottom: 16px;
-  background: var(--card);
-  border-radius: var(--radius-lg);
-  padding: 28px 20px;
-  box-shadow: var(--shadow-sm);
-  border: 1px solid var(--gray);
+/* 主体内容区 */
+.report-body {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
-.r-type-code { 
-  font-size: 18px; 
-  font-weight: 800;
-  letter-spacing: 4px;
-  color: var(--text3);
+
+/* 身份区 - 照片+类型 */
+.identity-section {
+  display: flex;
+  gap: 16px;
+  align-items: stretch;
 }
-.r-name { 
-  font-size: 32px; 
-  font-weight: 800;
-  margin-top: 8px;
-  color: var(--text);
-}
-.r-sub { 
-  font-size: 14px; 
-  color: var(--text3); 
-  margin-top: 8px;
-  font-weight: 400;
-}
-.r-cards { 
-  display: flex; 
-  gap: 16px; 
-  justify-content: center; 
-  margin-top: 24px;
-}
-.r-avatar {
-  width: 100px;
-  height: 100px;
-  border-radius: var(--radius-md);
+.identity-photo {
+  width: 120px;
+  height: 140px;
+  background: var(--gray);
+  border: 2px solid var(--text);
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 64px;
   flex-shrink: 0;
-  background: var(--gray);
-  border: 2px solid var(--text);
+  position: relative;
 }
-.r-avatar-inner {
-  font-size: 48px;
-  filter: grayscale(0.2);
+.identity-photo::before {
+  content: '';
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  right: 4px;
+  bottom: 4px;
+  border: 1px dashed var(--text);
+  opacity: 0.3;
 }
-.r-index { 
-  width: 100px;
-  height: 100px;
-  padding: 0;
-  border-radius: var(--radius-md);
+.identity-info {
+  flex: 1;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  align-items: center;
-  background: var(--text);
-  flex-shrink: 0;
+}
+.identity-type {
+  font-size: 28px;
+  font-weight: 900;
+  letter-spacing: 4px;
+  color: var(--text);
+}
+.identity-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  margin-top: 8px;
+}
+.identity-dims {
+  font-size: 13px;
+  color: var(--text2);
+  margin-top: 6px;
+  line-height: 1.5;
+}
+.identity-index {
+  margin-top: 12px;
+  display: inline-flex;
+  align-items: baseline;
   gap: 4px;
 }
-.r-index .num { 
-  font-size: 32px; 
-  font-weight: 800;
-  color: var(--card);
+.identity-index .num {
+  font-size: 36px;
+  font-weight: 900;
+  color: var(--text);
   line-height: 1;
 }
-.r-index .label { 
-  font-size: 12px; 
-  color: var(--card);
-  opacity: 0.8;
-  font-weight: 600;
-  line-height: 1;
+.identity-index .label {
+  font-size: 13px;
+  color: var(--text3);
 }
-.r-index .pct { 
-  font-size: 11px; 
-  color: var(--card);
-  opacity: 0.6;
-  font-weight: 500;
-  line-height: 1;
+
+/* 分隔线 */
+.report-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--gray), transparent);
+  margin: 4px 0;
+  position: relative;
 }
-.r-quote { 
-  font-size: 16px; 
-  color: var(--text2);
-  line-height: 1.7; 
-  margin-top: 24px;
-  font-style: italic;
+.report-divider::before {
+  content: '◆';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--card);
   padding: 0 8px;
-  font-weight: 400;
+  color: var(--text3);
+  font-size: 8px;
+}
+
+/* 基因图谱区 */
+.gene-map {
+  padding: 16px 0;
+}
+.gene-map-title {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--text3);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  text-align: center;
+}
+.gene-dims {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.gene-dim {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.gene-dim-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+}
+.gene-dim-name {
+  font-weight: 600;
+  color: var(--text);
+}
+.gene-dim-score {
+  color: var(--text3);
+  font-family: monospace;
+}
+.gene-dim-bar {
+  height: 8px;
+  background: var(--gray);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+.gene-dim-fill {
+  height: 100%;
+  background: var(--text);
+  border-radius: 4px;
+  transition: width 0.8s ease;
+  position: relative;
+}
+.gene-dim-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 20px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3));
+}
+
+/* 报告区块 */
+.report-section {
+  padding: 16px 0;
+}
+.report-section-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--text3);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.report-section-title::before {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--gray);
+}
+.report-section-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--gray);
+}
+.report-quote {
+  font-size: 15px;
+  color: var(--text);
+  line-height: 1.8;
+  text-align: center;
+  font-style: italic;
+  padding: 12px;
+  border-left: 3px solid var(--text);
+  background: var(--bg);
+  margin: 12px 0;
+}
+.report-desc {
+  font-size: 14px;
+  color: var(--text2);
+  line-height: 1.9;
+}
+.report-desc p {
+  margin-bottom: 8px;
+}
+
+/* 处方列表 */
+.prescription-list {
+  list-style: none;
+  padding: 0;
+}
+.prescription-list li {
+  font-size: 14px;
+  color: var(--text2);
+  line-height: 1.8;
+  padding: 8px 0 8px 24px;
+  position: relative;
+  border-bottom: 1px dashed var(--gray);
+}
+.prescription-list li:last-child {
+  border-bottom: none;
+}
+.prescription-list li::before {
+  content: '→';
+  position: absolute;
+  left: 0;
+  color: var(--text);
+  font-weight: 700;
+}
+
+/* CP匹配区 */
+.cp-section {
+  padding: 16px 0;
+}
+.cp-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.cp-card {
+  background: var(--bg);
+  border: 1px solid var(--gray);
+  padding: 16px 12px;
+  text-align: center;
+}
+.cp-card.best {
+  border-color: var(--text);
+  background: var(--text);
+}
+.cp-card.best .cp-emoji,
+.cp-card.best .cp-code,
+.cp-card.best .cp-name {
+  color: var(--card);
+}
+.cp-label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: var(--text3);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.cp-emoji {
+  font-size: 32px;
+  margin-bottom: 6px;
+}
+.cp-code {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: var(--text);
+  font-family: monospace;
+}
+.cp-name {
+  font-size: 12px;
+  color: var(--text2);
+  margin-top: 4px;
+}
+
+/* 标签 */
+.report-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 8px;
+}
+.report-tag {
+  background: transparent;
+  border: 1px solid var(--gray);
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text2);
+  letter-spacing: 1px;
+}
+
+/* 分享按钮区 */
+.report-actions {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 2px solid var(--text);
+  text-align: center;
+}
+.report-share-btn {
+  width: 100%;
+  padding: 16px;
+  background: var(--text);
+  color: var(--card);
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+}
+.report-share-btn:hover {
+  opacity: 0.9;
+}
+.report-share-btn:active {
+  transform: scale(0.98);
+}
+.report-copied {
+  font-size: 13px;
+  color: var(--text2);
+  margin-top: 12px;
 }
 
 /* 雷达图 */
@@ -1289,99 +1547,123 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
          }">{{result?.visual?.emoji || '🧬'}}</div>
   </div>
 
-  <!-- ==================== 结果页 ==================== -->
+  <!-- ==================== 结果页 - 基因报告书 ==================== -->
   <transition name="page">
     <div class="result" v-if="phase === 'result' && result">
       <!-- 分享提示 -->
       <div class="share-tip">
         <div class="icon">📱</div>
         <div>
-          <div class="title">截图发给朋友猜猜看</div>
-          <div class="desc">长按或截图保存，看看TA是什么人格</div>
+          <div class="title">截图保存你的基因报告</div>
+          <div class="desc">长按或截图分享给朋友</div>
         </div>
       </div>
 
-      <!-- 结果头部 -->
-      <div class="r-hero">
-        <div class="r-type-code" v-if="result.type">{{result.type}}</div>
-        <div class="r-name">{{result.name}}</div>
-        <div class="r-sub" v-if="result.dims">{{result.dims.join(' · ')}}</div>
-        <div class="r-cards">
-          <div class="r-avatar">
-            <div class="r-avatar-inner">{{result.visual?.emoji || '❓'}}</div>
-          </div>
-          <div class="r-index">
-            <div class="num">{{result.index}}%</div>
-            <div class="label">单身指数</div>
-            <div class="pct">基于{{questions.length}}题</div>
-          </div>
+      <!-- 基因报告书 -->
+      <div class="report-book">
+        <!-- 报告头部 -->
+        <div class="report-header">
+          <div class="report-title">单身狗基因测序报告</div>
+          <div class="report-id" v-if="result.type">NO. {{result.type}}-{{result.index}}</div>
         </div>
-        <div class="r-quote">"{{result.quote}}"</div>
-      </div>
 
-      <!-- 四维雷达图 -->
-      <div class="r-radar" v-if="result.dimScores">
-        <h3>📊 四维人格画像</h3>
-        <div class="dim" v-for="(score, key) in result.dimScores" :key="key">
-          <span class="name">{{dimNames[key]}}</span>
-          <div class="bar"><div class="fill" :style="{width: (score.a / 4 * 100) + '%'}"></div></div>
-          <span class="score">{{Math.round(score.a / 4 * 100)}}%</span>
-        </div>
-      </div>
-
-      <!-- 基因测序报告 -->
-      <div class="r-section">
-        <h3>🧬 基因测序报告</h3>
-        <p v-for="(line, i) in (result.desc || '').split('\n')" :key="i" style="margin-top:8px">{{line}}</p>
-      </div>
-
-      <!-- 脱单处方 -->
-      <div class="r-section" v-if="result.tips && result.tips.length">
-        <h3>💡 脱单处方</h3>
-        <ul>
-          <li v-for="(tip, i) in result.tips" :key="i">{{tip}}</li>
-        </ul>
-      </div>
-
-      <!-- 最佳CP匹配 -->
-      <div class="r-section" v-if="bestMatches.length > 0">
-        <h3>💕 与你最匹配的CP类型</h3>
-        <div class="match-list">
-          <div v-for="(match, idx) in bestMatches" :key="match.code" class="match-card">
-            <div class="match-rank">{{idx === 0 ? '🥇' : idx === 1 ? '🥈' : '🥉'}}</div>
-            <div class="match-emoji">{{match.emoji}}</div>
-            <div class="match-info">
-              <div class="match-name">{{match.name}}</div>
-              <div class="match-subtitle">{{match.code}} · {{match.subtitle}}</div>
+        <!-- 报告主体 -->
+        <div class="report-body">
+          <!-- 身份信息区 -->
+          <div class="identity-section">
+            <div class="identity-photo">{{result.visual?.emoji || '🧬'}}</div>
+            <div class="identity-info">
+              <div class="identity-type" v-if="result.type">{{result.type}}</div>
+              <div class="identity-name">{{result.name}}</div>
+              <div class="identity-dims" v-if="result.dims">{{result.dims.join(' · ')}}</div>
+              <div class="identity-index">
+                <span class="num">{{result.index}}%</span>
+                <span class="label">单身指数</span>
+              </div>
             </div>
-            <div class="match-tag">{{idx === 0 ? '天作之合' : idx === 1 ? '默契搭档' : '不错选择'}}</div>
           </div>
-        </div>
-      </div>
 
-      <!-- 分享文案 -->
-      <div class="r-share" @click="copyShareText">
-        <div class="r-share-title">👇 点击复制完整分享文案</div>
-        <div class="r-share-text">{{shareText}}</div>
-        <div class="r-share-hint" v-if="!copied">一键复制，发给朋友</div>
-        <div class="r-share-copied" v-if="copied">✓ 已复制到剪贴板</div>
-      </div>
+          <!-- 分隔线 -->
+          <div class="report-divider"></div>
 
-      <!-- 维度标签 -->
-      <div class="r-tags">
-        <span class="r-tag" v-for="tag in result.tags" :key="tag">{{tag}}</span>
-      </div>
+          <!-- 基因图谱 -->
+          <div class="gene-map" v-if="result.dimScores">
+            <div class="gene-map-title">基因图谱分析</div>
+            <div class="gene-dims">
+              <div class="gene-dim" v-for="(score, key) in result.dimScores" :key="key">
+                <div class="gene-dim-header">
+                  <span class="gene-dim-name">{{dimNames[key]}}</span>
+                  <span class="gene-dim-score">{{Math.round(score.a / 4 * 100)}}%</span>
+                </div>
+                <div class="gene-dim-bar">
+                  <div class="gene-dim-fill" :style="{width: (score.a / 4 * 100) + '%'}"></div>
+                </div>
+              </div>
+            </div>
+          </div>
 
-      <!-- 免责声明 -->
-      <div class="disclaimer">
-        <h3>📌 小声说</h3>
-        <p>本测试仅供娱乐，请勿当真（但也别不信）。</p>
-        <p>无论单身还是恋爱，你值得被爱 🖤</p>
-      </div>
+          <!-- 分隔线 -->
+          <div class="report-divider"></div>
 
-      <!-- 重试按钮 -->
-      <button class="retry-btn" @click="retry">🔄 再鉴定一次</button>
-      <div class="credit">by Poliwhirl</div>
+          <!-- 人格描述 -->
+          <div class="report-section" v-if="result.desc || result.quote">
+            <div class="report-section-title">人格特征</div>
+            <div class="report-quote" v-if="result.quote">"{{result.quote}}"</div>
+            <div class="report-desc" v-if="result.desc">
+              <p v-for="(line, i) in (result.desc || '').split('\n').filter(l => l.trim())" :key="i">{{line}}</p>
+            </div>
+          </div>
+
+          <!-- 脱单处方 -->
+          <div class="report-section" v-if="result.tips && result.tips.length">
+            <div class="report-section-title">专家建议</div>
+            <ul class="prescription-list">
+              <li v-for="(tip, i) in result.tips" :key="i">{{tip}}</li>
+            </ul>
+          </div>
+
+          <!-- 分隔线 -->
+          <div class="report-divider"></div>
+
+          <!-- CP匹配 -->
+          <div class="cp-section" v-if="bestMatches.length > 0">
+            <div class="report-section-title">匹配推荐</div>
+            <div class="cp-grid">
+              <div class="cp-card best" v-if="bestMatches[0]">
+                <div class="cp-label">最佳匹配</div>
+                <div class="cp-emoji">{{bestMatches[0].emoji}}</div>
+                <div class="cp-code">{{bestMatches[0].code}}</div>
+                <div class="cp-name">{{bestMatches[0].name}}</div>
+              </div>
+              <div class="cp-card" v-if="bestMatches[1]">
+                <div class="cp-label">次优选择</div>
+                <div class="cp-emoji">{{bestMatches[1].emoji}}</div>
+                <div class="cp-code">{{bestMatches[1].code}}</div>
+                <div class="cp-name">{{bestMatches[1].name}}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 标签 -->
+          <div class="report-tags" v-if="result.tags && result.tags.length">
+            <span class="report-tag" v-for="tag in result.tags" :key="tag">{{tag}}</span>
+          </div>
+
+          <!-- 底部操作区 -->
+          <div class="report-actions">
+            <button class="report-share-btn" @click="copyShareText">
+              {{copied ? '✓ 已复制' : '复制报告分享'}}
+            </button>
+            <div class="report-copied" v-if="copied">分享文案已复制到剪贴板</div>
+          </div>
+        </div><!-- /report-body -->
+      </div><!-- /report-book -->
+
+      <!-- 底部按钮区 -->
+      <div style="margin-top: 24px; text-align: center;">
+        <button class="retry-btn" @click="retry">🔄 再鉴定一次</button>
+        <div class="credit">by Poliwhirl · 仅供娱乐</div>
+      </div>
     </div>
   </transition>
 
