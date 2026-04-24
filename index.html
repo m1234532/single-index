@@ -1199,11 +1199,24 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   font-weight: 600;
 }
 
-/* ==================== 结果页 - 基因报告书风格 ==================== */
+/* ==================== 结果页 - 基因报告书风格（v6优化版） ==================== */
+/* 四大原则：对比/重复/对齐/亲密性 + 固定深色背景防闪烁 */
 .result { 
-  padding: 12px 16px 40px;
-  background: var(--bg);
+  padding: 20px;
+  background: #0D0D0D; /* 固定深色背景，解决闪烁问题 */
   min-height: 100vh;
+  color: #FFFFFF;
+}
+
+/* 结果页专用变量 */
+.result {
+  --result-bg: #0D0D0D;
+  --result-card: #1A1A1A;
+  --result-text: #FFFFFF;
+  --result-text2: #B0B0B0;
+  --result-text3: #808080;
+  --result-border: rgba(255,255,255,0.1);
+  --result-gray: #2A2A2A;
 }
 
 /* 分享提示 - 纯文字弱化版 */
@@ -1218,60 +1231,66 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   display: none;
 }
 
-/* 基因报告书 - 证书风格容器 */
+/* 基因报告书 - 证书风格容器（基于四大原则重构） */
+/* 对比：深色背景 vs 卡片色 | 重复：统一圆角16px | 对齐：24px内边距 */
 .report-book {
-  background: var(--card);
-  border: 3px solid var(--text);
-  border-radius: 4px;
-  padding: 28px 20px;
+  background: var(--result-card); /* 对比：比背景稍亮 */
+  border: 1px solid var(--result-border);
+  border-radius: 16px; /* 重复：统一圆角 */
+  padding: 24px; /* 对齐：统一内边距 */
   position: relative;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.4);
+  z-index: 10;
 }
 .report-book::before {
   content: '';
   position: absolute;
-  top: 8px;
-  left: 8px;
-  right: 8px;
-  bottom: 8px;
-  border: 1px solid var(--gray);
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  border: 1px dashed var(--result-border);
   pointer-events: none;
+  border-radius: 8px;
 }
 
-/* 四角花纹装饰 */
+/* 四角花纹装饰 - 层级z-index:5，避免与内容重叠 */
 .report-book::after {
   content: '';
   position: absolute;
-  top: 12px;
-  left: 12px;
-  width: 24px;
-  height: 24px;
-  border-top: 2px solid var(--text);
-  border-left: 2px solid var(--text);
-  opacity: 0.4;
+  top: 16px;
+  left: 16px;
+  width: 20px;
+  height: 20px;
+  border-top: 2px solid var(--result-text3);
+  border-left: 2px solid var(--result-text3);
+  opacity: 0.3;
+  z-index: 5;
+  pointer-events: none;
 }
 .report-corner {
   position: absolute;
-  width: 24px;
-  height: 24px;
-  border-color: var(--text);
+  width: 20px;
+  height: 20px;
+  border-color: var(--result-text3);
   border-style: solid;
-  opacity: 0.4;
+  opacity: 0.3;
   pointer-events: none;
+  z-index: 5;
 }
 .report-corner.tr {
-  top: 12px;
-  right: 12px;
+  top: 16px;
+  right: 16px;
   border-width: 2px 2px 0 0;
 }
 .report-corner.bl {
-  bottom: 12px;
-  left: 12px;
+  bottom: 16px;
+  left: 16px;
   border-width: 0 0 2px 2px;
 }
 .report-corner.br {
-  bottom: 12px;
-  right: 12px;
+  bottom: 16px;
+  right: 16px;
   border-width: 0 2px 2px 0;
 }
 
@@ -1294,14 +1313,14 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   opacity: 0.5;
 }
 
-/* 印章效果 - 移至右上角 */
+/* 印章效果 - 调整位置避免与标题重叠，移至右下角 */
 .report-stamp {
   position: absolute;
-  top: 60px;
-  right: 16px;
-  width: 60px;
-  height: 60px;
-  border: 2px solid var(--text);
+  bottom: 80px; /* 移至底部，避免与头部重叠 */
+  right: 24px;
+  width: 64px;
+  height: 64px;
+  border: 2px solid var(--result-text3);
   border-radius: 50%;
   display: flex;
   flex-direction: column;
@@ -1310,81 +1329,82 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   transform: rotate(-15deg);
   opacity: 0;
   transition: all 0.6s ease;
-  z-index: 10;
+  z-index: 20; /* 层级高于装饰 */
+  background: var(--result-card);
 }
 .report-stamp.stamped {
-  opacity: 0.7;
+  opacity: 0.6;
   animation: stampDrop 0.4s ease-out;
 }
 @keyframes stampDrop {
   0% { transform: rotate(-15deg) scale(1.5); opacity: 0; }
-  100% { transform: rotate(-15deg) scale(1); opacity: 0.7; }
+  100% { transform: rotate(-15deg) scale(1); opacity: 0.6; }
 }
 .report-stamp-text {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 800;
   letter-spacing: 1px;
-  color: var(--text);
-  text-transform: uppercase;
+  color: var(--result-text);
 }
 .report-stamp-date {
-  font-size: 8px;
-  color: var(--text3);
+  font-size: 9px;
+  color: var(--result-text3);
   margin-top: 2px;
   font-family: monospace;
 }
 
-/* 报告书头部 */
+/* 报告书头部 - 汉化 + 对比强化 */
 .report-header {
   text-align: center;
-  border-bottom: 2px solid var(--text);
-  padding-bottom: 16px;
-  margin-bottom: 20px;
+  border-bottom: 1px solid var(--result-border);
+  padding-bottom: 20px;
+  margin-bottom: 24px;
   position: relative;
 }
 .report-header::after {
-  content: '✦';
+  content: '◆';
   position: absolute;
-  bottom: -10px;
+  bottom: -8px;
   left: 50%;
   transform: translateX(-50%);
-  background: var(--card);
+  background: var(--result-card);
   padding: 0 12px;
-  color: var(--text);
-  font-size: 14px;
+  color: var(--result-text3);
+  font-size: 12px;
 }
 .report-title {
-  font-size: 14px;
-  font-weight: 700;
-  letter-spacing: 6px;
-  color: var(--text3);
-  text-transform: uppercase;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 4px;
+  color: var(--result-text3);
+  margin-bottom: 8px;
 }
 .report-id {
   font-size: 12px;
-  color: var(--text3);
-  margin-top: 6px;
+  color: var(--result-text2);
   font-family: monospace;
+  letter-spacing: 2px;
 }
 
-/* 主体内容区 */
+/* 主体内容区 - 亲密性：组间距20px */
 .report-body {
   display: flex;
   flex-direction: column;
   gap: 20px;
 }
 
-/* 身份区 - 照片+类型 */
+/* 身份区 - 照片+类型 - 对比：字号48/42/24/14四级体系 */
 .identity-section {
   display: flex;
-  gap: 16px;
+  gap: 20px;
   align-items: stretch;
 }
 .identity-photo {
   width: 120px;
   height: 140px;
-  background: var(--gray);
-  border: 2px solid var(--text);
+  background: var(--result-gray);
+  border: 2px solid var(--result-border);
+  border-radius: 8px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1395,12 +1415,13 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 .identity-photo::before {
   content: '';
   position: absolute;
-  top: 4px;
-  left: 4px;
-  right: 4px;
-  bottom: 4px;
-  border: 1px dashed var(--text);
-  opacity: 0.3;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  border: 1px dashed var(--result-border);
+  border-radius: 4px;
+  pointer-events: none;
 }
 .identity-info {
   flex: 1;
@@ -1408,46 +1429,52 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   flex-direction: column;
   justify-content: center;
 }
+/* 对比：人格类型码最大48px */
 .identity-type {
-  font-size: 28px;
+  font-size: 48px;
   font-weight: 900;
-  letter-spacing: 4px;
-  color: var(--text);
+  letter-spacing: 8px;
+  color: var(--result-text);
+  line-height: 1;
 }
 .identity-name {
-  font-size: 20px;
+  font-size: 24px; /* 对比：第三级 */
   font-weight: 700;
-  color: var(--text);
-  margin-top: 8px;
+  color: var(--result-text);
+  margin-top: 12px;
 }
 .identity-dims {
-  font-size: 13px;
-  color: var(--text2);
-  margin-top: 6px;
+  font-size: 14px; /* 对比：第四级辅助信息 */
+  color: var(--result-text2);
+  margin-top: 8px;
   line-height: 1.5;
 }
+/* 对比：单身指数42px次级焦点 */
 .identity-index {
-  margin-top: 12px;
+  margin-top: 16px;
   display: inline-flex;
   align-items: baseline;
-  gap: 4px;
+  gap: 8px;
 }
 .identity-index .num {
-  font-size: 36px;
+  font-size: 42px;
   font-weight: 900;
-  color: var(--text);
+  background: linear-gradient(135deg, #fff, #aaa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   line-height: 1;
 }
 .identity-index .label {
-  font-size: 13px;
-  color: var(--text3);
+  font-size: 14px;
+  color: var(--result-text3);
 }
 
-/* 分隔线 */
+/* 分隔线 - 重复：统一样式 */
 .report-divider {
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--gray), transparent);
-  margin: 4px 0;
+  background: linear-gradient(90deg, transparent, var(--result-border), transparent);
+  margin: 8px 0;
   position: relative;
 }
 .report-divider::before {
@@ -1456,131 +1483,121 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
-  background: var(--card);
+  background: var(--result-card);
   padding: 0 8px;
-  color: var(--text3);
+  color: var(--result-text3);
   font-size: 8px;
 }
 
-/* 基因图谱区 */
+/* 基因图谱区 - 汉化标题 */
 .gene-map {
-  padding: 16px 0;
+  padding: 20px 0;
 }
 .gene-map-title {
   font-size: 13px;
   font-weight: 700;
-  letter-spacing: 2px;
-  color: var(--text3);
-  text-transform: uppercase;
-  margin-bottom: 16px;
+  letter-spacing: 3px;
+  color: var(--result-text3);
+  margin-bottom: 20px;
   text-align: center;
 }
 .gene-dims {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 16px;
 }
 .gene-dim {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 8px;
 }
 .gene-dim-header {
   display: flex;
   justify-content: space-between;
-  font-size: 12px;
+  font-size: 13px;
 }
 .gene-dim-name {
   font-weight: 600;
-  color: var(--text);
+  color: var(--result-text2);
 }
 .gene-dim-score {
-  color: var(--text3);
+  color: var(--result-text);
   font-family: monospace;
+  font-weight: 700;
 }
 .gene-dim-bar {
   height: 8px;
-  background: var(--gray);
+  background: var(--result-gray);
   border-radius: 4px;
   overflow: hidden;
   position: relative;
 }
 .gene-dim-fill {
   height: 100%;
-  background: var(--text);
+  background: linear-gradient(90deg, var(--result-text), var(--result-text2));
   border-radius: 4px;
   transition: width 0.8s ease;
   position: relative;
 }
-.gene-dim-fill::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: 20px;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3));
-}
 
-/* 报告区块 */
+/* 报告区块 - 重复：统一样式 */
 .report-section {
-  padding: 16px 0;
+  padding: 20px 0;
+  border-top: 1px solid var(--result-border);
+}
+.report-section:first-of-type {
+  border-top: none;
 }
 .report-section-title {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 2px;
-  color: var(--text3);
-  text-transform: uppercase;
-  margin-bottom: 12px;
+  color: var(--result-text3);
+  margin-bottom: 16px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
-.report-section-title::before {
-  content: '';
-  flex: 1;
-  height: 1px;
-  background: var(--gray);
-}
+.report-section-title::before,
 .report-section-title::after {
   content: '';
   flex: 1;
   height: 1px;
-  background: var(--gray);
+  background: var(--result-border);
 }
 .report-quote {
-  font-size: 15px;
-  color: var(--text);
+  font-size: 16px;
+  color: var(--result-text);
   line-height: 1.8;
   text-align: center;
   font-style: italic;
-  padding: 12px;
-  border-left: 3px solid var(--text);
-  background: var(--bg);
+  padding: 16px;
+  border-left: 3px solid var(--result-text);
+  background: var(--result-gray);
+  border-radius: 0 8px 8px 0;
   margin: 12px 0;
 }
 .report-desc {
-  font-size: 14px;
-  color: var(--text2);
+  font-size: 15px;
+  color: var(--result-text2);
   line-height: 1.9;
 }
 .report-desc p {
-  margin-bottom: 8px;
+  margin-bottom: 12px;
 }
 
-/* 处方列表 */
+/* 建议列表 - 汉化 */
 .prescription-list {
   list-style: none;
   padding: 0;
 }
 .prescription-list li {
-  font-size: 14px;
-  color: var(--text2);
+  font-size: 15px;
+  color: var(--result-text2);
   line-height: 1.8;
-  padding: 8px 0 8px 24px;
+  padding: 10px 0 10px 28px;
   position: relative;
-  border-bottom: 1px dashed var(--gray);
+  border-bottom: 1px dashed var(--result-border);
 }
 .prescription-list li:last-child {
   border-bottom: none;
@@ -1589,40 +1606,40 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   content: '→';
   position: absolute;
   left: 0;
-  color: var(--text);
+  color: var(--result-text);
   font-weight: 700;
 }
 
-/* CP匹配区 */
+/* CP匹配区 - 汉化标签 */
 .cp-section {
-  padding: 16px 0;
+  padding: 20px 0;
 }
 .cp-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  gap: 16px;
 }
 .cp-card {
-  background: var(--bg);
-  border: 1px solid var(--gray);
+  background: var(--result-gray);
+  border: 1px solid var(--result-border);
+  border-radius: 8px;
   padding: 16px 12px;
   text-align: center;
 }
 .cp-card.best {
-  border-color: var(--text);
-  background: var(--text);
+  border-color: var(--result-text);
+  background: var(--result-text);
 }
 .cp-card.best .cp-emoji,
 .cp-card.best .cp-code,
 .cp-card.best .cp-name {
-  color: var(--card);
+  color: var(--result-bg);
 }
 .cp-label {
-  font-size: 10px;
+  font-size: 11px;
   font-weight: 700;
   letter-spacing: 1px;
-  color: var(--text3);
-  text-transform: uppercase;
+  color: var(--result-text3);
   margin-bottom: 8px;
 }
 .cp-emoji {
@@ -1633,52 +1650,53 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   font-size: 14px;
   font-weight: 800;
   letter-spacing: 2px;
-  color: var(--text);
+  color: var(--result-text);
   font-family: monospace;
 }
 .cp-name {
-  font-size: 12px;
-  color: var(--text2);
+  font-size: 13px;
+  color: var(--result-text2);
   margin-top: 4px;
 }
 
-/* 标签 */
+/* 标签 - 重复：统一样式 */
 .report-tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
   justify-content: center;
-  margin-top: 8px;
+  margin-top: 12px;
 }
 .report-tag {
   background: transparent;
-  border: 1px solid var(--gray);
-  padding: 4px 12px;
-  font-size: 11px;
+  border: 1px solid var(--result-border);
+  border-radius: 50px;
+  padding: 6px 14px;
+  font-size: 12px;
   font-weight: 600;
-  color: var(--text2);
+  color: var(--result-text2);
   letter-spacing: 1px;
 }
 
-/* 分享按钮区 */
+/* 分享按钮区 - 汉化 */
 .report-actions {
   margin-top: 24px;
   padding-top: 20px;
-  border-top: 2px solid var(--text);
+  border-top: 1px solid var(--result-border);
   text-align: center;
 }
 .report-share-btn {
   width: 100%;
-  padding: 16px;
-  background: var(--text);
-  color: var(--card);
-  font-size: 15px;
+  padding: 18px;
+  background: var(--result-text);
+  color: var(--result-bg);
+  font-size: 16px;
   font-weight: 700;
   letter-spacing: 2px;
   border: none;
+  border-radius: 50px;
   cursor: pointer;
   transition: all 0.3s ease;
-  text-transform: uppercase;
 }
 .report-share-btn:hover {
   opacity: 0.9;
@@ -1687,8 +1705,8 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   transform: scale(0.98);
 }
 .report-copied {
-  font-size: 13px;
-  color: var(--text2);
+  font-size: 14px;
+  color: var(--result-text2);
   margin-top: 12px;
 }
 
@@ -2305,7 +2323,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
         <!-- 报告头部 -->
         <div class="report-header">
           <div class="report-title">单身狗基因测序报告</div>
-          <div class="report-id" v-if="result.type">NO. {{result.type}}-{{result.index}}</div>
+          <div class="report-id" v-if="result.type">编号：{{result.type}}-{{result.index}}</div>
         </div>
 
         <!-- 报告主体 -->
