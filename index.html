@@ -447,23 +447,23 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   overflow: hidden;
 }
 
-/* 背景粒子 */
+/* 背景粒子 - 更微妙的效果 */
 .welcome-particles {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  z-index: 1;
+  z-index: 0;
   overflow: hidden;
 }
 
 .welcome-particle {
   position: absolute;
-  width: 4px;
-  height: 4px;
+  width: 3px;
+  height: 3px;
   background: var(--text);
   border-radius: 50%;
-  opacity: 0.1;
-  animation: particleFloat 20s linear infinite;
+  opacity: 0;
+  animation: particleFloat 15s linear infinite;
 }
 
 @keyframes particleFloat {
@@ -471,14 +471,14 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
     transform: translateY(100vh) rotate(0deg);
     opacity: 0;
   }
-  10% {
-    opacity: 0.15;
+  5% {
+    opacity: 0.08;
   }
-  90% {
-    opacity: 0.15;
+  95% {
+    opacity: 0.08;
   }
   100% {
-    transform: translateY(-100px) rotate(720deg);
+    transform: translateY(-50px) rotate(360deg);
     opacity: 0;
   }
 }
@@ -946,23 +946,24 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   flex-direction: column;
   justify-content: flex-start;
 }
-/* 题目页emoji - 合成大西瓜式物理引擎 */
+/* 题目页emoji - 合成大西瓜式物理引擎（修复版） */
 .physics-container {
   position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
-  height: 200px;
+  height: 250px;
   pointer-events: none;
   z-index: 5;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .physics-emoji {
   position: absolute;
-  font-size: 120px;
+  font-size: 100px;
   filter: grayscale(0.2);
-  will-change: transform;
+  will-change: transform, bottom;
+  bottom: 0;
 }
 .q-meta { 
   font-size: 13px; 
@@ -2256,10 +2257,10 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
     <div class="welcome" v-if="phase === 'welcome'">
       <!-- 背景粒子 -->
       <div class="welcome-particles">
-        <div class="welcome-particle" v-for="i in 20" :key="i" :style="{
-          left: (Math.random() * 100) + '%',
-          animationDelay: (Math.random() * 20) + 's',
-          animationDuration: (15 + Math.random() * 10) + 's'
+        <div class="welcome-particle" v-for="i in 8" :key="i" :style="{
+          left: (10 + Math.random() * 80) + '%',
+          animationDelay: (i * 2) + 's',
+          animationDuration: (12 + Math.random() * 6) + 's'
         }"></div>
       </div>
       
@@ -2362,8 +2363,8 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
                 class="physics-emoji"
                 :style="{
                   left: emoji.x + 'px',
-                  top: emoji.y + 'px',
-                  transform: 'rotate(' + emoji.rotation + 'deg)'
+                  bottom: emoji.bottom + 'px',
+                  transform: 'rotate(' + emoji.rotation + 'deg) translateY(0)'
                 }"
               >{{emoji.emoji}}</div>
             </div>
@@ -2655,15 +2656,16 @@ createApp({
       { key: 'alone', icon: '🌙', label: '独处', active: false, syncing: false }
     ]);
     
-    // ==================== 物理emoji系统（合成大西瓜式）====================
+    // ==================== 物理emoji系统（合成大西瓜式 - 修复版）====================
     const physicsEmojis = ref([]);
     const physicsAnimationId = ref(null);
     
     // 物理参数
-    const GRAVITY = 0.5;        // 重力加速度
-    const BOUNCE = 0.4;         // 弹性系数（0-1）
-    const FRICTION = 0.98;      // 摩擦力
-    const GROUND_Y = window.innerHeight - 150; // 地面位置
+    const GRAVITY = 1.5;        // 重力加速度（增大让掉落更快）
+    const BOUNCE = 0.3;         // 弹性系数（0-1）
+    const FRICTION = 0.95;      // 摩擦力
+    const CONTAINER_HEIGHT = 250; // 容器高度
+    const EMOJI_SIZE = 100;     // emoji大小
     
     // 初始化物理emoji
     const initPhysicsEmojis = (emojiChar) => {
@@ -2673,60 +2675,82 @@ createApp({
         cancelAnimationFrame(physicsAnimationId.value);
       }
       
+      // 获取屏幕宽度
+      const screenWidth = window.innerWidth || 375;
+      
       // 创建3个emoji，随机初始位置和速度
       for (let i = 0; i < 3; i++) {
         physicsEmojis.value.push({
           id: Date.now() + i,
           emoji: emojiChar,
-          x: 50 + Math.random() * (window.innerWidth - 200), // 随机水平位置
-          y: -120 - Math.random() * 100, // 从屏幕上方不同高度开始
-          vx: (Math.random() - 0.5) * 4, // 随机水平速度
-          vy: 0, // 初始垂直速度
-          rotation: Math.random() * 360, // 随机初始旋转
-          vr: (Math.random() - 0.5) * 10, // 旋转速度
+          x: 20 + Math.random() * (screenWidth - 140), // 随机水平位置
+          bottom: CONTAINER_HEIGHT + 50 + Math.random() * 100, // 从容器上方开始（使用bottom）
+          vx: (Math.random() - 0.5) * 6, // 随机水平速度
+          vy: -5 - Math.random() * 5, // 初始垂直速度（负值表示向上）
+          rotation: (Math.random() - 0.5) * 30, // 随机初始旋转
+          vr: (Math.random() - 0.5) * 8, // 旋转速度
           settled: false // 是否已稳定
         });
       }
       
       // 开始物理模拟
-      startPhysicsLoop();
+      Vue.nextTick(() => {
+        startPhysicsLoop();
+      });
     };
     
     // 物理循环
     const startPhysicsLoop = () => {
+      let frameCount = 0;
+      const MAX_FRAMES = 300; // 最多5秒（60fps * 5）
+      
       const update = () => {
+        frameCount++;
+        if (frameCount > MAX_FRAMES) {
+          // 超时强制稳定
+          physicsEmojis.value.forEach(e => e.settled = true);
+          return;
+        }
+        
         let allSettled = true;
         
-        physicsEmojis.value.forEach((emoji, index) => {
+        physicsEmojis.value.forEach((emoji) => {
           if (emoji.settled) return;
           
-          // 应用重力
+          // 应用重力（vy是速度，负值向上，正值向下）
           emoji.vy += GRAVITY;
           
-          // 更新位置
+          // 更新位置（bottom减少表示向下掉落）
           emoji.x += emoji.vx;
-          emoji.y += emoji.vy;
+          emoji.bottom -= emoji.vy; // vy为正时，bottom减少 = 向下移动
           emoji.rotation += emoji.vr;
           
-          // 地面碰撞
-          if (emoji.y >= GROUND_Y) {
-            emoji.y = GROUND_Y;
-            emoji.vy *= -BOUNCE; // 反弹
+          // 地面碰撞（bottom <= EMOJI_SIZE时触地）
+          if (emoji.bottom <= EMOJI_SIZE) {
+            emoji.bottom = EMOJI_SIZE;
+            emoji.vy *= -BOUNCE; // 反弹（变负向上）
             emoji.vx *= FRICTION; // 摩擦减速
             emoji.vr *= FRICTION; // 旋转减速
             
             // 如果速度很小，标记为稳定
-            if (Math.abs(emoji.vy) < 1 && Math.abs(emoji.vx) < 0.5) {
+            if (Math.abs(emoji.vy) < 2 && Math.abs(emoji.vx) < 1) {
               emoji.settled = true;
-              // 随机倾斜角度（-15到+15度）
-              emoji.rotation = (Math.random() - 0.5) * 30;
+              // 最终随机倾斜角度（-20到+20度）
+              emoji.rotation = (Math.random() - 0.5) * 40;
+              emoji.vx = 0;
+              emoji.vy = 0;
+              emoji.vr = 0;
             }
           }
           
           // 墙壁碰撞
-          if (emoji.x <= 0 || emoji.x >= window.innerWidth - 120) {
-            emoji.vx *= -0.5;
-            emoji.x = Math.max(0, Math.min(emoji.x, window.innerWidth - 120));
+          const screenWidth = window.innerWidth || 375;
+          if (emoji.x <= 0) {
+            emoji.x = 0;
+            emoji.vx *= -0.6;
+          } else if (emoji.x >= screenWidth - EMOJI_SIZE) {
+            emoji.x = screenWidth - EMOJI_SIZE;
+            emoji.vx *= -0.6;
           }
           
           if (!emoji.settled) allSettled = false;
@@ -2737,23 +2761,24 @@ createApp({
           for (let j = i + 1; j < physicsEmojis.value.length; j++) {
             const e1 = physicsEmojis.value[i];
             const e2 = physicsEmojis.value[j];
+            if (e1.settled && e2.settled) continue;
+            
             const dx = e2.x - e1.x;
-            const dy = e2.y - e1.y;
+            const dy = (CONTAINER_HEIGHT - e2.bottom) - (CONTAINER_HEIGHT - e1.bottom); // 转换为Y坐标差
             const dist = Math.sqrt(dx * dx + dy * dy);
             
-            if (dist < 100 && dist > 0) {
+            if (dist < EMOJI_SIZE && dist > 0) {
               // 推开
-              const force = (100 - dist) * 0.05;
+              const force = (EMOJI_SIZE - dist) * 0.1;
               const fx = (dx / dist) * force;
-              const fy = (dy / dist) * force;
               
               if (!e1.settled) {
                 e1.x -= fx;
-                e1.vx -= fx * 0.1;
+                e1.vx -= fx * 0.2;
               }
               if (!e2.settled) {
                 e2.x += fx;
-                e2.vx += fx * 0.1;
+                e2.vx += fx * 0.2;
               }
             }
           }
