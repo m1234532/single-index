@@ -1058,7 +1058,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   font-family: 'HarmonyOS Sans', sans-serif;
 }
 
-/* ==================== 分析页 - Emoji扫描轨道 ==================== */
+/* ==================== 分析页 - 显微镜扫描视角 ==================== */
 .analysis { 
   min-height: 100vh; 
   display: flex; 
@@ -1071,43 +1071,123 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   overflow: hidden;
 }
 
-/* Emoji扫描轨道 */
-.emoji-scan-track {
-  width: 100%;
-  height: 120px;
-  overflow: hidden;
+/* 扫描容器 */
+.scan-container {
+  width: 200px;
+  height: 200px;
   position: relative;
-  margin-top: 60px;
-  mask-image: linear-gradient(90deg, transparent, black 20%, black 80%, transparent);
-  -webkit-mask-image: linear-gradient(90deg, transparent, black 20%, black 80%, transparent);
-}
-
-.emoji-scan-list {
   display: flex;
-  gap: 40px;
-  padding: 20px 0;
-  animation: emojiScanScroll 8s linear infinite;
-  width: max-content;
+  align-items: center;
+  justify-content: center;
 }
 
-.emoji-scan-item {
-  font-size: 48px;
+/* 扫描圈 */
+.scan-ring-outer {
+  position: absolute;
+  width: 180px;
+  height: 180px;
+  border: 2px solid var(--text3);
+  border-radius: 50%;
   opacity: 0.3;
-  filter: grayscale(0.5);
-  transition: all 0.3s ease;
-  flex-shrink: 0;
 }
 
-.emoji-scan-item.highlight {
-  font-size: 64px;
-  opacity: 1;
-  filter: grayscale(0);
-  transform: scale(1.2);
+.scan-ring-inner {
+  position: absolute;
+  width: 140px;
+  height: 140px;
+  border: 1px solid var(--text3);
+  border-radius: 50%;
+  opacity: 0.5;
 }
 
-@keyframes emojiScanScroll {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+/* 十字线 */
+.scan-crosshair {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+}
+
+.scan-crosshair::before,
+.scan-crosshair::after {
+  content: '';
+  position: absolute;
+  background: var(--text3);
+  opacity: 0.3;
+}
+
+.scan-crosshair::before {
+  width: 1px;
+  height: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.scan-crosshair::after {
+  width: 100%;
+  height: 1px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* 扫描线 */
+.scan-line {
+  position: absolute;
+  width: 160px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--text), transparent);
+  animation: scanMove 2s linear infinite;
+}
+
+@keyframes scanMove {
+  0%, 100% { transform: translateY(-70px); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: translateY(70px); }
+}
+
+/* 角落标记 */
+.scan-corner {
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 2px solid var(--text3);
+  opacity: 0.5;
+}
+
+.scan-corner.tl { top: 10px; left: 10px; border-right: none; border-bottom: none; }
+.scan-corner.tr { top: 10px; right: 10px; border-left: none; border-bottom: none; }
+.scan-corner.bl { bottom: 10px; left: 10px; border-right: none; border-top: none; }
+.scan-corner.br { bottom: 10px; right: 10px; border-left: none; border-top: none; }
+
+/* 完成波纹 */
+.scan-complete-ripple {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border: 2px solid var(--text);
+  border-radius: 50%;
+  opacity: 0;
+}
+
+.scan-complete-ripple.active {
+  animation: rippleExpand 0.6s ease-out forwards;
+}
+
+@keyframes rippleExpand {
+  0% { width: 0; height: 0; opacity: 1; }
+  100% { width: 200px; height: 200px; opacity: 0; }
+}
+
+/* 扫描样本 - emoji */
+.scan-sample {
+  font-size: 80px;
+  z-index: 10;
+  filter: grayscale(0.2);
+  animation: scanPulse 1s ease-in-out infinite;
+}
+
+@keyframes scanPulse {
+  0%, 100% { transform: scale(0.9); opacity: 0.7; }
+  50% { transform: scale(1.1); opacity: 1; }
 }
 
 /* 扫描容器 */
@@ -2223,44 +2303,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   font-weight: 700;
 }
 
-/* ==================== Emoji剪影转场动画 ==================== */
-.emoji-silhouette-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 99999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg);
-}
-.emoji-silhouette {
-  font-size: 200px;
-  filter: grayscale(1) blur(2px);
-  opacity: 0.8;
-  animation: silhouetteExpand 1.2s ease-out forwards;
-}
 
-@keyframes silhouetteExpand {
-  0% {
-    transform: scale(0.3);
-    opacity: 0;
-    filter: grayscale(1) blur(10px);
-  }
-  30% {
-    transform: scale(1);
-    opacity: 0.8;
-    filter: grayscale(1) blur(2px);
-  }
-  100% {
-    transform: scale(3);
-    opacity: 0;
-    filter: grayscale(1) blur(0px);
-  }
-}
 </style>
 </head>
 <body>
@@ -2434,19 +2477,31 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
     </div>
   </transition>
 
-  <!-- ==================== 分析页 - Emoji扫描轨道 ==================== -->
+  <!-- ==================== 分析页 - 显微镜扫描 ==================== -->
   <transition name="page">
     <div class="analysis" v-if="phase === 'analysis'" :class="{'glitch-effect': showGlitch}">
-      <!-- Emoji扫描轨道 -->
-      <div class="emoji-scan-track">
-        <div class="emoji-scan-list" :style="{ animationPlayState: isScanning ? 'running' : 'paused' }">
-          <div class="emoji-scan-item" 
-               v-for="(emoji, i) in allResultEmojis" 
-               :key="i"
-               :class="{'highlight': currentScanIndex === i}">
-            {{emoji}}
-          </div>
+      <!-- 扫描容器 -->
+      <div class="scan-container" :class="{'scanning': isScanning, 'complete': isComplete}">
+        <!-- 外圈 -->
+        <div class="scan-ring-outer"></div>
+        <!-- 内圈 -->
+        <div class="scan-ring-inner"></div>
+        <!-- 十字线 -->
+        <div class="scan-crosshair"></div>
+        <!-- 扫描线 -->
+        <div class="scan-line" v-if="isScanning"></div>
+        <!-- 角落标记 -->
+        <div class="scan-corner tl"></div>
+        <div class="scan-corner tr"></div>
+        <div class="scan-corner bl"></div>
+        <div class="scan-corner br"></div>
+        <!-- 完成波纹 -->
+        <div class="scan-complete-ripple" :class="{'active': showRipple}"></div>
+        <!-- Emoji扫描样本 -->
+        <div class="scan-sample" v-if="isScanning">
+          {{allResultEmojis[currentScanIndex] || '🧬'}}
         </div>
+        <div class="scan-sample" v-else>🧬</div>
       </div>
       
       <!-- 标题 -->
@@ -2469,10 +2524,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
     </div>
   </transition>
 
-  <!-- ==================== Emoji剪影转场 ==================== -->
-  <div class="emoji-silhouette-container" v-if="showEmojiFly">
-    <div class="emoji-silhouette">{{result?.visual?.emoji || '🧬'}}</div>
-  </div>
+
 
   <!-- ==================== 结果页 - 基因报告书 ==================== -->
   <transition name="page">
@@ -2876,7 +2928,6 @@ createApp({
       if (savedRecord.value?.result) {
         result.value = savedRecord.value.result;
         phase.value = 'result';
-        triggerEmojiFly();
       }
     };
     
@@ -2993,7 +3044,6 @@ createApp({
         // 延迟后进入结果页
         await sleep(800);
         phase.value = 'result';
-        triggerEmojiFly();
         
       } catch (e) {
         console.error('Result calculation error:', e);
