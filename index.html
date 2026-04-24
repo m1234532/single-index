@@ -55,7 +55,7 @@
 /* ==================== 基础样式 ==================== */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body {
-  font-family: 'HarmonyOS Sans', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-family: 'HarmonyOS Sans', 'PingFang SC', 'Microsoft YaHei', sans-serif;
   background: var(--bg);
   color: var(--text);
   transition: background .3s, color .3s;
@@ -635,11 +635,12 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   z-index: 10;
 }
 .welcome-header h1 {
-  font-size: 36px;
-  font-weight: 900;
+  font-size: 40px;
+  font-weight: 800;
   letter-spacing: -1px;
   color: var(--text);
   margin-bottom: 12px;
+  font-family: 'HarmonyOS Sans', sans-serif;
 }
 .welcome-header p {
   font-size: 16px;
@@ -692,7 +693,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   background: var(--text);
   color: var(--card);
   font-size: 16px;
-  font-weight: 700;
+  font-weight: 600;
   border-radius: var(--radius-pill);
   transition: all .3s ease;
   box-shadow: var(--shadow-sm);
@@ -700,6 +701,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   overflow: hidden;
   z-index: 1;
   cursor: pointer;
+  font-family: 'HarmonyOS Sans', sans-serif;
 }
 
 .btn::before {
@@ -934,31 +936,37 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 .q-text-container {
   margin-bottom: 8px;
 }
+/* 题目emoji行 */
+.q-emoji-line {
+  text-align: center;
+  margin-bottom: 16px;
+  font-size: 48px;
+  line-height: 1;
+}
+
+/* 单个emoji字符 */
+.q-emoji-char {
+  display: inline-block;
+  filter: grayscale(0.1);
+  animation: qEmojiFloat 2.5s ease-in-out infinite;
+  margin: 0 4px;
+}
+
+@keyframes qEmojiFloat {
+  0%, 100% { transform: translateY(0) rotate(-3deg); }
+  50% { transform: translateY(-6px) rotate(3deg); }
+}
+
 .q-text { 
-  font-size: 36px; 
-  font-weight: 900;
-  line-height: 1.5; 
+  font-size: 32px; 
+  font-weight: 800;
+  line-height: 1.4; 
   color: var(--text);
   padding-bottom: 16px;
   border-bottom: 4px solid var(--text);
   display: inline-block;
   letter-spacing: -0.01em;
   font-family: 'HarmonyOS Sans', sans-serif;
-}
-
-/* 题目中的emoji */
-.q-emoji {
-  display: inline-block;
-  font-size: 42px;
-  margin-right: 12px;
-  vertical-align: middle;
-  filter: grayscale(0.1);
-  animation: qEmojiFloat 3s ease-in-out infinite;
-}
-
-@keyframes qEmojiFloat {
-  0%, 100% { transform: translateY(0) rotate(-5deg); }
-  50% { transform: translateY(-8px) rotate(5deg); }
 }
 .q-options {
   margin-top: 32px;
@@ -1041,12 +1049,13 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   transform: scale(1.1);
 }
 .q-options .opt .text { 
-  font-size: 17px; 
+  font-size: 16px; 
   line-height: 1.5;
   color: var(--text);
-  font-weight: 400;
+  font-weight: 500;
   transition: all .2s ease;
   pointer-events: none;
+  font-family: 'HarmonyOS Sans', sans-serif;
 }
 
 /* ==================== 分析页 - 显微镜扫描视角 ==================== */
@@ -1167,12 +1176,13 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 
 /* 分析标题 */
 .analysis-title {
-  font-size: 24px;
-  font-weight: 800;
+  font-size: 28px;
+  font-weight: 700;
   margin-top: 40px;
   color: var(--text);
   letter-spacing: 2px;
   text-transform: uppercase;
+  font-family: 'HarmonyOS Sans', sans-serif;
 }
 
 /* 分析状态文字 */
@@ -1534,11 +1544,12 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 /* 对比：人格类型码最大48px + 文字渐入动画 */
 .identity-type {
   font-size: 48px;
-  font-weight: 900;
+  font-weight: 800;
   letter-spacing: 8px;
   color: var(--result-text);
   line-height: 1;
   animation: textReveal 0.8s ease-out 0.3s both;
+  font-family: 'HarmonyOS Sans', sans-serif;
 }
 .identity-name {
   font-size: 24px; /* 对比：第三级 */
@@ -2331,11 +2342,16 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
         <transition name="question-transition" mode="out-in">
           <div class="question-content" :key="currentQ">
             <div class="q-meta">{{dimNames[questions[currentQ].dim]}}</div>
+            <div class="q-emoji-line">
+              <span 
+                v-for="(char, i) in (questions[currentQ].emoji || '').split('')" 
+                :key="i"
+                class="q-emoji-char"
+                :style="{ animationDelay: (i * 0.3) + 's' }"
+              >{{char}}</span>
+            </div>
             <div class="q-text-container">
-              <div class="q-text" ref="questionText">
-                <span class="q-emoji">{{questions[currentQ].emoji}}</span>
-                {{questions[currentQ].text}}
-              </div>
+              <div class="q-text" ref="questionText">{{questions[currentQ].text}}</div>
             </div>
             <div class="q-options">
               <div class="opt" v-for="(opt, i) in questions[currentQ].options" :key="i" 
@@ -2956,33 +2972,20 @@ createApp({
       });
     };
     
-    // 文字拆分动画
+    // 题目文字动画（已简化，直接显示）
     const animateQuestionText = () => {
-      if (typeof anime === 'undefined') return;
-      
+      // 不再使用anime.js逐字动画，避免乱码
+      // 文字直接显示，依赖CSS transition做简单淡入
       const textEl = document.querySelector('.q-text');
-      if (!textEl) return;
-      
-      const text = textEl.textContent;
-      textEl.innerHTML = '';
-      
-      text.split('').forEach((char, i) => {
-        const span = document.createElement('span');
-        span.textContent = char === ' ' ? '\u00A0' : char;
-        span.style.display = 'inline-block';
-        span.style.opacity = '0';
-        span.style.transform = 'translateY(20px)';
-        textEl.appendChild(span);
-        
-        anime({
-          targets: span,
-          opacity: [0, 1],
-          translateY: [20, 0],
-          easing: 'easeOutExpo',
-          duration: 600,
-          delay: i * 30
-        });
-      });
+      if (textEl) {
+        textEl.style.opacity = '0';
+        textEl.style.transform = 'translateY(10px)';
+        textEl.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+        setTimeout(() => {
+          textEl.style.opacity = '1';
+          textEl.style.transform = 'translateY(0)';
+        }, 50);
+      }
     };
     
     const createDefaultResult = () => ({
