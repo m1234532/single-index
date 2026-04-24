@@ -837,9 +837,34 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 
 /* ==================== 结果页 - 基因报告书风格 ==================== */
 .result { 
-  padding: 20px 16px 40px;
+  padding: 12px 16px 40px;
   background: var(--bg);
   min-height: 100vh;
+}
+
+/* 分享提示 - 缩小版 */
+.share-tip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  background: var(--card);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--gray);
+  font-size: 12px;
+  color: var(--text3);
+}
+.share-tip .icon {
+  font-size: 14px;
+}
+.share-tip .title {
+  font-weight: 600;
+  color: var(--text2);
+}
+.share-tip .desc {
+  display: none;
 }
 
 /* 基因报告书 - 证书风格容器 */
@@ -847,7 +872,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   background: var(--card);
   border: 3px solid var(--text);
   border-radius: 4px;
-  padding: 24px 20px;
+  padding: 28px 20px;
   position: relative;
   box-shadow: 0 20px 60px rgba(0,0,0,0.15);
 }
@@ -860,6 +885,101 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   bottom: 8px;
   border: 1px solid var(--gray);
   pointer-events: none;
+}
+
+/* 四角花纹装饰 */
+.report-book::after {
+  content: '';
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  width: 24px;
+  height: 24px;
+  border-top: 2px solid var(--text);
+  border-left: 2px solid var(--text);
+  opacity: 0.4;
+}
+.report-corner {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-color: var(--text);
+  border-style: solid;
+  opacity: 0.4;
+  pointer-events: none;
+}
+.report-corner.tr {
+  top: 12px;
+  right: 12px;
+  border-width: 2px 2px 0 0;
+}
+.report-corner.bl {
+  bottom: 12px;
+  left: 12px;
+  border-width: 0 0 2px 2px;
+}
+.report-corner.br {
+  bottom: 12px;
+  right: 12px;
+  border-width: 0 2px 2px 0;
+}
+
+/* 水印背景 */
+.report-watermark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 40px,
+      rgba(0,0,0,0.02) 40px,
+      rgba(0,0,0,0.02) 80px
+    );
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+/* 印章效果 */
+.report-stamp {
+  position: absolute;
+  bottom: 80px;
+  right: 24px;
+  width: 70px;
+  height: 70px;
+  border: 3px solid var(--text);
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(-15deg);
+  opacity: 0;
+  transition: all 0.6s ease;
+}
+.report-stamp.stamped {
+  opacity: 0.8;
+  animation: stampDrop 0.4s ease-out;
+}
+@keyframes stampDrop {
+  0% { transform: rotate(-15deg) scale(1.5); opacity: 0; }
+  100% { transform: rotate(-15deg) scale(1); opacity: 0.8; }
+}
+.report-stamp-text {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: var(--text);
+  text-transform: uppercase;
+}
+.report-stamp-date {
+  font-size: 8px;
+  color: var(--text3);
+  margin-top: 2px;
+  font-family: monospace;
 }
 
 /* 报告书头部 */
@@ -1761,15 +1881,24 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
     <div class="result" v-if="phase === 'result' && result">
       <!-- 分享提示 -->
       <div class="share-tip">
-        <div class="icon">📱</div>
-        <div>
-          <div class="title">截图保存你的基因报告</div>
-          <div class="desc">长按或截图分享给朋友</div>
-        </div>
+        <span class="icon">📱</span>
+        <span class="title">截图保存你的基因报告</span>
       </div>
 
       <!-- 基因报告书 -->
       <div class="report-book">
+        <!-- 四角花纹 -->
+        <div class="report-corner tr"></div>
+        <div class="report-corner bl"></div>
+        <div class="report-corner br"></div>
+        <!-- 水印 -->
+        <div class="report-watermark"></div>
+        <!-- 印章 -->
+        <div class="report-stamp" :class="{'stamped': showStamp}">
+          <div class="report-stamp-text">VERIFIED</div>
+          <div class="report-stamp-date">{{stampDate}}</div>
+        </div>
+        
         <!-- 报告头部 -->
         <div class="report-header">
           <div class="report-title">单身狗基因测序报告</div>
@@ -1883,7 +2012,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 
 <!-- ==================== Vue 应用 ==================== -->
 <script>
-const { createApp, ref, computed, onMounted } = Vue;
+const { createApp, ref, computed, onMounted, watch } = Vue;
 const STORAGE_KEY = 'single_index_v4';
 const THEME_KEY = 'single_index_theme';
 
@@ -1933,6 +2062,13 @@ createApp({
     const showGlitch = ref(false);
     const analysisTitle = ref('DNA SCANNING');
     const analysisStatus = ref('Initializing sequence...');
+    
+    // 结果页印章
+    const showStamp = ref(false);
+    const stampDate = computed(() => {
+      const now = new Date();
+      return `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')}`;
+    });
     
     // 四维度数据
     const analysisDims = ref([
@@ -1990,6 +2126,18 @@ createApp({
       });
       return dims.join(' · ');
     }
+    
+    // ==================== 监听 ====================
+    // 监听页面变化，触发相应动画
+    watch(phase, (newPhase) => {
+      if (newPhase === 'result') {
+        // 进入结果页时，延迟显示印章动画
+        showStamp.value = false;
+        setTimeout(() => {
+          showStamp.value = true;
+        }, 600);
+      }
+    });
     
     // ==================== 生命周期 ====================
     onMounted(() => {
@@ -2312,7 +2460,10 @@ createApp({
       showGlitch,
       analysisTitle,
       analysisStatus,
-      analysisDims
+      analysisDims,
+      // 结果页印章
+      showStamp,
+      stampDate
     };
   }
 }).mount('#app');
