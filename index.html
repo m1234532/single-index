@@ -523,59 +523,33 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 .gene-orb {
   font-size: 120px;
   filter: grayscale(0.2);
-  animation: dnaHeartbeat 2s ease-in-out infinite;
+  animation: dnaGlowFlow 2s linear infinite;
   z-index: 10;
   position: relative;
 }
 
-/* DNA心跳动画 - 像心脏一样跳动 */
-@keyframes dnaHeartbeat {
-  0%, 100% { 
-    transform: scale(1); 
-    filter: grayscale(0.2) drop-shadow(0 10px 30px rgba(0,0,0,0.15));
+/* DNA流光扫过效果 - 跟随emoji形状 */
+@keyframes dnaGlowFlow {
+  0% {
+    transform: scale(1);
+    filter: grayscale(0.2) drop-shadow(0 0 0 rgba(255,255,255,0));
   }
-  15% { 
-    transform: scale(1.08); 
-    filter: grayscale(0.15) drop-shadow(0 15px 40px rgba(0,0,0,0.2));
+  25% {
+    transform: scale(1.02);
+    filter: grayscale(0.15) drop-shadow(0 0 20px rgba(255,255,255,0.3));
   }
-  30% { 
-    transform: scale(1); 
-    filter: grayscale(0.2) drop-shadow(0 10px 30px rgba(0,0,0,0.15));
+  50% {
+    transform: scale(1.05);
+    filter: grayscale(0.1) drop-shadow(0 0 40px rgba(255,255,255,0.5)) drop-shadow(0 0 60px rgba(255,255,255,0.3));
   }
-  45% { 
-    transform: scale(1.05); 
-    filter: grayscale(0.15) drop-shadow(0 12px 35px rgba(0,0,0,0.18));
+  75% {
+    transform: scale(1.02);
+    filter: grayscale(0.15) drop-shadow(0 0 20px rgba(255,255,255,0.3));
   }
-  60% { 
-    transform: scale(1); 
-    filter: grayscale(0.2) drop-shadow(0 10px 30px rgba(0,0,0,0.15));
+  100% {
+    transform: scale(1);
+    filter: grayscale(0.2) drop-shadow(0 0 0 rgba(255,255,255,0));
   }
-}
-
-/* DNA流光效果 - 真正的流光在内部流动 */
-.gene-orb::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, 
-    transparent 0%, 
-    rgba(255,255,255,0) 20%,
-    rgba(255,255,255,0.2) 40%, 
-    rgba(255,255,255,0.4) 50%, 
-    rgba(255,255,255,0.2) 60%, 
-    rgba(255,255,255,0) 80%,
-    transparent 100%
-  );
-  background-size: 200% 100%;
-  animation: dnaFlow 2s linear infinite;
-  z-index: -1;
-  opacity: 0.8;
-  border-radius: 50%;
-}
-
-@keyframes dnaFlow {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
 }
 
 /* 水波纹光环 */
@@ -965,6 +939,8 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   filter: grayscale(0.2);
   will-change: transform, bottom;
   bottom: 0;
+  /* 居中显示，使emoji中心与圆形碰撞中心对齐 */
+  margin-left: -40px;
 }
 .q-meta { 
   font-size: 13px; 
@@ -2667,6 +2643,7 @@ createApp({
     const FRICTION = 0.95;      // 摩擦力
     const CONTAINER_HEIGHT = 180; // 容器高度（降低避免遮挡选项）
     const EMOJI_SIZE = 80;     // emoji大小（减小减少遮挡感）
+    const EMOJI_RADIUS = 30;   // 圆形碰撞半径（比80px小，更接近实际emoji可见区域）
     const STACK_OFFSET = 60;   // 距离屏幕底部的偏移量（为选项区域留出空间）
     
     // 初始化物理emoji
@@ -2680,12 +2657,12 @@ createApp({
       // 获取屏幕宽度
       const screenWidth = window.innerWidth || 375;
       
-      // 创建3个emoji，随机初始位置和速度
+      // 创建3个emoji，随机初始位置和速度（使用圆形碰撞半径）
       for (let i = 0; i < 3; i++) {
         physicsEmojis.value.push({
           id: Date.now() + i,
           emoji: emojiChar,
-          x: 20 + Math.random() * (screenWidth - 120), // 随机水平位置（适配80px尺寸）
+          x: -EMOJI_RADIUS + Math.random() * (screenWidth - EMOJI_RADIUS * 2), // 随机水平位置（圆形碰撞）
           bottom: CONTAINER_HEIGHT + 100 + Math.random() * 80, // 从更高位置开始掉落
           vx: (Math.random() - 0.5) * 4, // 降低水平速度
           vy: -3 - Math.random() * 3, // 降低初始垂直速度
@@ -2727,8 +2704,8 @@ createApp({
           emoji.bottom -= emoji.vy; // vy为正时，bottom减少 = 向下移动
           emoji.rotation += emoji.vr;
           
-          // 地面碰撞（使用STACK_OFFSET确保堆叠在选项下方）
-          const groundLevel = STACK_OFFSET + EMOJI_SIZE;
+          // 地面碰撞（使用STACK_OFFSET + EMOJI_RADIUS确保堆叠在选项下方）
+          const groundLevel = STACK_OFFSET + EMOJI_RADIUS * 2;
           if (emoji.bottom <= groundLevel) {
             emoji.bottom = groundLevel;
             emoji.vy *= -BOUNCE; // 反弹（变负向上）
@@ -2746,42 +2723,63 @@ createApp({
             }
           }
           
-          // 墙壁碰撞
+          // 墙壁碰撞（考虑圆形半径）
           const screenWidth = window.innerWidth || 375;
-          if (emoji.x <= 0) {
-            emoji.x = 0;
+          if (emoji.x <= -EMOJI_RADIUS) {
+            emoji.x = -EMOJI_RADIUS;
             emoji.vx *= -0.5;
-          } else if (emoji.x >= screenWidth - EMOJI_SIZE) {
-            emoji.x = screenWidth - EMOJI_SIZE;
+          } else if (emoji.x >= screenWidth - EMOJI_RADIUS) {
+            emoji.x = screenWidth - EMOJI_RADIUS;
             emoji.vx *= -0.5;
           }
           
           if (!emoji.settled) allSettled = false;
         });
         
-        // 简单的emoji之间的碰撞（推开）
+        // 圆形碰撞检测（emoji之间）
         for (let i = 0; i < physicsEmojis.value.length; i++) {
           for (let j = i + 1; j < physicsEmojis.value.length; j++) {
             const e1 = physicsEmojis.value[i];
             const e2 = physicsEmojis.value[j];
             if (e1.settled && e2.settled) continue;
             
-            const dx = e2.x - e1.x;
-            const dy = (CONTAINER_HEIGHT - e2.bottom) - (CONTAINER_HEIGHT - e1.bottom); // 转换为Y坐标差
-            const dist = Math.sqrt(dx * dx + dy * dy);
+            // 计算圆心距离（使用圆形半径中心点）
+            const e1CenterX = e1.x + EMOJI_RADIUS;
+            const e1CenterY = CONTAINER_HEIGHT - e1.bottom + EMOJI_RADIUS;
+            const e2CenterX = e2.x + EMOJI_RADIUS;
+            const e2CenterY = CONTAINER_HEIGHT - e2.bottom + EMOJI_RADIUS;
             
-            if (dist < EMOJI_SIZE && dist > 0) {
-              // 推开
-              const force = (EMOJI_SIZE - dist) * 0.1;
-              const fx = (dx / dist) * force;
+            const dx = e2CenterX - e1CenterX;
+            const dy = e2CenterY - e1CenterY;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            const minDist = EMOJI_RADIUS * 2; // 两个圆的半径之和
+            
+            if (dist < minDist && dist > 0) {
+              // 推开（沿碰撞法线方向）
+              const overlap = minDist - dist;
+              const nx = dx / dist; // 法线x分量
+              const ny = dy / dist; // 法线y分量
               
+              // 位置修正（防止重叠）
+              const separation = overlap * 0.5;
               if (!e1.settled) {
-                e1.x -= fx;
-                e1.vx -= fx * 0.2;
+                e1.x -= separation * nx;
+                e1.bottom -= separation * ny;
               }
               if (!e2.settled) {
-                e2.x += fx;
-                e2.vx += fx * 0.2;
+                e2.x += separation * nx;
+                e2.bottom += separation * ny;
+              }
+              
+              // 速度修正（弹性碰撞）
+              const restitution = 0.3; // 恢复系数
+              if (!e1.settled) {
+                e1.vx -= nx * restitution;
+                e1.vy -= ny * restitution;
+              }
+              if (!e2.settled) {
+                e2.vx += nx * restitution;
+                e2.vy += ny * restitution;
               }
             }
           }
