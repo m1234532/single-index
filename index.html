@@ -552,26 +552,29 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   }
 }
 
-/* DNA流光效果 - 渐变流动 */
+/* DNA流光效果 - 真正的流光在内部流动 */
 .gene-orb::before {
   content: '';
   position: absolute;
-  inset: -10px;
+  inset: 0;
   background: linear-gradient(90deg, 
     transparent 0%, 
-    rgba(255,255,255,0.1) 25%, 
-    rgba(255,255,255,0.3) 50%, 
-    rgba(255,255,255,0.1) 75%, 
+    rgba(255,255,255,0) 20%,
+    rgba(255,255,255,0.2) 40%, 
+    rgba(255,255,255,0.4) 50%, 
+    rgba(255,255,255,0.2) 60%, 
+    rgba(255,255,255,0) 80%,
     transparent 100%
   );
-  animation: dnaFlow 3s linear infinite;
-  border-radius: 50%;
+  background-size: 200% 100%;
+  animation: dnaFlow 2s linear infinite;
   z-index: -1;
+  opacity: 0.8;
 }
 
 @keyframes dnaFlow {
-  0% { transform: translateX(-100%) rotate(0deg); }
-  100% { transform: translateX(100%) rotate(360deg); }
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 /* 水波纹光环 */
@@ -943,68 +946,23 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   flex-direction: column;
   justify-content: flex-start;
 }
-/* 题目页emoji - 大emoji掉落+反弹物理效果 */
-.q-emojis { 
+/* 题目页emoji - 合成大西瓜式物理引擎 */
+.physics-container {
   position: fixed;
-  top: 80px;
+  bottom: 0;
   left: 0;
   right: 0;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 20px;
-  height: 0;
+  height: 200px;
   pointer-events: none;
   z-index: 5;
+  overflow: hidden;
 }
-.q-emojis .emoji {
-  font-size: 80px;
-  filter: grayscale(0.2);
-  animation: emojiDrop 1.5s ease-out forwards;
+
+.physics-emoji {
   position: absolute;
-}
-
-/* 3个emoji的不同位置和延迟 */
-.q-emojis .emoji:nth-child(1) {
-  left: 15%;
-  animation-delay: 0s;
-}
-.q-emojis .emoji:nth-child(2) {
-  left: 50%;
-  transform: translateX(-50%);
-  animation-delay: 0.2s;
-}
-.q-emojis .emoji:nth-child(3) {
-  right: 15%;
-  animation-delay: 0.4s;
-}
-
-/* 掉落+反弹动画 */
-@keyframes emojiDrop {
-  0% {
-    transform: translateY(-100px);
-    opacity: 0;
-  }
-  30% {
-    transform: translateY(calc(100vh - 200px));
-    opacity: 1;
-  }
-  45% {
-    transform: translateY(calc(100vh - 280px));
-  }
-  60% {
-    transform: translateY(calc(100vh - 200px));
-  }
-  75% {
-    transform: translateY(calc(100vh - 240px));
-  }
-  90% {
-    transform: translateY(calc(100vh - 200px));
-  }
-  100% {
-    transform: translateY(calc(100vh - 200px));
-    opacity: 1;
-  }
+  font-size: 120px;
+  filter: grayscale(0.2);
+  will-change: transform;
 }
 .q-meta { 
   font-size: 13px; 
@@ -2396,10 +2354,18 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
       <div class="q-body">
         <transition name="question-transition" mode="out-in">
           <div class="question-content" :key="currentQ">
-            <div class="q-emojis" v-if="questions[currentQ].emoji">
-              <span class="emoji">{{questions[currentQ].emoji}}</span>
-              <span class="emoji">{{questions[currentQ].emoji}}</span>
-              <span class="emoji">{{questions[currentQ].emoji}}</span>
+            <!-- 物理emoji容器 -->
+            <div class="physics-container" v-if="questions[currentQ].emoji && physicsEmojis.length > 0">
+              <div 
+                v-for="emoji in physicsEmojis" 
+                :key="emoji.id"
+                class="physics-emoji"
+                :style="{
+                  left: emoji.x + 'px',
+                  top: emoji.y + 'px',
+                  transform: 'rotate(' + emoji.rotation + 'deg)'
+                }"
+              >{{emoji.emoji}}</div>
             </div>
             <div class="q-meta">{{dimNames[questions[currentQ].dim]}}</div>
             <div class="q-text-container">
@@ -2689,6 +2655,119 @@ createApp({
       { key: 'alone', icon: '🌙', label: '独处', active: false, syncing: false }
     ]);
     
+    // ==================== 物理emoji系统（合成大西瓜式）====================
+    const physicsEmojis = ref([]);
+    const physicsAnimationId = ref(null);
+    
+    // 物理参数
+    const GRAVITY = 0.5;        // 重力加速度
+    const BOUNCE = 0.4;         // 弹性系数（0-1）
+    const FRICTION = 0.98;      // 摩擦力
+    const GROUND_Y = window.innerHeight - 150; // 地面位置
+    
+    // 初始化物理emoji
+    const initPhysicsEmojis = (emojiChar) => {
+      // 清除旧的
+      physicsEmojis.value = [];
+      if (physicsAnimationId.value) {
+        cancelAnimationFrame(physicsAnimationId.value);
+      }
+      
+      // 创建3个emoji，随机初始位置和速度
+      for (let i = 0; i < 3; i++) {
+        physicsEmojis.value.push({
+          id: Date.now() + i,
+          emoji: emojiChar,
+          x: 50 + Math.random() * (window.innerWidth - 200), // 随机水平位置
+          y: -120 - Math.random() * 100, // 从屏幕上方不同高度开始
+          vx: (Math.random() - 0.5) * 4, // 随机水平速度
+          vy: 0, // 初始垂直速度
+          rotation: Math.random() * 360, // 随机初始旋转
+          vr: (Math.random() - 0.5) * 10, // 旋转速度
+          settled: false // 是否已稳定
+        });
+      }
+      
+      // 开始物理模拟
+      startPhysicsLoop();
+    };
+    
+    // 物理循环
+    const startPhysicsLoop = () => {
+      const update = () => {
+        let allSettled = true;
+        
+        physicsEmojis.value.forEach((emoji, index) => {
+          if (emoji.settled) return;
+          
+          // 应用重力
+          emoji.vy += GRAVITY;
+          
+          // 更新位置
+          emoji.x += emoji.vx;
+          emoji.y += emoji.vy;
+          emoji.rotation += emoji.vr;
+          
+          // 地面碰撞
+          if (emoji.y >= GROUND_Y) {
+            emoji.y = GROUND_Y;
+            emoji.vy *= -BOUNCE; // 反弹
+            emoji.vx *= FRICTION; // 摩擦减速
+            emoji.vr *= FRICTION; // 旋转减速
+            
+            // 如果速度很小，标记为稳定
+            if (Math.abs(emoji.vy) < 1 && Math.abs(emoji.vx) < 0.5) {
+              emoji.settled = true;
+              // 随机倾斜角度（-15到+15度）
+              emoji.rotation = (Math.random() - 0.5) * 30;
+            }
+          }
+          
+          // 墙壁碰撞
+          if (emoji.x <= 0 || emoji.x >= window.innerWidth - 120) {
+            emoji.vx *= -0.5;
+            emoji.x = Math.max(0, Math.min(emoji.x, window.innerWidth - 120));
+          }
+          
+          if (!emoji.settled) allSettled = false;
+        });
+        
+        // 简单的emoji之间的碰撞（推开）
+        for (let i = 0; i < physicsEmojis.value.length; i++) {
+          for (let j = i + 1; j < physicsEmojis.value.length; j++) {
+            const e1 = physicsEmojis.value[i];
+            const e2 = physicsEmojis.value[j];
+            const dx = e2.x - e1.x;
+            const dy = e2.y - e1.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            
+            if (dist < 100 && dist > 0) {
+              // 推开
+              const force = (100 - dist) * 0.05;
+              const fx = (dx / dist) * force;
+              const fy = (dy / dist) * force;
+              
+              if (!e1.settled) {
+                e1.x -= fx;
+                e1.vx -= fx * 0.1;
+              }
+              if (!e2.settled) {
+                e2.x += fx;
+                e2.vx += fx * 0.1;
+              }
+            }
+          }
+        }
+        
+        // 继续循环，直到所有emoji稳定
+        if (!allSettled) {
+          physicsAnimationId.value = requestAnimationFrame(update);
+        }
+      };
+      
+      physicsAnimationId.value = requestAnimationFrame(update);
+    };
+    
     const loadingSteps = [
       { progress: 15, text: '正在提取单身基因...' },
       { progress: 35, text: '匹配36种基因序列...' },
@@ -2854,8 +2933,14 @@ createApp({
       currentQ.value = 0;
       isTransitioning.value = false;
       phase.value = 'quiz';
+      // 初始化第一题的物理emoji
       Vue.nextTick(() => {
-        setTimeout(animateQuestionText, 100);
+        setTimeout(() => {
+          if (questions[0].emoji) {
+            initPhysicsEmojis(questions[0].emoji);
+          }
+          animateQuestionText();
+        }, 100);
       });
     };
     
@@ -2886,6 +2971,10 @@ createApp({
         setTimeout(() => {
           currentQ.value++;
           isTransitioning.value = false;
+          // 初始化新题目的物理emoji
+          if (questions[currentQ.value].emoji) {
+            initPhysicsEmojis(questions[currentQ.value].emoji);
+          }
           Vue.nextTick(() => {
             animateQuestionText();
           });
@@ -2894,6 +2983,11 @@ createApp({
         isTransitioning.value = true;
         setTimeout(() => {
           phase.value = 'analysis';
+          // 清理物理emoji
+          physicsEmojis.value = [];
+          if (physicsAnimationId.value) {
+            cancelAnimationFrame(physicsAnimationId.value);
+          }
           analyzeResult();
         }, 300);
       }
@@ -3092,6 +3186,11 @@ createApp({
       currentQ.value = 0;
       isTransitioning.value = false;
       phase.value = 'welcome';
+      // 清理物理emoji
+      physicsEmojis.value = [];
+      if (physicsAnimationId.value) {
+        cancelAnimationFrame(physicsAnimationId.value);
+      }
     };
     
     // ==================== 返回暴露 ====================
@@ -3111,6 +3210,7 @@ createApp({
       bestMatches,
       analysisSteps,
       questions,
+      physicsEmojis,
       dimNames,
       startQuiz,
       viewLastResult,
