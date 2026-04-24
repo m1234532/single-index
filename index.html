@@ -1504,11 +1504,11 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   gap: 20px;
 }
 
-/* 身份区 - 照片+类型 - 对比：字号48/42/24/14四级体系 */
+/* 身份区 - 照片+类型 - 两边等高140px */
 .identity-section {
   display: flex;
   gap: 20px;
-  align-items: flex-start; /* 顶部对齐 */
+  align-items: stretch; /* 等高 */
 }
 .identity-photo {
   width: 120px;
@@ -1537,40 +1537,40 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 }
 .identity-info {
   flex: 1;
+  height: 140px; /* 和emoji框等高 */
   display: flex;
   flex-direction: column;
-  justify-content: flex-start; /* 顶部对齐 */
+  justify-content: space-between; /* 内容分布在两端 */
 }
 /* 对比：人格类型码最大48px + 文字渐入动画 */
 .identity-type {
-  font-size: 48px;
+  font-size: 40px;
   font-weight: 800;
-  letter-spacing: 8px;
+  letter-spacing: 6px;
   color: var(--result-text);
   line-height: 1;
   animation: textReveal 0.8s ease-out 0.3s both;
   font-family: 'HarmonyOS Sans', sans-serif;
 }
 .identity-name {
-  font-size: 24px; /* 对比：第三级 */
+  font-size: 20px;
   font-weight: 700;
   color: var(--result-text);
-  margin-top: 12px;
+  margin-top: 8px;
   animation: textReveal 0.8s ease-out 0.5s both;
 }
 .identity-dims {
-  font-size: 14px; /* 对比：第四级辅助信息 */
+  font-size: 12px;
   color: var(--result-text2);
-  margin-top: 8px;
-  line-height: 1.5;
+  margin-top: 6px;
+  line-height: 1.4;
   animation: textReveal 0.8s ease-out 0.7s both;
 }
-/* 对比：单身指数42px次级焦点 + 动画 */
+/* 单身指数：百分比 + 带框文字 */
 .identity-index {
-  margin-top: 16px;
-  display: inline-flex;
-  align-items: baseline;
-  gap: 8px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
   animation: textReveal 0.8s ease-out 0.9s both;
 }
 .identity-index .num {
@@ -1581,6 +1581,15 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   -webkit-text-fill-color: transparent;
   background-clip: text;
   line-height: 1;
+}
+.identity-index .label-box {
+  border: 1px solid var(--result-border);
+  border-radius: 4px;
+  padding: 4px 8px;
+  font-size: 12px;
+  color: var(--result-text2);
+  line-height: 1.4;
+  text-align: center;
 }
 .identity-index .label {
   font-size: 14px;
@@ -2472,7 +2481,10 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
               <div class="identity-dims" v-if="result.dims">{{result.dims.join(' · ')}}</div>
               <div class="identity-index">
                 <span class="num">{{result.index}}%</span>
-                <span class="label">单身指数</span>
+                <div class="label-box">
+                  <div>单身</div>
+                  <div>指数</div>
+                </div>
               </div>
             </div>
           </div>
