@@ -917,10 +917,10 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   100% { box-shadow: 0 0 0 0 rgba(0,0,0,0); }
 }
 
-/* 题目内容区域 - 整体上移，为底部emoji留出空间 */
+/* 题目内容区域 - 紧凑布局，一屏显示 */
 .q-body { 
   flex: 1; 
-  padding: 80px 24px 200px; 
+  padding: 20px 24px 24px; 
   display: flex; 
   flex-direction: column;
   justify-content: flex-start;
@@ -1508,7 +1508,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 .identity-section {
   display: flex;
   gap: 20px;
-  align-items: stretch;
+  align-items: flex-start; /* 顶部对齐 */
 }
 .identity-photo {
   width: 120px;
