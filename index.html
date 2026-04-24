@@ -401,15 +401,27 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
   margin-bottom: 24px;
 }
 .q-emojis .emoji {
-  font-size: 48px;
+  font-size: 40px;
   filter: grayscale(0.2);
+  animation: emojiFloat 3s ease-in-out infinite;
+}
+.q-emojis .emoji:nth-child(2) {
+  animation-delay: 0.5s;
+}
+.q-emojis .emoji:nth-child(3) {
+  animation-delay: 1s;
 }
 .q-emojis .emoji-main {
-  font-size: 64px;
+  font-size: 56px;
+  animation-delay: 0.25s;
+}
+@keyframes emojiFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
 }
 .q-meta { 
   font-size: 13px; 
@@ -418,14 +430,17 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   margin-bottom: 16px;
   letter-spacing: 0.5px;
 }
+.q-text-container {
+  margin-bottom: 8px;
+}
 .q-text { 
   font-size: 28px; 
-  font-weight: 700;
+  font-weight: 800;
   line-height: 1.4; 
-  margin-bottom: 8px;
   color: var(--text);
   padding-bottom: 16px;
   border-bottom: 2px solid var(--text);
+  display: inline-block;
 }
 .q-options {
   margin-top: 32px;
@@ -440,9 +455,21 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   gap: 16px;
   cursor: pointer;
   transition: all .2s ease;
+  padding: 8px 0;
+}
+.opt:hover {
+  transform: translateX(4px);
+}
+.opt:hover .letter {
+  border-color: var(--text);
+  color: var(--text);
 }
 .opt:active { 
   opacity: 0.7;
+  transform: translateX(2px);
+}
+.opt.sel {
+  transform: translateX(8px);
 }
 .opt.sel .text {
   font-weight: 600;
@@ -460,12 +487,13 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   font-weight: 600;
   flex-shrink: 0;
   border: 1.5px solid var(--gray);
-  transition: all .2s ease;
+  transition: all .3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .opt.sel .letter { 
   background: var(--text);
   color: var(--card);
   border-color: var(--text);
+  transform: scale(1.1);
 }
 .opt .text { 
   font-size: 17px; 
@@ -1141,10 +1169,12 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
         <div class="q-emojis" v-if="questions[currentQ].emoji">
           <span class="emoji">🔍</span>
           <span class="emoji emoji-main">{{questions[currentQ].emoji}}</span>
-          <span class="emoji">🫶</span>
+          <span class="emoji">💕</span>
         </div>
         <div class="q-meta">{{dimNames[questions[currentQ].dim]}}</div>
-        <div class="q-text">{{questions[currentQ].text}}</div>
+        <div class="q-text-container">
+          <div class="q-text">{{questions[currentQ].text}}</div>
+        </div>
         <div class="q-options">
           <div class="opt" v-for="(opt, i) in questions[currentQ].options" :key="i" 
                :class="{sel: answers[currentQ] === i}" @click="selectOption(i)">
