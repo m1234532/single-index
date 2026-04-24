@@ -938,7 +938,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 }
 /* 题目emoji行 */
 .q-emoji-line {
-  text-align: center;
+  text-align: left;
   margin-bottom: 16px;
   font-size: 48px;
   line-height: 1;
@@ -2953,35 +2953,19 @@ createApp({
       setTimeout(() => { showEmojiFly.value = false; }, 3000);
     };
     
-    // 首页标题动画
+    // 首页标题动画（已简化，直接显示）
     const animateWelcomeTitle = () => {
-      if (typeof anime === 'undefined') return;
-      
+      // 不再使用逐字动画，直接显示完整标题
       const titleEl = document.querySelector('.welcome-header h1');
-      if (!titleEl) return;
-      
-      const text = titleEl.textContent;
-      titleEl.innerHTML = '';
-      
-      text.split('').forEach((char, i) => {
-        const span = document.createElement('span');
-        span.textContent = char === ' ' ? '\u00A0' : char;
-        span.style.display = 'inline-block';
-        span.style.opacity = '0';
-        span.style.transform = 'translateY(30px) rotateX(-90deg)';
-        span.style.transformOrigin = 'center bottom';
-        titleEl.appendChild(span);
-        
-        anime({
-          targets: span,
-          opacity: [0, 1],
-          translateY: [30, 0],
-          rotateX: [-90, 0],
-          easing: 'easeOutExpo',
-          duration: 800,
-          delay: i * 60
-        });
-      });
+      if (titleEl) {
+        titleEl.style.opacity = '0';
+        titleEl.style.transform = 'translateY(10px)';
+        titleEl.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+        setTimeout(() => {
+          titleEl.style.opacity = '1';
+          titleEl.style.transform = 'translateY(0)';
+        }, 100);
+      }
     };
     
     // 题目文字动画（已简化，直接显示）
