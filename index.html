@@ -2346,8 +2346,6 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
       <div class="splash-tips-text" :key="currentTipIndex">💡 {{currentTip}}</div>
     </div>
     
-    <!-- 开始按钮 -->
-    <button class="splash-tap" v-if="loadingProgress >= 100" @click="enterWelcome">开始基因测序</button>
   </div>
 
   <!-- ==================== 欢迎页 ==================== -->
@@ -2751,6 +2749,13 @@ createApp({
     ]);
     const currentScanIndex = ref(0);
     
+    // 进入欢迎页
+    const enterWelcome = () => {
+      phase.value = 'welcome';
+      Vue.nextTick(() => {
+        setTimeout(animateWelcomeTitle, 300);
+      });
+    };
     
     const loadingSteps = [
       { progress: 15, text: '正在提取单身基因...' },
@@ -2867,7 +2872,10 @@ createApp({
         } else {
           clearInterval(interval);
           clearInterval(tipInterval);
-          // 加载完成后不自动跳转，等待用户点击
+          // 加载完成后自动进入首页
+          setTimeout(() => {
+            enterWelcome();
+          }, 500);
         }
       }, 400);
       
@@ -2884,14 +2892,6 @@ createApp({
       isDark.value = !isDark.value;
       document.documentElement.setAttribute('data-theme', isDark.value ? 'dark' : 'light');
       storage.saveTheme(isDark.value);
-    };
-    
-    // 进入欢迎页
-    const enterWelcome = () => {
-      phase.value = 'welcome';
-      Vue.nextTick(() => {
-        setTimeout(animateWelcomeTitle, 300);
-      });
     };
     
     // 按钮涟漪效果
