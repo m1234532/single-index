@@ -631,7 +631,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 /* 标题区 */
 .welcome-header {
   text-align: center;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   z-index: 10;
 }
 .welcome-header h1 {
@@ -986,7 +986,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   -webkit-tap-highlight-color: transparent;
   user-select: none;
   background: var(--card);
-  border: 2px solid var(--gray);
+  border: 2px solid var(--text3);
   border-radius: var(--radius-pill);
   overflow: hidden;
   z-index: 1;
@@ -1297,17 +1297,17 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 .analysis-title {
   font-size: 28px;
   font-weight: 700;
-  margin-top: 40px;
+  margin-top: 32px;
   color: var(--text);
   letter-spacing: 2px;
   text-transform: uppercase;
   font-family: 'HarmonyOS Sans', sans-serif;
 }
 
-/* 分析状态文字 */
+/* 分析状态文字 - 提高对比度 */
 .analysis-status {
   font-size: 14px;
-  color: var(--text3);
+  color: var(--text2);
   margin-top: 12px;
   font-family: monospace;
   letter-spacing: 1px;
@@ -1661,18 +1661,19 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   flex-direction: column;
   justify-content: space-between; /* 内容分布在两端 */
 }
-/* 对比：人格类型码最大48px + 文字渐入动画 */
+/* 对比：人格类型码14px + 名字20px，拉开层级差距 */
 .identity-type {
-  font-size: 40px;
-  font-weight: 800;
-  letter-spacing: 6px;
-  color: var(--result-text);
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  color: var(--result-text2);
   line-height: 1;
   animation: textReveal 0.8s ease-out 0.3s both;
   font-family: 'HarmonyOS Sans', sans-serif;
+  margin-bottom: 4px;
 }
 .identity-name {
-  font-size: 26px;
+  font-size: 20px;
   font-weight: 700;
   color: var(--result-text);
   margin-top: 8px;
@@ -1730,8 +1731,8 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   transform: translate(-50%, -50%);
   background: var(--result-card);
   padding: 0 8px;
-  color: var(--result-text3);
-  font-size: 8px;
+  color: var(--result-text2);
+  font-size: 10px;
 }
 
 /* 基因图谱区 - 汉化标题 */
@@ -1749,6 +1750,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 .gene-dims {
   display: grid;
   grid-template-columns: 1fr 1fr;
+  gap: 16px;
   gap: 16px;
 }
 .gene-dim {
