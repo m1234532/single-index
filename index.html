@@ -269,7 +269,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   border: 1px solid var(--gray);
 }
 
-/* 按钮 - 黑白风格 */
+/* 按钮 - Fill Slide 填充滑入效果 */
 .btn {
   width: 100%;
   max-width: 320px;
@@ -279,18 +279,40 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   font-size: 16px;
   font-weight: 700;
   border-radius: var(--radius-pill);
-  transition: all .2s;
+  transition: all .3s ease;
   box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+.btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, var(--primary-light) 0%, var(--text) 100%);
+  transition: left 0.3s ease;
+  z-index: -1;
+}
+.btn:hover::before {
+  left: 0;
 }
 .btn:active { 
   transform: scale(.97);
-  opacity: 0.9;
 }
 .btn2 { 
   background: var(--card);
   color: var(--text);
   border: 2px solid var(--gray);
   margin-top: 12px;
+}
+.btn2::before {
+  background: var(--gray);
+}
+.btn2:hover {
+  border-color: transparent;
 }
 .welcome-footer {
   margin-top: 24px;
@@ -618,13 +640,15 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
 }
 .r-index .label { 
   font-size: 12px; 
-  color: rgba(255,255,255,0.7); 
+  color: var(--card);
+  opacity: 0.8;
   font-weight: 600;
   line-height: 1;
 }
 .r-index .pct { 
   font-size: 11px; 
-  color: rgba(255,255,255,0.5); 
+  color: var(--card);
+  opacity: 0.6;
   font-weight: 500;
   line-height: 1;
 }
@@ -864,7 +888,7 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   font-weight: 400;
 }
 
-/* 重试按钮 */
+/* 重试按钮 - Fill Slide 效果 */
 .retry-btn { 
   width: 100%;
   padding: 16px;
@@ -875,14 +899,32 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   border-radius: var(--radius-pill);
   margin-top: 24px;
   box-shadow: var(--shadow-sm);
-  transition: all .2s;
+  transition: all .3s ease;
   border: 2px solid var(--gray);
+  position: relative;
+  overflow: hidden;
+  z-index: 1;
+}
+.retry-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: var(--text);
+  transition: left 0.3s ease;
+  z-index: -1;
+}
+.retry-btn:hover::before {
+  left: 0;
+}
+.retry-btn:hover {
+  color: var(--card);
+  border-color: var(--text);
 }
 .retry-btn:active { 
   transform: scale(.97);
-  background: var(--text);
-  color: var(--card);
-  border-color: var(--text);
 }
 .credit { 
   font-size: 13px; 
@@ -1002,7 +1044,6 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
       <div class="splash-bar"><div class="splash-fill" :style="{width: loadingProgress + '%'}"></div></div>
       <div class="splash-text">{{loadingText}}</div>
     </div>
-    <div class="splash-tap" v-else @click="phase = 'welcome'">点击开始 →</div>
   </div>
 
   <!-- ==================== 欢迎页 ==================== -->
@@ -1342,6 +1383,10 @@ createApp({
           step++;
         } else {
           clearInterval(interval);
+          // 加载完成后自动跳转到欢迎页
+          setTimeout(() => {
+            phase.value = 'welcome';
+          }, 300);
         }
       }, 200);
       
@@ -1474,7 +1519,9 @@ createApp({
       storage.clear();
       hasRecord.value = false;
       savedRecord.value = null;
-      startQuiz();
+      answers.value = new Array(questions.length).fill(null);
+      currentQ.value = 0;
+      phase.value = 'welcome';
     };
     
     // ==================== 返回暴露 ====================
