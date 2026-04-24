@@ -946,21 +946,21 @@ button { font-family: inherit; cursor: pointer; border: none; outline: none; }
   flex-direction: column;
   justify-content: flex-start;
 }
-/* 题目页emoji - 合成大西瓜式物理引擎（修复版） */
+/* 题目页emoji - 合成大西瓜式物理引擎（v6.7优化版） */
 .physics-container {
   position: fixed;
-  bottom: 0;
+  bottom: 60px; /* 向上偏移，避开选项区域 */
   left: 0;
   right: 0;
-  height: 250px;
+  height: 180px;
   pointer-events: none;
-  z-index: 5;
+  z-index: 1; /* 降低层级，不遮挡选项 */
   overflow: visible;
 }
 
 .physics-emoji {
   position: absolute;
-  font-size: 100px;
+  font-size: 80px;
   filter: grayscale(0.2);
   will-change: transform, bottom;
   bottom: 0;
@@ -2661,11 +2661,12 @@ createApp({
     const physicsAnimationId = ref(null);
     
     // 物理参数
-    const GRAVITY = 1.5;        // 重力加速度（增大让掉落更快）
-    const BOUNCE = 0.3;         // 弹性系数（0-1）
+    const GRAVITY = 0.8;        // 重力加速度（降低让掉落更慢更优雅）
+    const BOUNCE = 0.4;         // 弹性系数（增大让反弹更明显）
     const FRICTION = 0.95;      // 摩擦力
-    const CONTAINER_HEIGHT = 250; // 容器高度
-    const EMOJI_SIZE = 100;     // emoji大小
+    const CONTAINER_HEIGHT = 180; // 容器高度（降低避免遮挡选项）
+    const EMOJI_SIZE = 80;     // emoji大小（减小减少遮挡感）
+    const STACK_OFFSET = 60;   // 距离屏幕底部的偏移量（为选项区域留出空间）
     
     // 初始化物理emoji
     const initPhysicsEmojis = (emojiChar) => {
@@ -2683,12 +2684,12 @@ createApp({
         physicsEmojis.value.push({
           id: Date.now() + i,
           emoji: emojiChar,
-          x: 20 + Math.random() * (screenWidth - 140), // 随机水平位置
-          bottom: CONTAINER_HEIGHT + 50 + Math.random() * 100, // 从容器上方开始（使用bottom）
-          vx: (Math.random() - 0.5) * 6, // 随机水平速度
-          vy: -5 - Math.random() * 5, // 初始垂直速度（负值表示向上）
+          x: 20 + Math.random() * (screenWidth - 120), // 随机水平位置（适配80px尺寸）
+          bottom: CONTAINER_HEIGHT + 100 + Math.random() * 80, // 从更高位置开始掉落
+          vx: (Math.random() - 0.5) * 4, // 降低水平速度
+          vy: -3 - Math.random() * 3, // 降低初始垂直速度
           rotation: (Math.random() - 0.5) * 30, // 随机初始旋转
-          vr: (Math.random() - 0.5) * 8, // 旋转速度
+          vr: (Math.random() - 0.5) * 6, // 降低旋转速度
           settled: false // 是否已稳定
         });
       }
@@ -2725,18 +2726,19 @@ createApp({
           emoji.bottom -= emoji.vy; // vy为正时，bottom减少 = 向下移动
           emoji.rotation += emoji.vr;
           
-          // 地面碰撞（bottom <= EMOJI_SIZE时触地）
-          if (emoji.bottom <= EMOJI_SIZE) {
-            emoji.bottom = EMOJI_SIZE;
+          // 地面碰撞（使用STACK_OFFSET确保堆叠在选项下方）
+          const groundLevel = STACK_OFFSET + EMOJI_SIZE;
+          if (emoji.bottom <= groundLevel) {
+            emoji.bottom = groundLevel;
             emoji.vy *= -BOUNCE; // 反弹（变负向上）
             emoji.vx *= FRICTION; // 摩擦减速
             emoji.vr *= FRICTION; // 旋转减速
             
             // 如果速度很小，标记为稳定
-            if (Math.abs(emoji.vy) < 2 && Math.abs(emoji.vx) < 1) {
+            if (Math.abs(emoji.vy) < 1.5 && Math.abs(emoji.vx) < 0.8) {
               emoji.settled = true;
-              // 最终随机倾斜角度（-20到+20度）
-              emoji.rotation = (Math.random() - 0.5) * 40;
+              // 最终随机倾斜角度（-15到+15度）
+              emoji.rotation = (Math.random() - 0.5) * 30;
               emoji.vx = 0;
               emoji.vy = 0;
               emoji.vr = 0;
@@ -2747,10 +2749,10 @@ createApp({
           const screenWidth = window.innerWidth || 375;
           if (emoji.x <= 0) {
             emoji.x = 0;
-            emoji.vx *= -0.6;
+            emoji.vx *= -0.5;
           } else if (emoji.x >= screenWidth - EMOJI_SIZE) {
             emoji.x = screenWidth - EMOJI_SIZE;
-            emoji.vx *= -0.6;
+            emoji.vx *= -0.5;
           }
           
           if (!emoji.settled) allSettled = false;
